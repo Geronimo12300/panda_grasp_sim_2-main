@@ -6,11 +6,107 @@ import os
 import cv2
 from simEnv import SimEnv
 import panda_sim_grasp as panda_sim
+import requests
+import json
 
-# 抓取参数
-GRASP_GAP = 0.005  # 抓取间隙
-GRASP_DEPTH = 0.005  # 抓取深度
-GRASP_WIDTH = 0.08  # 抓取宽度
+DEEPSEEK_API_KEY = "sk-a76e539391214387b356aac52b38391f"
+DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions"
+
+GRASP_GAP = 0.005
+GRASP_DEPTH = 0.005
+GRASP_WIDTH = 0.08
+
+def ask_deepseek_for_stacking_order(cubes_info):
+    """
+    询问DeepSeek大模型最优的堆叠顺序
+    cubes_info: 物块信息列表，每个元素包含 {index, scale, color, position}
+    返回: 抓取顺序的索引列表
+    """
+    cube_descriptions = []
+    for i, cube in enumerate(cubes_info):
+        desc = f"物块{i+1}: 缩放比例={cube['scale']:.2f}, 颜色={cube['color']}, 位置=({cube['position'][0]:.3f}, {cube['position'][1]:.3f})"
+        cube_descriptions.append(desc)
+    
+    prompt = f"""你是一个机器人抓取规划专家。现在有3个立方体物块需要被抓取并堆叠在一起。
+
+物块信息:
+{chr(10).join(cube_descriptions)}
+
+请分析这些物块的参数，确定最优的抓取堆叠顺序，使得堆叠后的稳定性最好。
+
+【重要规则】：
+1. 堆叠时必须遵循"大在下，小在上"的原则：缩放比例大的物块必须放在最下面，缩放比例小的物块放在上面
+2. 第一个抓取的物块会放在最下面，最后一个抓取的物块会放在最上面
+3. 因此抓取顺序应该是：缩放比例最大的物块最先抓取，缩放比例最小的物块最后抓取
+
+请直接返回一个JSON格式的抓取顺序，格式如下：
+{{"order": [物块编号1, 物块编号2, 物块编号3]}}
+
+其中物块编号是指物块1、物块2、物块3，请只返回JSON，不要有其他内容。"""
+
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {DEEPSEEK_API_KEY}"
+    }
+    
+    data = {
+        "model": "deepseek-chat",
+        "messages": [
+            {"role": "system", "content": "你是一个机器人抓取规划专家，请直接返回JSON格式的结果。"},
+            {"role": "user", "content": prompt}
+        ],
+        "temperature": 0.1,
+        "max_tokens": 100
+    }
+    
+    try:
+        response = requests.post(DEEPSEEK_API_URL, headers=headers, json=data, timeout=30)
+        response.raise_for_status()
+        result = response.json()
+        content = result["choices"][0]["message"]["content"]
+        
+        print("\n" + "="*50)
+        print("【DeepSeek大模型原始返回内容】")
+        print(content)
+        print("="*50)
+        
+        json_match = content
+        if "```json" in content:
+            json_match = content.split("```json")[1].split("```")[0]
+        elif "```" in content:
+            json_match = content.split("```")[1].split("```")[0]
+        
+        print(f"提取的JSON字符串: {json_match.strip()}")
+        
+        order_result = json.loads(json_match.strip())
+        order = order_result["order"]
+        
+        print(f"解析出的order字段: {order}")
+        
+        order_indices = []
+        for item in order:
+            if isinstance(item, int):
+                order_indices.append(item - 1)
+            elif isinstance(item, str):
+                num = int(''.join(filter(str.isdigit, item)))
+                order_indices.append(num - 1)
+        
+        print(f"解析后的抓取顺序索引: {order_indices}")
+        
+        print("\n" + "="*50)
+        print("【大模型生成的抓取顺序】")
+        for i, idx in enumerate(order_indices):
+            if idx < len(cubes_info):
+                cube = cubes_info[idx]
+                print(f"  第{i+1}个抓取: 物块{idx+1} ({cube['color']}, 缩放={cube['scale']:.2f})")
+        print("="*50 + "\n")
+        
+        return order_indices
+        
+    except Exception as e:
+        print(f"调用DeepSeek API失败: {e}")
+        print("使用默认排序（从大到小）")
+        return sorted(range(len(cubes_info)), key=lambda i: cubes_info[i]['scale'], reverse=True)
 
 def get_positions(path):
     """
@@ -74,7 +170,6 @@ def get_positions(path):
 
         positions.append((x_sim, y_sim, z_sim, grasp_angle, grasp_width))
 
-    positions.sort(key=lambda x: x[4], reverse=True)
     return positions
 
 def run():
@@ -114,6 +209,7 @@ def run():
     # 全局变量
     ball_positions = []
     grasp_obj_index = 0
+    grasp_order_indices = []
 
     while True:
         p.stepSimulation()
@@ -125,8 +221,52 @@ def run():
         # 按 1 渲染图像并捕捉小球位置
         if ord('1') in keys and keys[ord('1')] & p.KEY_WAS_TRIGGERED:
             env.renderURDFImage(save_path=img_path)
-            ball_positions = get_positions(img_path)
-            print(ball_positions)
+            detected_positions = get_positions(img_path)
+            print(f"图像检测到的位置数量: {len(detected_positions)}")
+            
+            if len(detected_positions) > 0:
+                cubes_info = []
+                matched_positions = []
+                
+                print("\n" + "="*50)
+                print("【仿真环境中的物块信息】")
+                
+                for i in range(len(env.urdfs_id)):
+                    scale = env.urdfs_scale[i] if i < len(env.urdfs_scale) else 1.0
+                    obj_pos, _ = p.getBasePositionAndOrientation(env.urdfs_id[i])
+                    color = env.urdfs_colors[i] if i < len(env.urdfs_colors) else f'物块{i+1}'
+                    actual_size = 0.04 * scale
+                    
+                    print(f"  物块{i+1}: 颜色={color}, 缩放比例={scale:.2f}, 实际尺寸={actual_size:.3f}m, 位置=({obj_pos[0]:.3f}, {obj_pos[1]:.3f})")
+                    
+                    min_dist = float('inf')
+                    matched_pos = None
+                    for det_pos in detected_positions:
+                        dist = ((det_pos[0] - obj_pos[0])**2 + (det_pos[1] - obj_pos[1])**2)**0.5
+                        if dist < min_dist:
+                            min_dist = dist
+                            matched_pos = det_pos
+                    
+                    if matched_pos:
+                        matched_positions.append(matched_pos)
+                        cubes_info.append({
+                            'index': i,
+                            'scale': scale,
+                            'color': color,
+                            'position': [obj_pos[0], obj_pos[1]]
+                        })
+                        print(f"    -> 匹配到检测位置: ({matched_pos[0]:.3f}, {matched_pos[1]:.3f})")
+                
+                print("="*50 + "\n")
+                print("正在询问DeepSeek大模型最优堆叠顺序...")
+                
+                order_indices = ask_deepseek_for_stacking_order(cubes_info)
+                grasp_order_indices = order_indices
+                
+                ball_positions = [matched_positions[i] for i in order_indices if i < len(matched_positions)]
+                
+                print(f"最终抓取顺序: {ball_positions}")
+                print(f"物块ID顺序: {grasp_order_indices}")
 
         # 按 2 开始抓取
         if ord('2') in keys and keys[ord('2')] & p.KEY_WAS_TRIGGERED:
@@ -155,7 +295,11 @@ def run():
 
         # 执行放置
         if PLACE_STATE:
-            held_obj_id = env.urdfs_id[grasp_obj_index] if grasp_obj_index < len(env.urdfs_id) else None
+            if grasp_obj_index < len(grasp_order_indices):
+                obj_idx = grasp_order_indices[grasp_obj_index]
+                held_obj_id = env.urdfs_id[obj_idx] if obj_idx < len(env.urdfs_id) else None
+            else:
+                held_obj_id = None
             if panda.place_step(pressed_char, held_obj_id):
                 PLACE_STATE = False
                 grasp_obj_index += 1
@@ -166,6 +310,7 @@ def run():
             env.loadObjsInURDF(0, obj_nums)
             ball_positions = []
             grasp_obj_index = 0
+            grasp_order_indices = []
             panda.place_count = 0
             panda.placed_objects = []
             panda.stack_center = None

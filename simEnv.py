@@ -136,7 +136,7 @@ class SimEnv(object):
             self.urdfs_list = []
             for pth in path:
                 self.urdfs_list.extend(self._find_urdf_files(pth))
-            random.shuffle(self.urdfs_list)  # 随机排序
+            self.urdfs_list.sort()
 
         if not self.urdfs_list:
             raise ValueError("No URDF files found in the specified path(s). Please check the path and ensure URDF files exist.")
@@ -248,6 +248,7 @@ class SimEnv(object):
         self.urdfs_id = []
         self.urdfs_xyz = []
         self.urdfs_scale = []
+        self.urdfs_colors = []
         
         predefined_positions = [
             [-0.05, -0.05, 0.022],
@@ -256,6 +257,12 @@ class SimEnv(object):
         ]
         
         predefined_scales = [1.2, 1.0, 0.8]
+        cube_colors = ['红色', '绿色', '蓝色']
+        
+        shuffled_scales = predefined_scales.copy()
+        random.shuffle(shuffled_scales)
+        
+        print(f"随机分配的缩放比例: {shuffled_scales}")
         
         for i in range(self.num_urdf):
             if i < len(predefined_positions):
@@ -266,20 +273,21 @@ class SimEnv(object):
 
             baseOrientation = [0, 0, 0, 1]
 
-            if i < len(predefined_scales):
-                scaling_factor = predefined_scales[i]
+            if i < len(shuffled_scales):
+                scaling_factor = shuffled_scales[i]
             else:
                 scaling_factor = random.uniform(0.8, 1.2)
             urdf_id = self.p.loadURDF(self.urdfs_filename[i], basePosition, baseOrientation, globalScaling=scaling_factor)
 
 
 
-            # 获取xyz和scale信息
+            # 获取xyz信息
             inf = self.p.getVisualShapeData(urdf_id)[0]
 
             self.urdfs_id.append(urdf_id)
             self.urdfs_xyz.append(inf[5])
-            self.urdfs_scale.append(inf[3][0])
+            self.urdfs_scale.append(scaling_factor)
+            self.urdfs_colors.append(cube_colors[i] if i < len(cube_colors) else f'物块{i+1}')
 
         self.obj_ids = self.urdfs_id
 

@@ -211,9 +211,18 @@ class PandaSim(object):
 
         elif self.state == 8:
             if self.place_position:
-                cube_heights = [0.048, 0.040, 0.032]
-                accumulated_height = sum(cube_heights[:self.place_count])
-                release_height = accumulated_height + cube_heights[self.place_count] + 0.05
+                accumulated_height = 0.0
+                for obj_id in self.placed_objects:
+                    aabb = self.p.getAABB(obj_id)
+                    obj_height = aabb[1][2] - aabb[0][2]
+                    accumulated_height += obj_height
+                
+                current_cube_height = 0.04
+                if held_object_id is not None:
+                    aabb = self.p.getAABB(held_object_id)
+                    current_cube_height = aabb[1][2] - aabb[0][2]
+                
+                release_height = accumulated_height + current_cube_height + 0.05
                 
                 if self.place_count > 0 and len(self.placed_objects) > 0:
                     last_obj_id = self.placed_objects[-1]
