@@ -1,0 +1,32 @@
+# Blender MTL File: 'Scissor.blend'
+# Material Count: 3
+
+newmtl Metal
+Ns 998.039216
+Ka 0.000000 0.000000 0.000000
+Kd 0.553086 0.553086 0.553086
+Ks 1.000000 1.000000 1.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Texture.tga
+
+newmtl Plastic
+Ns 1000.000000
+Ka 0.000000 0.000000 0.000000
+Kd 0.002300 0.000000 0.245783
+Ks 1.000000 1.000000 1.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Texture.tga
+
+newmtl SMetal
+Ns 1000.000000
+Ka 0.000000 0.000000 0.000000
+Kd 0.342376 0.342376 0.342376
+Ks 1.000000 1.000000 1.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Texture.tga

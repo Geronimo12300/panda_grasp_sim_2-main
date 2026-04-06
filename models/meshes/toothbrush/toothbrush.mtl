@@ -1,0 +1,14 @@
+# Blender 4.0.2 MTL File: 'None'
+# www.blender.org
+
+newmtl phong4SG.001
+Ns 18.000004
+Ka 1.000000 1.000000 1.000000
+Ks 0.230000 0.230000 0.230000
+Kd 0.800000 0.800000 0.800000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Brush Diffuse.jpg
+map_Bump Brush Normal.jpg -bm 1
