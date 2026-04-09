@@ -290,6 +290,7 @@ def run():
                 key_code = ord(char)
                 if key_code in keys and keys[key_code] & p.KEY_WAS_TRIGGERED:
                     pressed_char = char
+                    panda.start_place()
                     IN_STATE = False
                     PLACE_STATE = True
 

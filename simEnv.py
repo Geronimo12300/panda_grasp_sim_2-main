@@ -278,6 +278,14 @@ class SimEnv(object):
             else:
                 scaling_factor = random.uniform(0.8, 1.2)
             urdf_id = self.p.loadURDF(self.urdfs_filename[i], basePosition, baseOrientation, globalScaling=scaling_factor)
+            self.p.changeDynamics(
+                urdf_id,
+                -1,
+                lateralFriction=1.8,
+                spinningFriction=0.02,
+                rollingFriction=0.002,
+                restitution=0.0
+            )
 
 
 
@@ -352,6 +360,5 @@ class SimEnv(object):
         cv2.imwrite(save_path + '/camera_depth_rev.png', tool.depth2Gray(im_depthCamera_rev))
 
         print('>> 渲染结束')
-
 
 
