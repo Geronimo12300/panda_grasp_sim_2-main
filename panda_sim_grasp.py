@@ -264,7 +264,6 @@ class PandaSimAuto(PandaSim):
         self.cur_state = 0
         self.states = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
         self.state_durations = [0.5, 1.0, 1.5, 1.0, 1.5, 1.0, 0.2, 1.0, 2.0, 0.5, 0.5]
-        self.place_position = None
         self.place_count = 0
         self.placed_objects = []
         self.stack_center = None

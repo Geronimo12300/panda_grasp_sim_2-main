@@ -274,7 +274,38 @@ def run():
                 print("未找到物体位置，请先按 1 渲染图像并捕捉位置。")
                 continue
 
-            grasp_config['x'], grasp_config['y'], grasp_config['z'], grasp_config['angle'], grasp_config['width'] = ball_positions[0]
+            detected_x, detected_y, detected_z, detected_angle, detected_width = ball_positions[0]
+            grasp_config['angle'] = detected_angle
+            grasp_config['width'] = detected_width
+
+            target_obj_id = None
+            if grasp_obj_index < len(grasp_order_indices):
+                obj_idx = grasp_order_indices[grasp_obj_index]
+                if obj_idx < len(env.urdfs_id):
+                    target_obj_id = env.urdfs_id[obj_idx]
+
+            if target_obj_id is not None:
+                aabb_min, aabb_max = p.getAABB(target_obj_id)
+                grasp_config['x'] = (aabb_min[0] + aabb_max[0]) / 2.0
+                grasp_config['y'] = (aabb_min[1] + aabb_max[1]) / 2.0
+                grasp_config['z'] = (aabb_min[2] + aabb_max[2]) / 2.0
+                _, obj_orn = p.getBasePositionAndOrientation(target_obj_id)
+                obj_yaw = p.getEulerFromQuaternion(obj_orn)[2]
+                if obj_yaw > np.pi / 2:
+                    obj_yaw -= np.pi
+                elif obj_yaw < -np.pi / 2:
+                    obj_yaw += np.pi
+                grasp_config['angle'] = obj_yaw
+                print(
+                    f"抓取中心已修正到物块包围盒中心: "
+                    f"({grasp_config['x']:.4f}, {grasp_config['y']:.4f}, {grasp_config['z']:.4f}), "
+                    f"抓取角度修正为: {grasp_config['angle']:.4f} rad"
+                )
+            else:
+                grasp_config['x'] = detected_x
+                grasp_config['y'] = detected_y
+                grasp_config['z'] = detected_z
+
             GRASP_STATE = True
             ball_positions.pop(0)
         # 执行抓取
