@@ -27,7 +27,11 @@ def ask_deepseek_for_stacking_order(cubes_info):
         desc = f"物块{i+1}: 缩放比例={cube['scale']:.2f}, 颜色={cube['color']}, 位置=({cube['position'][0]:.3f}, {cube['position'][1]:.3f})"
         cube_descriptions.append(desc)
     
-    prompt = f"""你是一个机器人抓取规划专家。现在有3个立方体物块需要被抓取并堆叠在一起。
+    cube_count = len(cubes_info)
+    cube_indices_text = ", ".join([f"物块{i+1}" for i in range(cube_count)])
+    json_example = '{"order": [' + ", ".join([f"物块编号{i+1}" for i in range(cube_count)]) + ']}'
+
+    prompt = f"""你是一个机器人抓取规划专家。现在有{cube_count}个立方体物块需要被抓取并堆叠在一起。
 
 物块信息:
 {chr(10).join(cube_descriptions)}
@@ -40,9 +44,9 @@ def ask_deepseek_for_stacking_order(cubes_info):
 3. 因此抓取顺序应该是：缩放比例最大的物块最先抓取，缩放比例最小的物块最后抓取
 
 请直接返回一个JSON格式的抓取顺序，格式如下：
-{{"order": [物块编号1, 物块编号2, 物块编号3]}}
+{json_example}
 
-其中物块编号是指物块1、物块2、物块3，请只返回JSON，不要有其他内容。"""
+其中物块编号是指 {cube_indices_text}，请只返回JSON，不要有其他内容。"""
 
     headers = {
         "Content-Type": "application/json",
@@ -56,7 +60,7 @@ def ask_deepseek_for_stacking_order(cubes_info):
             {"role": "user", "content": prompt}
         ],
         "temperature": 0.1,
-        "max_tokens": 100
+        "max_tokens": 160
     }
     
     try:
@@ -203,7 +207,7 @@ def run():
     img_path = 'img/img_urdf'
 
     # 加载物体
-    obj_nums = 3  # 每次加载的物体个数
+    obj_nums = 5  # 每次加载的物体个数
     env.loadObjsInURDF(0, obj_nums)
 
     # 全局变量

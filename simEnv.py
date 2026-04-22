@@ -232,16 +232,17 @@ class SimEnv(object):
             raise ValueError(f"idx ({idx}) 超出了 urdfs_list 的范围 (0-{len(self.urdfs_list) - 1})")
 
     # 计算 self.num_urdf
-        self.num_urdf = min(num, len(self.urdfs_list) - idx)  # 确保不超过列表长度
-        if self.num_urdf < 0:
-            self.num_urdf = 0  # 确保 self.num_urdf 为非负数
+        self.num_urdf = num
 
-    # 获取物体文件
-        if self.num_urdf == 0:
-            self.urdfs_filename = [self.urdfs_list[idx]]
-            self.num_urdf = 1
-        else:
-            self.urdfs_filename = self.urdfs_list[idx:idx + self.num_urdf]
+    # 获取物体文件，允许从现有立方体模板中复用生成更多实例
+        available_urdfs = self.urdfs_list[idx:]
+        if not available_urdfs:
+            raise ValueError("可用 URDF 列表为空，无法加载物体")
+
+        self.urdfs_filename = [
+            available_urdfs[i % len(available_urdfs)]
+            for i in range(self.num_urdf)
+        ]
 
         print('self.urdfs_filename = ', self.urdfs_filename)
 
@@ -251,13 +252,15 @@ class SimEnv(object):
         self.urdfs_colors = []
         
         predefined_positions = [
-            [-0.05, -0.05, 0.022],
-            [0.05, -0.05, 0.022],
-            [0.0, 0.05, 0.022]
+            [-0.08, -0.06, 0.022],
+            [0.08, -0.06, 0.022],
+            [0.00, 0.00, 0.022],
+            [-0.08, 0.08, 0.022],
+            [0.08, 0.08, 0.022]
         ]
         
-        predefined_scales = [1.2, 1.0, 0.8]
-        cube_colors = ['红色', '绿色', '蓝色']
+        predefined_scales = [1.20, 1.08, 1.00, 0.92, 0.82]
+        cube_colors = ['红色', '绿色', '蓝色', '黄色', '紫色']
         
         shuffled_scales = predefined_scales.copy()
         random.shuffle(shuffled_scales)
