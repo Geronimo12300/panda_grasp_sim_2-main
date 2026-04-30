@@ -4,73 +4,97 @@ import time
 import numpy as np
 import os
 import cv2
+import base64
 from simEnv import SimEnv
 import panda_sim_grasp as panda_sim
 import requests
 import json
 
-DEEPSEEK_API_KEY = "sk-a76e539391214387b356aac52b38391f"
-DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions"
+BAILIAN_API_KEY = "sk-4ea064d0eb6b4c39b6ae8479e8975443"
+BAILIAN_API_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
 
 GRASP_GAP = 0.005
 GRASP_DEPTH = 0.005
 GRASP_WIDTH = 0.08
 
-def ask_deepseek_for_stacking_order(cubes_info):
+def encode_image_to_data_url(image_path):
+    if not image_path or not os.path.exists(image_path):
+        return None
+
+    suffix = os.path.splitext(image_path)[1].lower()
+    mime_type = "image/png" if suffix == ".png" else "image/jpeg"
+    with open(image_path, "rb") as image_file:
+        encoded = base64.b64encode(image_file.read()).decode("utf-8")
+    return f"data:{mime_type};base64,{encoded}"
+
+
+def ask_bailian_for_stacking_order(cubes_info, image_paths=None):
     """
-    询问DeepSeek大模型最优的堆叠顺序
-    cubes_info: 物块信息列表，每个元素包含 {index, scale, color, position}
+    询问阿里云百炼 / Qwen-VL 模型最优的堆叠顺序
+    cubes_info: 物块信息列表，每个元素至少包含 {index, color}
     返回: 抓取顺序的索引列表
     """
-    cube_descriptions = []
+    cube_labels = []
     for i, cube in enumerate(cubes_info):
-        desc = f"物块{i+1}: 缩放比例={cube['scale']:.2f}, 颜色={cube['color']}, 位置=({cube['position'][0]:.3f}, {cube['position'][1]:.3f})"
-        cube_descriptions.append(desc)
+        color = cube.get('color', f'物块{i+1}')
+        cube_labels.append(f"物块{i+1}={color}")
     
     cube_count = len(cubes_info)
     cube_indices_text = ", ".join([f"物块{i+1}" for i in range(cube_count)])
     json_example = '{"order": [' + ", ".join([f"物块编号{i+1}" for i in range(cube_count)]) + ']}'
 
-    prompt = f"""你是一个机器人抓取规划专家。现在有{cube_count}个立方体物块需要被抓取并堆叠在一起。
+    prompt = f"""你是一个机器人抓取规划专家。现在有{cube_count}个物块需要被抓取并堆叠在一起。
 
-物块信息:
-{chr(10).join(cube_descriptions)}
+物块编号与颜色对应关系:
+{", ".join(cube_labels)}
 
-请分析这些物块的参数，确定最优的抓取堆叠顺序，使得堆叠后的稳定性最好。
+我会提供三张场景截图，分别来自俯视相机和两个侧视相机。请你只根据这三张图片中各个物块的外观、形状、相对大小和顶部/底部特征，判断怎样堆叠最稳、最高。
 
 【重要规则】：
-1. 堆叠时必须遵循"大在下，小在上"的原则：缩放比例大的物块必须放在最下面，缩放比例小的物块放在上面
-2. 第一个抓取的物块会放在最下面，最后一个抓取的物块会放在最上面
-3. 因此抓取顺序应该是：缩放比例最大的物块最先抓取，缩放比例最小的物块最后抓取
+1. 你只能根据三张图片进行判断，不要使用额外假设
+2. 你需要重点判断哪个物块更适合放在底层，哪个物块更适合放在上层
+3. 底部更宽、更稳、顶部更平整、承托能力更强的物块更适合放在下层
+4. 顶部尖、顶部斜、顶部不平整的物块不适合承托其他物体，应尽量放在上层
+5. 第一个抓取的物块会放在最下面，最后一个抓取的物块会放在最上面
+6. 返回顺序时，必须严格使用给定的物块编号，不要创造新的编号
 
 请直接返回一个JSON格式的抓取顺序，格式如下：
 {json_example}
 
 其中物块编号是指 {cube_indices_text}，请只返回JSON，不要有其他内容。"""
 
+    user_content = [{"type": "text", "text": prompt}]
+    for image_path in image_paths or []:
+        image_data_url = encode_image_to_data_url(image_path)
+        if image_data_url:
+            user_content.append({
+                "type": "image_url",
+                "image_url": {"url": image_data_url}
+            })
+
     headers = {
         "Content-Type": "application/json",
-        "Authorization": f"Bearer {DEEPSEEK_API_KEY}"
+        "Authorization": f"Bearer {BAILIAN_API_KEY}"
     }
     
     data = {
-        "model": "deepseek-chat",
+        "model": "qwen-vl-max-latest",
         "messages": [
-            {"role": "system", "content": "你是一个机器人抓取规划专家，请直接返回JSON格式的结果。"},
-            {"role": "user", "content": prompt}
+            {"role": "system", "content": "你是一个机器人抓取规划专家，请结合图像直接返回JSON格式的结果。"},
+            {"role": "user", "content": user_content}
         ],
         "temperature": 0.1,
         "max_tokens": 160
     }
     
     try:
-        response = requests.post(DEEPSEEK_API_URL, headers=headers, json=data, timeout=30)
+        response = requests.post(BAILIAN_API_URL, headers=headers, json=data, timeout=30)
         response.raise_for_status()
         result = response.json()
         content = result["choices"][0]["message"]["content"]
         
         print("\n" + "="*50)
-        print("【DeepSeek大模型原始返回内容】")
+        print("【阿里云百炼 / Qwen-VL 原始返回内容】")
         print(content)
         print("="*50)
         
@@ -95,22 +119,50 @@ def ask_deepseek_for_stacking_order(cubes_info):
                 num = int(''.join(filter(str.isdigit, item)))
                 order_indices.append(num - 1)
         
+        order_indices = enforce_stacking_constraints(order_indices, cubes_info)
         print(f"解析后的抓取顺序索引: {order_indices}")
         
         print("\n" + "="*50)
-        print("【大模型生成的抓取顺序】")
+        print("【阿里云百炼 / Qwen-VL 生成的抓取顺序】")
         for i, idx in enumerate(order_indices):
             if idx < len(cubes_info):
                 cube = cubes_info[idx]
-                print(f"  第{i+1}个抓取: 物块{idx+1} ({cube['color']}, 缩放={cube['scale']:.2f})")
+                color = cube.get('color', f'物块{idx+1}')
+                shape = cube.get('shape')
+                volume = cube.get('volume')
+
+                details = [color]
+                if shape:
+                    details.append(shape)
+                if volume is not None:
+                    details.append(f"体积={volume:.8f}m^3")
+
+                print(f"  第{i+1}个抓取: 物块{idx+1} ({', '.join(details)})")
         print("="*50 + "\n")
         
         return order_indices
         
     except Exception as e:
-        print(f"调用DeepSeek API失败: {e}")
-        print("使用默认排序（从大到小）")
-        return sorted(range(len(cubes_info)), key=lambda i: cubes_info[i]['scale'], reverse=True)
+        print(f"调用阿里云百炼 / Qwen-VL API失败: {e}")
+        print("使用默认排序（按体积从大到小）")
+        default_order = sorted(
+            range(len(cubes_info)),
+            key=lambda i: (cubes_info[i].get('top_only', False), -cubes_info[i].get('volume', 0.0))
+        )
+        return enforce_stacking_constraints(default_order, cubes_info)
+
+def enforce_stacking_constraints(order_indices, cubes_info):
+    valid_indices = [idx for idx in order_indices if 0 <= idx < len(cubes_info)]
+    missing_indices = [i for i in range(len(cubes_info)) if i not in valid_indices]
+    merged_order = valid_indices + missing_indices
+
+    top_only_indices = [idx for idx in merged_order if cubes_info[idx].get('top_only', False)]
+    normal_indices = [idx for idx in merged_order if not cubes_info[idx].get('top_only', False)]
+
+    normal_indices.sort(key=lambda idx: cubes_info[idx].get('volume', 0.0), reverse=True)
+    top_only_indices.sort(key=lambda idx: cubes_info[idx].get('volume', 0.0), reverse=True)
+
+    return normal_indices + top_only_indices
 
 def get_positions(path):
     """
@@ -180,7 +232,8 @@ def run():
     # 数据库路径
     database_path = [
         'cube',
-        'cylinder'
+        'cylinder',
+        'cone_top'
     ]
 
     # 连接 PyBullet 服务器
@@ -240,9 +293,47 @@ def run():
                     scale = env.urdfs_scale[i] if i < len(env.urdfs_scale) else 1.0
                     obj_pos, _ = p.getBasePositionAndOrientation(env.urdfs_id[i])
                     color = env.urdfs_colors[i] if i < len(env.urdfs_colors) else f'物块{i+1}'
-                    actual_size = 0.04 * scale
+                    shape = env.urdfs_shapes[i] if hasattr(env, 'urdfs_shapes') and i < len(env.urdfs_shapes) else '立方体'
+                    top_only = shape == '尖锥顶物块'
+                    aabb = p.getAABB(env.urdfs_id[i])
+                    size_x = aabb[1][0] - aabb[0][0]
+                    size_y = aabb[1][1] - aabb[0][1]
+                    size_z = aabb[1][2] - aabb[0][2]
+
+                    shape_params = {}
+                    if shape == '圆柱体':
+                        diameter = max(size_x, size_y)
+                        height = size_z
+                        volume = np.pi * (diameter / 2.0) ** 2 * height
+                        shape_params.update({
+                            'diameter': diameter,
+                            'height': height,
+                            'volume': volume
+                        })
+                        shape_summary = f"直径={diameter:.4f}m, 高度={height:.4f}m, 体积={volume:.8f}m^3"
+                    elif shape == '尖锥顶物块':
+                        base_diameter = max(size_x, size_y)
+                        height = size_z
+                        volume = (np.pi * (base_diameter / 2.0) ** 2 * height) / 3.0
+                        shape_params.update({
+                            'base_diameter': base_diameter,
+                            'height': height,
+                            'volume': volume
+                        })
+                        shape_summary = f"底面直径={base_diameter:.4f}m, 高度={height:.4f}m, 体积={volume:.8f}m^3"
+                    else:
+                        edge_length = max(size_x, size_y, size_z)
+                        volume = edge_length ** 3
+                        shape_params.update({
+                            'edge_length': edge_length,
+                            'volume': volume
+                        })
+                        shape_summary = f"边长={edge_length:.4f}m, 体积={volume:.8f}m^3"
                     
-                    print(f"  物块{i+1}: 颜色={color}, 缩放比例={scale:.2f}, 实际尺寸={actual_size:.3f}m, 位置=({obj_pos[0]:.3f}, {obj_pos[1]:.3f})")
+                    print(
+                        f"  物块{i+1}: 形状={shape}, 颜色={color}, 缩放比例={scale:.2f}, "
+                        f"{shape_summary}, 位置=({obj_pos[0]:.3f}, {obj_pos[1]:.3f})"
+                    )
                     
                     min_dist = float('inf')
                     matched_pos = None
@@ -254,18 +345,27 @@ def run():
                     
                     if matched_pos:
                         matched_positions.append(matched_pos)
-                        cubes_info.append({
+                        cube_info = {
                             'index': i,
                             'scale': scale,
                             'color': color,
+                            'shape': shape,
+                            'top_only': top_only,
                             'position': [obj_pos[0], obj_pos[1]]
-                        })
+                        }
+                        cube_info.update(shape_params)
+                        cubes_info.append(cube_info)
                         print(f"    -> 匹配到检测位置: ({matched_pos[0]:.3f}, {matched_pos[1]:.3f})")
                 
                 print("="*50 + "\n")
-                print("正在询问DeepSeek大模型最优堆叠顺序...")
+                print("正在询问阿里云百炼 / Qwen-VL 最优堆叠顺序...")
                 
-                order_indices = ask_deepseek_for_stacking_order(cubes_info)
+                scene_image_paths = [
+                    os.path.join(img_path, 'camera_rgb.png'),
+                    os.path.join(img_path, 'camera_rgb_left.png'),
+                    os.path.join(img_path, 'camera_rgb_right.png')
+                ]
+                order_indices = ask_bailian_for_stacking_order(cubes_info, image_paths=scene_image_paths)
                 grasp_order_indices = order_indices
                 
                 ball_positions = [matched_positions[i] for i in order_indices if i < len(matched_positions)]

@@ -127,6 +127,8 @@ class SimEnv(object):
 
         # 加载相机
         self.viewMatrix = self.p.computeViewMatrix([0, 0, 0.5], [0, 0, 0], [0, 1, 0])
+        self.leftViewMatrix = self.p.computeViewMatrix([-0.45, 0, 0.18], [0, 0, 0.05], [0, 0, 1])
+        self.rightViewMatrix = self.p.computeViewMatrix([0.45, 0, 0.18], [0, 0, 0.05], [0, 0, 1])
         self.projectionMatrix = self.p.computeProjectionMatrixFOV(fov, aspect, nearPlane, farPlane)
 
         # 获取urdf物体列表
@@ -241,13 +243,15 @@ class SimEnv(object):
 
         cube_urdfs = [path for path in available_urdfs if os.path.basename(path).startswith('cube')]
         cylinder_urdfs = [path for path in available_urdfs if os.path.basename(path).startswith('cylinder')]
+        cone_top_urdfs = [path for path in available_urdfs if os.path.basename(path).startswith('cone_top')]
 
-        if cube_urdfs and cylinder_urdfs:
+        if cube_urdfs and cylinder_urdfs and cone_top_urdfs:
             self.urdfs_filename = []
-            cylinder_start_idx = min(3, self.num_urdf)
             for i in range(self.num_urdf):
-                if i >= cylinder_start_idx:
-                    cylinder_offset = i - cylinder_start_idx
+                if i == self.num_urdf - 1:
+                    self.urdfs_filename.append(cone_top_urdfs[0])
+                elif i >= 2:
+                    cylinder_offset = i - 2
                     self.urdfs_filename.append(cylinder_urdfs[cylinder_offset % len(cylinder_urdfs)])
                 else:
                     self.urdfs_filename.append(cube_urdfs[i % len(cube_urdfs)])
@@ -263,6 +267,7 @@ class SimEnv(object):
         self.urdfs_xyz = []
         self.urdfs_scale = []
         self.urdfs_colors = []
+        self.urdfs_shapes = []
         
         predefined_positions = [
             [-0.08, -0.06, 0.022],
@@ -313,10 +318,19 @@ class SimEnv(object):
             # 获取xyz信息
             inf = self.p.getVisualShapeData(urdf_id)[0]
 
+            filename = os.path.basename(self.urdfs_filename[i])
+            if filename.startswith('cone_top'):
+                shape_name = '尖锥顶物块'
+            elif filename.startswith('cylinder'):
+                shape_name = '圆柱体'
+            else:
+                shape_name = '立方体'
+
             self.urdfs_id.append(urdf_id)
             self.urdfs_xyz.append(inf[5])
             self.urdfs_scale.append(scaling_factor)
             self.urdfs_colors.append(cube_colors[i] if i < len(cube_colors) else f'物块{i+1}')
+            self.urdfs_shapes.append(shape_name)
 
         self.obj_ids = self.urdfs_id
 
@@ -336,8 +350,7 @@ class SimEnv(object):
         """
         渲染图像
         """
-        if not os.path.exists(save_path):
-            os.mkdir(save_path)
+        os.makedirs(save_path, exist_ok=True)
 
 
 
@@ -379,6 +392,30 @@ class SimEnv(object):
         cv2.imwrite(save_path + '/camera_mask.png', im_mask*20)
         cv2.imwrite(save_path + '/camera_depth.png', tool.depth2Gray(im_depthCamera))
         cv2.imwrite(save_path + '/camera_depth_rev.png', tool.depth2Gray(im_depthCamera_rev))
+
+        side_views = [
+            ('left', self.leftViewMatrix),
+            ('right', self.rightViewMatrix),
+        ]
+        for view_name, view_matrix in side_views:
+            side_camera = self.p.getCameraImage(
+                IMAGEWIDTH,
+                IMAGEHEIGHT,
+                view_matrix,
+                self.projectionMatrix,
+                renderer=p.ER_BULLET_HARDWARE_OPENGL
+            )
+            side_width = side_camera[0]
+            side_height = side_camera[1]
+            side_rgba = side_camera[2]
+            side_rgb = np.reshape(side_rgba, (side_height, side_width, 4))[:, :, [2, 1, 0]]
+            side_rgb = np.ascontiguousarray(side_rgb.astype(np.uint8))
+
+            mat_path = os.path.join(save_path, f'camera_rgb_{view_name}.mat')
+            png_path = os.path.join(save_path, f'camera_rgb_{view_name}.png')
+            scio.savemat(mat_path, {'A': side_rgb})
+            saved = cv2.imwrite(png_path, side_rgb)
+            print(f'>> 侧视相机 {view_name} RGB 保存: {png_path}, success={saved}')
 
         print('>> 渲染结束')
 
