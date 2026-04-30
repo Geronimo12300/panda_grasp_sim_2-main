@@ -269,15 +269,17 @@ class SimEnv(object):
         self.urdfs_colors = []
         self.urdfs_shapes = []
         
-        predefined_positions = [
-            [-0.08, -0.06, 0.022],
-            [0.08, -0.06, 0.022],
-            [0.00, 0.00, 0.022],
-            [-0.08, 0.08, 0.022],
-            [0.08, 0.08, 0.022]
-        ]
-        
+        spawn_region = {
+            "x_min": -0.11,
+            "x_max": 0.11,
+            "y_min": -0.08,
+            "y_max": 0.10,
+            "z": 0.022
+        }
+        min_spawn_distance = 0.055
+
         randomized_scales = [round(random.uniform(0.6, 1.2), 2) for _ in range(self.num_urdf)]
+        randomized_yaws = [random.uniform(-math.pi, math.pi) for _ in range(self.num_urdf)]
         cube_rgba_colors = [
             [0.85, 0.20, 0.20, 1.0],
             [0.20, 0.75, 0.25, 1.0],
@@ -285,24 +287,40 @@ class SimEnv(object):
             [0.95, 0.80, 0.20, 1.0],
             [0.65, 0.30, 0.80, 1.0]
         ]
-        cube_colors = ['红色', '绿色', '蓝色', '黄色', '紫色']
-        
-        print(f"随机分配的缩放比例: {randomized_scales}")
-        
-        for i in range(self.num_urdf):
-            if i < len(predefined_positions):
-                basePosition = predefined_positions[i]
-            else:
-                pos = 0.05
-                basePosition = [random.uniform(-1 * pos, pos), random.uniform(-1 * pos, pos), 0.022]
+        cube_colors = ['??', '??', '??', '??', '??']
 
-            baseOrientation = [0, 0, 0, 1]
+        print(f"?????????: {randomized_scales}")
+        placed_positions = []
+
+        for i in range(self.num_urdf):
+            for _ in range(80):
+                candidate_position = [
+                    random.uniform(spawn_region["x_min"], spawn_region["x_max"]),
+                    random.uniform(spawn_region["y_min"], spawn_region["y_max"]),
+                    spawn_region["z"]
+                ]
+                if all(
+                    ((candidate_position[0] - pos[0]) ** 2 + (candidate_position[1] - pos[1]) ** 2) ** 0.5 >= min_spawn_distance
+                    for pos in placed_positions
+                ):
+                    basePosition = candidate_position
+                    break
+            else:
+                basePosition = [
+                    random.uniform(spawn_region["x_min"], spawn_region["x_max"]),
+                    random.uniform(spawn_region["y_min"], spawn_region["y_max"]),
+                    spawn_region["z"]
+                ]
+
+            yaw = randomized_yaws[i] if i < len(randomized_yaws) else random.uniform(-math.pi, math.pi)
+            baseOrientation = self.p.getQuaternionFromEuler([0, 0, yaw])
 
             if i < len(randomized_scales):
                 scaling_factor = randomized_scales[i]
             else:
                 scaling_factor = round(random.uniform(0.6, 1.2), 2)
             urdf_id = self.p.loadURDF(self.urdfs_filename[i], basePosition, baseOrientation, globalScaling=scaling_factor)
+            placed_positions.append(basePosition)
             self.p.changeVisualShape(urdf_id, -1, rgbaColor=cube_rgba_colors[i % len(cube_rgba_colors)])
             self.p.changeDynamics(
                 urdf_id,
@@ -315,22 +333,26 @@ class SimEnv(object):
 
 
 
-            # 获取xyz信息
+            # ??xyz??
             inf = self.p.getVisualShapeData(urdf_id)[0]
 
             filename = os.path.basename(self.urdfs_filename[i])
             if filename.startswith('cone_top'):
-                shape_name = '尖锥顶物块'
+                shape_name = '?????'
             elif filename.startswith('cylinder'):
-                shape_name = '圆柱体'
+                shape_name = '???'
             else:
-                shape_name = '立方体'
+                shape_name = '???'
 
             self.urdfs_id.append(urdf_id)
             self.urdfs_xyz.append(inf[5])
             self.urdfs_scale.append(scaling_factor)
-            self.urdfs_colors.append(cube_colors[i] if i < len(cube_colors) else f'物块{i+1}')
+            self.urdfs_colors.append(cube_colors[i] if i < len(cube_colors) else f'??{i+1}')
             self.urdfs_shapes.append(shape_name)
+            print(
+                f"??{i+1} ???: ??=({basePosition[0]:.3f}, {basePosition[1]:.3f}, {basePosition[2]:.3f}), "
+                f"???={yaw:.3f} rad"
+            )
 
         self.obj_ids = self.urdfs_id
 

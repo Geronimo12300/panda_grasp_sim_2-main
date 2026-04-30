@@ -64,6 +64,8 @@ class PandaSim(object):
         self.gripper_height = 0.2
         self.pose_controlled_states = {1, 2}
         self.current_place_char = None
+        self.active_grasp_constraint = None
+        self.held_object_id = None
 
         c = self.p.createConstraint(
             self.panda,
@@ -90,6 +92,38 @@ class PandaSim(object):
 
         self.t = 0.0
 
+    def attach_held_object(self, held_object_id):
+        if held_object_id is None or self.active_grasp_constraint is not None:
+            return
+
+        link_state = self.p.getLinkState(self.panda, pandaEndEffectorIndex)
+        ee_pos = link_state[4]
+        ee_orn = link_state[5]
+        obj_pos, obj_orn = self.p.getBasePositionAndOrientation(held_object_id)
+
+        inv_pos, inv_orn = self.p.invertTransform(ee_pos, ee_orn)
+        parent_frame_pos, parent_frame_orn = self.p.multiplyTransforms(inv_pos, inv_orn, obj_pos, obj_orn)
+
+        self.active_grasp_constraint = self.p.createConstraint(
+            self.panda,
+            pandaEndEffectorIndex,
+            held_object_id,
+            -1,
+            self.p.JOINT_FIXED,
+            [0, 0, 0],
+            parent_frame_pos,
+            [0, 0, 0],
+            parentFrameOrientation=parent_frame_orn,
+            childFrameOrientation=[0, 0, 0, 1],
+        )
+        self.held_object_id = held_object_id
+
+    def detach_held_object(self):
+        if self.active_grasp_constraint is not None:
+            self.p.removeConstraint(self.active_grasp_constraint)
+            self.active_grasp_constraint = None
+        self.held_object_id = None
+
     def calcJointLocation(self, pos, orn):
         return self.p.calculateInverseKinematics(
             self.panda,
@@ -108,7 +142,7 @@ class PandaSim(object):
         return np.array(link_state[4], dtype=float)
 
     def get_held_object_release_height(self, held_object_id, support_top_z):
-        base_clearance = 0.008
+        base_clearance = 0.012
         if held_object_id is None:
             return support_top_z + 0.09
 
@@ -122,6 +156,12 @@ class PandaSim(object):
             geom_type = visual_shape_data[0][2]
             if geom_type == self.p.GEOM_CYLINDER:
                 extra_clearance = 0.008
+            elif geom_type == self.p.GEOM_MESH:
+                mesh_name = visual_shape_data[0][4]
+                if isinstance(mesh_name, bytes):
+                    mesh_name = mesh_name.decode("utf-8", errors="ignore")
+                if mesh_name and "cone_top" in mesh_name:
+                    extra_clearance = 0.012
 
         min_release_offset = 0.06
         release_offset = max(ee_to_object_bottom, min_release_offset)
@@ -162,7 +202,7 @@ class PandaSim(object):
                 maxVelocity=GRIPPER_MAX_VELOCITY,
             )
 
-    def grasp_step(self, pos, angle, gripper_w):
+    def grasp_step(self, pos, angle, gripper_w, held_object_id=None):
         self.update_state()
         target_pos = list(pos)
         target_pos[2] += 0.047
@@ -178,18 +218,19 @@ class PandaSim(object):
             approach_pos = [target_pos[0], target_pos[1], target_pos[2] + 0.1]
             self.setArm(self.calcJointLocation(approach_pos, orn))
             self.setGripper(gripper_w)
-            if self.has_reached_position(approach_pos):
+            if self.has_reached_position(approach_pos) or self.state_t > self.state_durations[self.cur_state] + 0.8:
                 self.advance_state()
             return False
 
         if self.state == 2:
             self.setArm(self.calcJointLocation(target_pos, orn))
-            if self.has_reached_position(target_pos):
+            if self.has_reached_position(target_pos) or self.state_t > self.state_durations[self.cur_state] + 0.8:
                 self.advance_state()
             return False
 
         if self.state == 3:
             self.setGripper(0)
+            self.attach_held_object(held_object_id)
             return False
 
         if self.state == 4:
@@ -219,7 +260,7 @@ class PandaSim(object):
 
             pos = position_map[char]
             self.current_place_char = char
-            if self.stack_center is None or char == "7":
+            if self.stack_center is None or self.place_count == 0:
                 self.stack_center = [pos[0], pos[1]]
 
             self.place_position = [self.stack_center[0], self.stack_center[1], 0]
@@ -233,13 +274,15 @@ class PandaSim(object):
                 aabb = self.p.getAABB(obj_id)
                 support_top_z = max(support_top_z, aabb[1][2])
 
-            release_height = self.get_held_object_release_height(held_object_id, support_top_z)
-
-            if self.place_count > 0 and self.placed_objects and self.current_place_char != "7":
+            if self.place_count > 0 and self.placed_objects:
                 last_obj_id = self.placed_objects[-1]
-                obj_pos, _ = self.p.getBasePositionAndOrientation(last_obj_id)
-                self.stack_center = [obj_pos[0], obj_pos[1]]
-                self.place_position = [self.stack_center[0], self.stack_center[1], 0]
+                last_aabb = self.p.getAABB(last_obj_id)
+                stack_x = (last_aabb[0][0] + last_aabb[1][0]) / 2.0
+                stack_y = (last_aabb[0][1] + last_aabb[1][1]) / 2.0
+                self.stack_center = [stack_x, stack_y]
+                self.place_position = [stack_x, stack_y, 0]
+
+            release_height = self.get_held_object_release_height(held_object_id, support_top_z)
 
             low_pos = [self.place_position[0], self.place_position[1], release_height]
             orn = self.p.getQuaternionFromEuler([math.pi, 0.0, math.pi / 2])
@@ -247,6 +290,7 @@ class PandaSim(object):
             return False
 
         if self.state == 9:
+            self.detach_held_object()
             self.setGripper(0.04)
             return False
 
@@ -265,6 +309,7 @@ class PandaSim(object):
         self.cur_state = 0
         self.place_position = None
         self.current_place_char = None
+        self.detach_held_object()
 
     def start_place(self):
         self.state = 7

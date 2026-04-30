@@ -28,6 +28,90 @@ def encode_image_to_data_url(image_path):
     return f"data:{mime_type};base64,{encoded}"
 
 
+COLOR_BGR_MAP = {
+    "红色": np.array([51, 51, 217], dtype=np.uint8),
+    "绿色": np.array([64, 191, 64], dtype=np.uint8),
+    "蓝色": np.array([217, 89, 51], dtype=np.uint8),
+    "黄色": np.array([51, 204, 242], dtype=np.uint8),
+    "紫色": np.array([204, 76, 166], dtype=np.uint8),
+}
+
+
+def normalize_grasp_angle(angle):
+    while angle > np.pi / 2:
+        angle -= np.pi
+    while angle < -np.pi / 2:
+        angle += np.pi
+    return angle
+
+
+def analyze_colored_object_contour(image_path, target_color):
+    if not image_path or not os.path.exists(image_path):
+        return None
+
+    image = cv2.imread(image_path)
+    if image is None:
+        return None
+
+    target_bgr = COLOR_BGR_MAP.get(target_color)
+    if target_bgr is None:
+        return None
+
+    color_diff = np.linalg.norm(image.astype(np.int16) - target_bgr.reshape(1, 1, 3).astype(np.int16), axis=2)
+    mask = (color_diff < 95).astype(np.uint8) * 255
+    kernel = np.ones((5, 5), np.uint8)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel, iterations=2)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel, iterations=1)
+
+    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    if not contours:
+        return None
+
+    contour = max(contours, key=cv2.contourArea)
+    area = cv2.contourArea(contour)
+    if area < 80:
+        return None
+
+    x, y, w, h = cv2.boundingRect(contour)
+    rect_area = max(w * h, 1)
+    fill_ratio = area / rect_area
+    peri = cv2.arcLength(contour, True)
+    approx = cv2.approxPolyDP(contour, 0.04 * peri, True)
+
+    return {
+        "fill_ratio": fill_ratio,
+        "vertices": len(approx),
+        "bbox": (x, y, w, h),
+        "area": area,
+    }
+
+
+def infer_triangle_grasp_angle_from_side_views(image_dir, target_color, base_angle):
+    candidate_direct = normalize_grasp_angle(base_angle)
+    candidate_perpendicular = normalize_grasp_angle(base_angle + np.pi / 2)
+
+    analyses = []
+    for name in ["camera_rgb_left.png", "camera_rgb_right.png"]:
+        info = analyze_colored_object_contour(os.path.join(image_dir, name), target_color)
+        if info:
+            analyses.append((name, info))
+
+    if not analyses:
+        return candidate_perpendicular, "侧视图未识别到目标颜色，回退为夹取平整侧面的默认方向"
+
+    triangle_like_detected = any(
+        info["fill_ratio"] < 0.72 or info["vertices"] <= 4
+        for _, info in analyses
+    )
+
+    if triangle_like_detected:
+        reason = "侧视轮廓更接近三角面，采用垂直于三角面法向的夹取方向"
+        return candidate_perpendicular, reason
+
+    reason = "侧视轮廓更接近平整矩形侧面，保持当前方向抓取"
+    return candidate_direct, reason
+
+
 def ask_bailian_for_stacking_order(cubes_info, image_paths=None):
     """
     询问阿里云百炼 / Qwen-VL 模型最优的堆叠顺序
@@ -156,13 +240,33 @@ def enforce_stacking_constraints(order_indices, cubes_info):
     missing_indices = [i for i in range(len(cubes_info)) if i not in valid_indices]
     merged_order = valid_indices + missing_indices
 
-    top_only_indices = [idx for idx in merged_order if cubes_info[idx].get('top_only', False)]
-    normal_indices = [idx for idx in merged_order if not cubes_info[idx].get('top_only', False)]
+    top_only_indices = [
+        idx for idx in merged_order
+        if cubes_info[idx].get('top_only', False) or cubes_info[idx].get('is_triangle', False)
+    ]
+    normal_indices = [
+        idx for idx in merged_order
+        if not (cubes_info[idx].get('top_only', False) or cubes_info[idx].get('is_triangle', False))
+    ]
 
     normal_indices.sort(key=lambda idx: cubes_info[idx].get('volume', 0.0), reverse=True)
     top_only_indices.sort(key=lambda idx: cubes_info[idx].get('volume', 0.0), reverse=True)
 
     return normal_indices + top_only_indices
+
+
+def push_triangle_objects_to_end(order_indices, urdf_filenames):
+    normal_indices = []
+    triangle_indices = []
+
+    for idx in order_indices:
+        filename = os.path.basename(urdf_filenames[idx]) if 0 <= idx < len(urdf_filenames) else ""
+        if filename.startswith('cone_top'):
+            triangle_indices.append(idx)
+        else:
+            normal_indices.append(idx)
+
+    return normal_indices + triangle_indices
 
 def get_positions(path):
     """
@@ -294,7 +398,9 @@ def run():
                     obj_pos, _ = p.getBasePositionAndOrientation(env.urdfs_id[i])
                     color = env.urdfs_colors[i] if i < len(env.urdfs_colors) else f'物块{i+1}'
                     shape = env.urdfs_shapes[i] if hasattr(env, 'urdfs_shapes') and i < len(env.urdfs_shapes) else '立方体'
-                    top_only = shape == '尖锥顶物块'
+                    source_filename = os.path.basename(env.urdfs_filename[i]) if i < len(env.urdfs_filename) else ""
+                    is_triangle = source_filename.startswith('cone_top')
+                    top_only = is_triangle or shape == '尖锥顶物块'
                     aabb = p.getAABB(env.urdfs_id[i])
                     size_x = aabb[1][0] - aabb[0][0]
                     size_y = aabb[1][1] - aabb[0][1]
@@ -351,6 +457,8 @@ def run():
                             'color': color,
                             'shape': shape,
                             'top_only': top_only,
+                            'is_triangle': is_triangle,
+                            'source_filename': source_filename,
                             'position': [obj_pos[0], obj_pos[1]]
                         }
                         cube_info.update(shape_params)
@@ -366,6 +474,7 @@ def run():
                     os.path.join(img_path, 'camera_rgb_right.png')
                 ]
                 order_indices = ask_bailian_for_stacking_order(cubes_info, image_paths=scene_image_paths)
+                order_indices = push_triangle_objects_to_end(order_indices, env.urdfs_filename)
                 grasp_order_indices = order_indices
                 
                 ball_positions = [matched_positions[i] for i in order_indices if i < len(matched_positions)]
@@ -379,6 +488,8 @@ def run():
                 print("未找到物体位置，请先按 1 渲染图像并捕捉位置。")
                 continue
 
+            grasp_order_indices = push_triangle_objects_to_end(grasp_order_indices, env.urdfs_filename)
+
             detected_x, detected_y, detected_z, detected_angle, detected_width = ball_positions[0]
             grasp_config['angle'] = detected_angle
             grasp_config['width'] = detected_width
@@ -391,6 +502,8 @@ def run():
 
             if target_obj_id is not None:
                 aabb_min, aabb_max = p.getAABB(target_obj_id)
+                size_x = aabb_max[0] - aabb_min[0]
+                size_y = aabb_max[1] - aabb_min[1]
                 grasp_config['x'] = (aabb_min[0] + aabb_max[0]) / 2.0
                 grasp_config['y'] = (aabb_min[1] + aabb_max[1]) / 2.0
                 grasp_config['z'] = (aabb_min[2] + aabb_max[2]) / 2.0
@@ -401,10 +514,28 @@ def run():
                 elif obj_yaw < -np.pi / 2:
                     obj_yaw += np.pi
                 grasp_config['angle'] = obj_yaw
+
+                target_filename = os.path.basename(env.urdfs_filename[obj_idx]) if obj_idx < len(env.urdfs_filename) else ""
+                if target_filename.startswith('cone_top'):
+                    flat_face_span = min(size_x, size_y)
+                    grasp_config['width'] = np.clip(flat_face_span + 2 * GRASP_GAP, 0.02, GRASP_WIDTH)
+                    target_color = env.urdfs_colors[obj_idx] if obj_idx < len(env.urdfs_colors) else None
+                    adjusted_angle, angle_reason = infer_triangle_grasp_angle_from_side_views(
+                        img_path,
+                        target_color,
+                        grasp_config['angle']
+                    )
+                    grasp_config['angle'] = adjusted_angle
+                    print(
+                        f"????????: ???????????, "
+                        f"????={flat_face_span:.4f}m, ????={grasp_config['width']:.4f}m, "
+                        f"????={grasp_config['angle']:.4f} rad, {angle_reason}"
+                    )
+
                 print(
-                    f"抓取中心已修正到物块包围盒中心: "
+                    f"???????????????: "
                     f"({grasp_config['x']:.4f}, {grasp_config['y']:.4f}, {grasp_config['z']:.4f}), "
-                    f"抓取角度修正为: {grasp_config['angle']:.4f} rad"
+                    f"???????: {grasp_config['angle']:.4f} rad"
                 )
             else:
                 grasp_config['x'] = detected_x
@@ -416,7 +547,13 @@ def run():
         # 执行抓取
         if GRASP_STATE:
             target_position = [grasp_config['x'], grasp_config['y'], grasp_config['z'] - GRASP_DEPTH]
-            if panda.grasp_step(target_position, grasp_config['angle'], grasp_config['width']):
+            current_held_obj_id = None
+            if grasp_obj_index < len(grasp_order_indices):
+                current_obj_idx = grasp_order_indices[grasp_obj_index]
+                if current_obj_idx < len(env.urdfs_id):
+                    current_held_obj_id = env.urdfs_id[current_obj_idx]
+
+            if panda.grasp_step(target_position, grasp_config['angle'], grasp_config['width'], current_held_obj_id):
                 GRASP_STATE = False
                 IN_STATE = True
                 print("抓取完成！")
