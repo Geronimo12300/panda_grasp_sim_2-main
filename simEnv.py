@@ -259,13 +259,17 @@ class SimEnv(object):
             [0.08, 0.08, 0.022]
         ]
         
-        predefined_scales = [1.20, 1.08, 1.00, 0.92, 0.82]
+        randomized_scales = [round(random.uniform(0.6, 1.2), 2) for _ in range(self.num_urdf)]
+        cube_rgba_colors = [
+            [0.85, 0.20, 0.20, 1.0],
+            [0.20, 0.75, 0.25, 1.0],
+            [0.20, 0.35, 0.85, 1.0],
+            [0.95, 0.80, 0.20, 1.0],
+            [0.65, 0.30, 0.80, 1.0]
+        ]
         cube_colors = ['红色', '绿色', '蓝色', '黄色', '紫色']
         
-        shuffled_scales = predefined_scales.copy()
-        random.shuffle(shuffled_scales)
-        
-        print(f"随机分配的缩放比例: {shuffled_scales}")
+        print(f"?????????: {randomized_scales}")
         
         for i in range(self.num_urdf):
             if i < len(predefined_positions):
@@ -276,11 +280,12 @@ class SimEnv(object):
 
             baseOrientation = [0, 0, 0, 1]
 
-            if i < len(shuffled_scales):
-                scaling_factor = shuffled_scales[i]
+            if i < len(randomized_scales):
+                scaling_factor = randomized_scales[i]
             else:
-                scaling_factor = random.uniform(0.8, 1.2)
+                scaling_factor = round(random.uniform(0.6, 1.2), 2)
             urdf_id = self.p.loadURDF(self.urdfs_filename[i], basePosition, baseOrientation, globalScaling=scaling_factor)
+            self.p.changeVisualShape(urdf_id, -1, rgbaColor=cube_rgba_colors[i % len(cube_rgba_colors)])
             self.p.changeDynamics(
                 urdf_id,
                 -1,
