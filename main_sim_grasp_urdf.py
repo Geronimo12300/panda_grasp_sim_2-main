@@ -179,7 +179,8 @@ def get_positions(path):
 def run():
     # 数据库路径
     database_path = [
-        'cube'
+        'cube',
+        'cylinder'
     ]
 
     # 连接 PyBullet 服务器

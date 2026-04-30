@@ -107,6 +107,26 @@ class PandaSim(object):
         link_state = self.p.getLinkState(self.panda, pandaEndEffectorIndex)
         return np.array(link_state[4], dtype=float)
 
+    def get_held_object_release_height(self, held_object_id, support_top_z):
+        base_clearance = 0.008
+        if held_object_id is None:
+            return support_top_z + 0.09
+
+        held_aabb = self.p.getAABB(held_object_id)
+        ee_pos = self.get_end_effector_position()
+        ee_to_object_bottom = ee_pos[2] - held_aabb[0][2]
+
+        extra_clearance = 0.0
+        visual_shape_data = self.p.getVisualShapeData(held_object_id)
+        if visual_shape_data:
+            geom_type = visual_shape_data[0][2]
+            if geom_type == self.p.GEOM_CYLINDER:
+                extra_clearance = 0.008
+
+        min_release_offset = 0.06
+        release_offset = max(ee_to_object_bottom, min_release_offset)
+        return support_top_z + release_offset + base_clearance + extra_clearance
+
     def has_reached_position(self, target_pos):
         current_pos = self.get_end_effector_position()
         target = np.array(target_pos, dtype=float)
@@ -208,17 +228,12 @@ class PandaSim(object):
             return False
 
         if self.state == 8 and self.place_position:
-            accumulated_height = 0.0
+            support_top_z = 0.0
             for obj_id in self.placed_objects:
                 aabb = self.p.getAABB(obj_id)
-                accumulated_height += aabb[1][2] - aabb[0][2]
+                support_top_z = max(support_top_z, aabb[1][2])
 
-            current_cube_height = 0.04
-            if held_object_id is not None:
-                aabb = self.p.getAABB(held_object_id)
-                current_cube_height = aabb[1][2] - aabb[0][2]
-
-            release_height = accumulated_height + current_cube_height + 0.05
+            release_height = self.get_held_object_release_height(held_object_id, support_top_z)
 
             if self.place_count > 0 and self.placed_objects and self.current_place_char != "7":
                 last_obj_id = self.placed_objects[-1]

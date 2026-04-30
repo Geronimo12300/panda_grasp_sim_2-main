@@ -239,10 +239,23 @@ class SimEnv(object):
         if not available_urdfs:
             raise ValueError("可用 URDF 列表为空，无法加载物体")
 
-        self.urdfs_filename = [
-            available_urdfs[i % len(available_urdfs)]
-            for i in range(self.num_urdf)
-        ]
+        cube_urdfs = [path for path in available_urdfs if os.path.basename(path).startswith('cube')]
+        cylinder_urdfs = [path for path in available_urdfs if os.path.basename(path).startswith('cylinder')]
+
+        if cube_urdfs and cylinder_urdfs:
+            self.urdfs_filename = []
+            cylinder_start_idx = min(3, self.num_urdf)
+            for i in range(self.num_urdf):
+                if i >= cylinder_start_idx:
+                    cylinder_offset = i - cylinder_start_idx
+                    self.urdfs_filename.append(cylinder_urdfs[cylinder_offset % len(cylinder_urdfs)])
+                else:
+                    self.urdfs_filename.append(cube_urdfs[i % len(cube_urdfs)])
+        else:
+            self.urdfs_filename = [
+                available_urdfs[i % len(available_urdfs)]
+                for i in range(self.num_urdf)
+            ]
 
         print('self.urdfs_filename = ', self.urdfs_filename)
 
@@ -269,7 +282,7 @@ class SimEnv(object):
         ]
         cube_colors = ['红色', '绿色', '蓝色', '黄色', '紫色']
         
-        print(f"?????????: {randomized_scales}")
+        print(f"随机分配的缩放比例: {randomized_scales}")
         
         for i in range(self.num_urdf):
             if i < len(predefined_positions):
