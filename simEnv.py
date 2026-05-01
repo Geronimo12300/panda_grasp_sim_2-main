@@ -287,9 +287,9 @@ class SimEnv(object):
             [0.95, 0.80, 0.20, 1.0],
             [0.65, 0.30, 0.80, 1.0]
         ]
-        cube_colors = ['??', '??', '??', '??', '??']
+        cube_colors = ['红色', '绿色', '蓝色', '黄色', '紫色']
 
-        print(f"?????????: {randomized_scales}")
+        print(f"随机分配的缩放比例: {randomized_scales}")
         placed_positions = []
 
         for i in range(self.num_urdf):
@@ -333,25 +333,25 @@ class SimEnv(object):
 
 
 
-            # ??xyz??
+            # 获取xyz信息
             inf = self.p.getVisualShapeData(urdf_id)[0]
 
             filename = os.path.basename(self.urdfs_filename[i])
             if filename.startswith('cone_top'):
-                shape_name = '?????'
+                shape_name = '尖锥顶物块'
             elif filename.startswith('cylinder'):
-                shape_name = '???'
+                shape_name = '圆柱体'
             else:
-                shape_name = '???'
+                shape_name = '立方体'
 
             self.urdfs_id.append(urdf_id)
             self.urdfs_xyz.append(inf[5])
             self.urdfs_scale.append(scaling_factor)
-            self.urdfs_colors.append(cube_colors[i] if i < len(cube_colors) else f'??{i+1}')
+            self.urdfs_colors.append(cube_colors[i] if i < len(cube_colors) else f'物块{i+1}')
             self.urdfs_shapes.append(shape_name)
             print(
-                f"??{i+1} ???: ??=({basePosition[0]:.3f}, {basePosition[1]:.3f}, {basePosition[2]:.3f}), "
-                f"???={yaw:.3f} rad"
+                f"物块{i+1} 初始化: 位置=({basePosition[0]:.3f}, {basePosition[1]:.3f}, {basePosition[2]:.3f}), "
+                f"偏航角={yaw:.3f} rad"
             )
 
         self.obj_ids = self.urdfs_id

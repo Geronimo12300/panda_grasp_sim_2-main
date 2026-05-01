@@ -527,15 +527,15 @@ def run():
                     )
                     grasp_config['angle'] = adjusted_angle
                     print(
-                        f"????????: ???????????, "
-                        f"????={flat_face_span:.4f}m, ????={grasp_config['width']:.4f}m, "
-                        f"????={grasp_config['angle']:.4f} rad, {angle_reason}"
+                        f"三角积木抓取策略: 优先夹取平整的两个侧面, "
+                        f"厚度方向={flat_face_span:.4f}m, 抓取开口={grasp_config['width']:.4f}m, "
+                        f"抓取角度={grasp_config['angle']:.4f} rad, {angle_reason}"
                     )
 
                 print(
-                    f"???????????????: "
+                    f"抓取中心已修正到物块包围盒中心: "
                     f"({grasp_config['x']:.4f}, {grasp_config['y']:.4f}, {grasp_config['z']:.4f}), "
-                    f"???????: {grasp_config['angle']:.4f} rad"
+                    f"抓取角度修正为: {grasp_config['angle']:.4f} rad"
                 )
             else:
                 grasp_config['x'] = detected_x
