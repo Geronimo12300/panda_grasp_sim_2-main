@@ -333,6 +333,10 @@ def get_positions(path):
     return positions
 
 def run():
+    AUTO_RUN = True
+    AUTO_PLACE_CHAR = '7'
+    AUTO_CAPTURE_DELAY_STEPS = 240
+
     # 数据库路径
     database_path = [
         'cube',
@@ -360,6 +364,8 @@ def run():
     # 输入状态
     IN_STATE = False
     pressed_char = None
+    auto_capture_pending = AUTO_RUN
+    auto_capture_countdown = AUTO_CAPTURE_DELAY_STEPS
 
     # 图像保存路径
     img_path = 'img/img_urdf'
@@ -373,178 +379,222 @@ def run():
     grasp_obj_index = 0
     grasp_order_indices = []
 
+    def queue_auto_capture():
+        nonlocal auto_capture_pending, auto_capture_countdown
+        auto_capture_pending = AUTO_RUN
+        auto_capture_countdown = AUTO_CAPTURE_DELAY_STEPS
+
+    def plan_scene():
+        nonlocal ball_positions, grasp_order_indices, grasp_obj_index
+
+        env.renderURDFImage(save_path=img_path)
+        detected_positions = get_positions(img_path)
+        print(f"图像检测到的位置数量: {len(detected_positions)}")
+
+        ball_positions = []
+        grasp_order_indices = []
+        grasp_obj_index = 0
+        if len(detected_positions) == 0:
+            return False
+
+        cubes_info = []
+        matched_positions = []
+
+        print("\n" + "=" * 50)
+        print("【仿真环境中的物块信息】")
+
+        for i in range(len(env.urdfs_id)):
+            scale = env.urdfs_scale[i] if i < len(env.urdfs_scale) else 1.0
+            obj_pos, _ = p.getBasePositionAndOrientation(env.urdfs_id[i])
+            color = env.urdfs_colors[i] if i < len(env.urdfs_colors) else f'物块{i+1}'
+            shape = env.urdfs_shapes[i] if hasattr(env, 'urdfs_shapes') and i < len(env.urdfs_shapes) else '立方体'
+            source_filename = os.path.basename(env.urdfs_filename[i]) if i < len(env.urdfs_filename) else ""
+            is_triangle = source_filename.startswith('cone_top')
+            top_only = is_triangle or shape == '尖锥顶物块'
+            aabb = p.getAABB(env.urdfs_id[i])
+            size_x = aabb[1][0] - aabb[0][0]
+            size_y = aabb[1][1] - aabb[0][1]
+            size_z = aabb[1][2] - aabb[0][2]
+
+            shape_params = {}
+            if shape == '圆柱体':
+                diameter = max(size_x, size_y)
+                height = size_z
+                volume = np.pi * (diameter / 2.0) ** 2 * height
+                shape_params.update({
+                    'diameter': diameter,
+                    'height': height,
+                    'volume': volume
+                })
+                shape_summary = f"直径={diameter:.4f}m, 高度={height:.4f}m, 体积={volume:.8f}m^3"
+            elif shape == '尖锥顶物块':
+                base_diameter = max(size_x, size_y)
+                height = size_z
+                volume = (np.pi * (base_diameter / 2.0) ** 2 * height) / 3.0
+                shape_params.update({
+                    'base_diameter': base_diameter,
+                    'height': height,
+                    'volume': volume
+                })
+                shape_summary = f"底面直径={base_diameter:.4f}m, 高度={height:.4f}m, 体积={volume:.8f}m^3"
+            else:
+                edge_length = max(size_x, size_y, size_z)
+                volume = edge_length ** 3
+                shape_params.update({
+                    'edge_length': edge_length,
+                    'volume': volume
+                })
+                shape_summary = f"边长={edge_length:.4f}m, 体积={volume:.8f}m^3"
+
+            print(
+                f"  物块{i+1}: 形状={shape}, 颜色={color}, 缩放比例={scale:.2f}, "
+                f"{shape_summary}, 位置=({obj_pos[0]:.3f}, {obj_pos[1]:.3f})"
+            )
+
+            min_dist = float('inf')
+            matched_pos = None
+            for det_pos in detected_positions:
+                dist = ((det_pos[0] - obj_pos[0]) ** 2 + (det_pos[1] - obj_pos[1]) ** 2) ** 0.5
+                if dist < min_dist:
+                    min_dist = dist
+                    matched_pos = det_pos
+
+            if matched_pos:
+                matched_positions.append(matched_pos)
+                cube_info = {
+                    'index': i,
+                    'scale': scale,
+                    'color': color,
+                    'shape': shape,
+                    'top_only': top_only,
+                    'is_triangle': is_triangle,
+                    'source_filename': source_filename,
+                    'position': [obj_pos[0], obj_pos[1]]
+                }
+                cube_info.update(shape_params)
+                cubes_info.append(cube_info)
+                print(f"    -> 匹配到检测位置: ({matched_pos[0]:.3f}, {matched_pos[1]:.3f})")
+
+        print("=" * 50 + "\n")
+        print("正在询问阿里云百炼 / Qwen-VL 最优堆叠顺序...")
+
+        if not cubes_info or not matched_positions:
+            return False
+
+        scene_image_paths = [
+            os.path.join(img_path, 'camera_rgb.png'),
+            os.path.join(img_path, 'camera_rgb_left.png'),
+            os.path.join(img_path, 'camera_rgb_right.png')
+        ]
+        order_indices = ask_bailian_for_stacking_order(cubes_info, image_paths=scene_image_paths)
+        order_indices = push_triangle_objects_to_end(order_indices, env.urdfs_filename)
+        grasp_order_indices = order_indices
+        ball_positions = [matched_positions[i] for i in order_indices if i < len(matched_positions)]
+
+        print(f"最终抓取顺序: {ball_positions}")
+        print(f"物块ID顺序: {grasp_order_indices}")
+        return len(ball_positions) > 0
+
+    def begin_next_grasp():
+        nonlocal GRASP_STATE
+
+        if not ball_positions:
+            print("未找到物体位置，请先渲染图像并捕捉位置。")
+            return False
+
+        grasp_order_local = push_triangle_objects_to_end(grasp_order_indices, env.urdfs_filename)
+        if grasp_obj_index >= len(grasp_order_local):
+            return False
+
+        detected_x, detected_y, detected_z, detected_angle, detected_width = ball_positions[0]
+        grasp_config['angle'] = detected_angle
+        grasp_config['width'] = detected_width
+
+        target_obj_id = None
+        obj_idx = grasp_order_local[grasp_obj_index]
+        if obj_idx < len(env.urdfs_id):
+            target_obj_id = env.urdfs_id[obj_idx]
+
+        if target_obj_id is not None:
+            aabb_min, aabb_max = p.getAABB(target_obj_id)
+            size_x = aabb_max[0] - aabb_min[0]
+            size_y = aabb_max[1] - aabb_min[1]
+            grasp_config['x'] = (aabb_min[0] + aabb_max[0]) / 2.0
+            grasp_config['y'] = (aabb_min[1] + aabb_max[1]) / 2.0
+            grasp_config['z'] = (aabb_min[2] + aabb_max[2]) / 2.0
+            _, obj_orn = p.getBasePositionAndOrientation(target_obj_id)
+            obj_yaw = p.getEulerFromQuaternion(obj_orn)[2]
+            if obj_yaw > np.pi / 2:
+                obj_yaw -= np.pi
+            elif obj_yaw < -np.pi / 2:
+                obj_yaw += np.pi
+            grasp_config['angle'] = obj_yaw
+
+            target_filename = os.path.basename(env.urdfs_filename[obj_idx]) if obj_idx < len(env.urdfs_filename) else ""
+            if target_filename.startswith('cube'):
+                cube_span = min(size_x, size_y)
+                grasp_config['width'] = np.clip(cube_span + GRASP_GAP, 0.02, GRASP_WIDTH)
+                grasp_config['z'] = aabb_min[2] + 0.45 * (aabb_max[2] - aabb_min[2])
+                print(
+                    f"立方体抓取修正: 夹爪开口={grasp_config['width']:.4f}m, "
+                    f"抓取高度={grasp_config['z']:.4f}m"
+                )
+            elif target_filename.startswith('cone_top'):
+                flat_face_span = min(size_x, size_y)
+                grasp_config['width'] = np.clip(flat_face_span + 2 * GRASP_GAP, 0.02, GRASP_WIDTH)
+                target_color = env.urdfs_colors[obj_idx] if obj_idx < len(env.urdfs_colors) else None
+                adjusted_angle, angle_reason = infer_triangle_grasp_angle_from_side_views(
+                    img_path,
+                    target_color,
+                    grasp_config['angle']
+                )
+                grasp_config['angle'] = adjusted_angle
+                print(
+                    f"三角积木抓取策略: 厚度={flat_face_span:.4f}m, "
+                    f"开口={grasp_config['width']:.4f}m, 角度={grasp_config['angle']:.4f} rad, {angle_reason}"
+                )
+
+            print(
+                f"抓取中心已修正到物块包围盒中心: "
+                f"({grasp_config['x']:.4f}, {grasp_config['y']:.4f}, {grasp_config['z']:.4f}), "
+                f"抓取角度={grasp_config['angle']:.4f} rad"
+            )
+        else:
+            grasp_config['x'] = detected_x
+            grasp_config['y'] = detected_y
+            grasp_config['z'] = detected_z
+
+        GRASP_STATE = True
+        ball_positions.pop(0)
+        return True
+
+    if AUTO_RUN:
+        print("Auto run enabled: 1 -> 2 -> 7 loop on slot 7.")
+
     while True:
         p.stepSimulation()
         time.sleep(1. / 250.)
 
-        # 检测按键
         keys = p.getKeyboardEvents()
 
-        # 按 1 渲染图像并捕捉小球位置
-        if ord('1') in keys and keys[ord('1')] & p.KEY_WAS_TRIGGERED:
-            env.renderURDFImage(save_path=img_path)
-            detected_positions = get_positions(img_path)
-            print(f"图像检测到的位置数量: {len(detected_positions)}")
-            
-            if len(detected_positions) > 0:
-                cubes_info = []
-                matched_positions = []
-                
-                print("\n" + "="*50)
-                print("【仿真环境中的物块信息】")
-                
-                for i in range(len(env.urdfs_id)):
-                    scale = env.urdfs_scale[i] if i < len(env.urdfs_scale) else 1.0
-                    obj_pos, _ = p.getBasePositionAndOrientation(env.urdfs_id[i])
-                    color = env.urdfs_colors[i] if i < len(env.urdfs_colors) else f'物块{i+1}'
-                    shape = env.urdfs_shapes[i] if hasattr(env, 'urdfs_shapes') and i < len(env.urdfs_shapes) else '立方体'
-                    source_filename = os.path.basename(env.urdfs_filename[i]) if i < len(env.urdfs_filename) else ""
-                    is_triangle = source_filename.startswith('cone_top')
-                    top_only = is_triangle or shape == '尖锥顶物块'
-                    aabb = p.getAABB(env.urdfs_id[i])
-                    size_x = aabb[1][0] - aabb[0][0]
-                    size_y = aabb[1][1] - aabb[0][1]
-                    size_z = aabb[1][2] - aabb[0][2]
+        if AUTO_RUN and auto_capture_pending and not GRASP_STATE and not PLACE_STATE and not IN_STATE:
+            auto_capture_countdown -= 1
+            if auto_capture_countdown <= 0:
+                if plan_scene():
+                    auto_capture_pending = False
+                else:
+                    auto_capture_countdown = AUTO_CAPTURE_DELAY_STEPS
 
-                    shape_params = {}
-                    if shape == '圆柱体':
-                        diameter = max(size_x, size_y)
-                        height = size_z
-                        volume = np.pi * (diameter / 2.0) ** 2 * height
-                        shape_params.update({
-                            'diameter': diameter,
-                            'height': height,
-                            'volume': volume
-                        })
-                        shape_summary = f"直径={diameter:.4f}m, 高度={height:.4f}m, 体积={volume:.8f}m^3"
-                    elif shape == '尖锥顶物块':
-                        base_diameter = max(size_x, size_y)
-                        height = size_z
-                        volume = (np.pi * (base_diameter / 2.0) ** 2 * height) / 3.0
-                        shape_params.update({
-                            'base_diameter': base_diameter,
-                            'height': height,
-                            'volume': volume
-                        })
-                        shape_summary = f"底面直径={base_diameter:.4f}m, 高度={height:.4f}m, 体积={volume:.8f}m^3"
-                    else:
-                        edge_length = max(size_x, size_y, size_z)
-                        volume = edge_length ** 3
-                        shape_params.update({
-                            'edge_length': edge_length,
-                            'volume': volume
-                        })
-                        shape_summary = f"边长={edge_length:.4f}m, 体积={volume:.8f}m^3"
-                    
-                    print(
-                        f"  物块{i+1}: 形状={shape}, 颜色={color}, 缩放比例={scale:.2f}, "
-                        f"{shape_summary}, 位置=({obj_pos[0]:.3f}, {obj_pos[1]:.3f})"
-                    )
-                    
-                    min_dist = float('inf')
-                    matched_pos = None
-                    for det_pos in detected_positions:
-                        dist = ((det_pos[0] - obj_pos[0])**2 + (det_pos[1] - obj_pos[1])**2)**0.5
-                        if dist < min_dist:
-                            min_dist = dist
-                            matched_pos = det_pos
-                    
-                    if matched_pos:
-                        matched_positions.append(matched_pos)
-                        cube_info = {
-                            'index': i,
-                            'scale': scale,
-                            'color': color,
-                            'shape': shape,
-                            'top_only': top_only,
-                            'is_triangle': is_triangle,
-                            'source_filename': source_filename,
-                            'position': [obj_pos[0], obj_pos[1]]
-                        }
-                        cube_info.update(shape_params)
-                        cubes_info.append(cube_info)
-                        print(f"    -> 匹配到检测位置: ({matched_pos[0]:.3f}, {matched_pos[1]:.3f})")
-                
-                print("="*50 + "\n")
-                print("正在询问阿里云百炼 / Qwen-VL 最优堆叠顺序...")
-                
-                scene_image_paths = [
-                    os.path.join(img_path, 'camera_rgb.png'),
-                    os.path.join(img_path, 'camera_rgb_left.png'),
-                    os.path.join(img_path, 'camera_rgb_right.png')
-                ]
-                order_indices = ask_bailian_for_stacking_order(cubes_info, image_paths=scene_image_paths)
-                order_indices = push_triangle_objects_to_end(order_indices, env.urdfs_filename)
-                grasp_order_indices = order_indices
-                
-                ball_positions = [matched_positions[i] for i in order_indices if i < len(matched_positions)]
-                
-                print(f"最终抓取顺序: {ball_positions}")
-                print(f"物块ID顺序: {grasp_order_indices}")
+        if not AUTO_RUN and ord('1') in keys and keys[ord('1')] & p.KEY_WAS_TRIGGERED:
+            plan_scene()
 
-        # 按 2 开始抓取
-        if ord('2') in keys and keys[ord('2')] & p.KEY_WAS_TRIGGERED:
-            if not ball_positions:
-                print("未找到物体位置，请先按 1 渲染图像并捕捉位置。")
-                continue
+        if AUTO_RUN and not auto_capture_pending and not GRASP_STATE and not PLACE_STATE and not IN_STATE:
+            if ball_positions and grasp_obj_index < len(grasp_order_indices):
+                begin_next_grasp()
 
-            grasp_order_indices = push_triangle_objects_to_end(grasp_order_indices, env.urdfs_filename)
+        if not AUTO_RUN and ord('2') in keys and keys[ord('2')] & p.KEY_WAS_TRIGGERED:
+            begin_next_grasp()
 
-            detected_x, detected_y, detected_z, detected_angle, detected_width = ball_positions[0]
-            grasp_config['angle'] = detected_angle
-            grasp_config['width'] = detected_width
-
-            target_obj_id = None
-            if grasp_obj_index < len(grasp_order_indices):
-                obj_idx = grasp_order_indices[grasp_obj_index]
-                if obj_idx < len(env.urdfs_id):
-                    target_obj_id = env.urdfs_id[obj_idx]
-
-            if target_obj_id is not None:
-                aabb_min, aabb_max = p.getAABB(target_obj_id)
-                size_x = aabb_max[0] - aabb_min[0]
-                size_y = aabb_max[1] - aabb_min[1]
-                grasp_config['x'] = (aabb_min[0] + aabb_max[0]) / 2.0
-                grasp_config['y'] = (aabb_min[1] + aabb_max[1]) / 2.0
-                grasp_config['z'] = (aabb_min[2] + aabb_max[2]) / 2.0
-                _, obj_orn = p.getBasePositionAndOrientation(target_obj_id)
-                obj_yaw = p.getEulerFromQuaternion(obj_orn)[2]
-                if obj_yaw > np.pi / 2:
-                    obj_yaw -= np.pi
-                elif obj_yaw < -np.pi / 2:
-                    obj_yaw += np.pi
-                grasp_config['angle'] = obj_yaw
-
-                target_filename = os.path.basename(env.urdfs_filename[obj_idx]) if obj_idx < len(env.urdfs_filename) else ""
-                if target_filename.startswith('cone_top'):
-                    flat_face_span = min(size_x, size_y)
-                    grasp_config['width'] = np.clip(flat_face_span + 2 * GRASP_GAP, 0.02, GRASP_WIDTH)
-                    target_color = env.urdfs_colors[obj_idx] if obj_idx < len(env.urdfs_colors) else None
-                    adjusted_angle, angle_reason = infer_triangle_grasp_angle_from_side_views(
-                        img_path,
-                        target_color,
-                        grasp_config['angle']
-                    )
-                    grasp_config['angle'] = adjusted_angle
-                    print(
-                        f"????????: ???????????, "
-                        f"????={flat_face_span:.4f}m, ????={grasp_config['width']:.4f}m, "
-                        f"????={grasp_config['angle']:.4f} rad, {angle_reason}"
-                    )
-
-                print(
-                    f"???????????????: "
-                    f"({grasp_config['x']:.4f}, {grasp_config['y']:.4f}, {grasp_config['z']:.4f}), "
-                    f"???????: {grasp_config['angle']:.4f} rad"
-                )
-            else:
-                grasp_config['x'] = detected_x
-                grasp_config['y'] = detected_y
-                grasp_config['z'] = detected_z
-
-            GRASP_STATE = True
-            ball_positions.pop(0)
-        # 执行抓取
         if GRASP_STATE:
             target_position = [grasp_config['x'], grasp_config['y'], grasp_config['z'] - GRASP_DEPTH]
             current_held_obj_id = None
@@ -555,8 +605,13 @@ def run():
 
             if panda.grasp_step(target_position, grasp_config['angle'], grasp_config['width'], current_held_obj_id):
                 GRASP_STATE = False
-                IN_STATE = True
-                print("抓取完成！")
+                if AUTO_RUN:
+                    pressed_char = AUTO_PLACE_CHAR
+                    panda.start_place()
+                    PLACE_STATE = True
+                else:
+                    IN_STATE = True
+                print("抓取完成。")
 
         if IN_STATE:
             for char in ['7', '8', '9', '0']:
@@ -567,7 +622,6 @@ def run():
                     IN_STATE = False
                     PLACE_STATE = True
 
-        # 执行放置
         if PLACE_STATE:
             if grasp_obj_index < len(grasp_order_indices):
                 obj_idx = grasp_order_indices[grasp_obj_index]
@@ -577,18 +631,25 @@ def run():
             if panda.place_step(pressed_char, held_obj_id):
                 PLACE_STATE = False
                 grasp_obj_index += 1
-                print("放置完成！")
+                print("放置完成。")
+                if AUTO_RUN and grasp_obj_index >= len(grasp_order_indices):
+                    print("Auto run finished: all objects processed.")
 
-        # 按 3 重置环境
         if ord('3') in keys and keys[ord('3')] & p.KEY_WAS_TRIGGERED:
             env.loadObjsInURDF(0, obj_nums)
             ball_positions = []
             grasp_obj_index = 0
             grasp_order_indices = []
+            panda.reset()
             panda.place_count = 0
             panda.placed_objects = []
             panda.stack_center = None
-            print("环境已重置")
+            GRASP_STATE = False
+            PLACE_STATE = False
+            IN_STATE = False
+            pressed_char = None
+            queue_auto_capture()
+            print("环境已重置。")
 
 if __name__ == "__main__":
     run()

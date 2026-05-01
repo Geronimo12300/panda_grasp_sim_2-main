@@ -27,6 +27,7 @@ GRIPPER_MAX_VELOCITY = 0.25
 ARM_MOTOR_FORCE = 4 * 240.0
 EE_XY_TOLERANCE = 0.003
 EE_Z_TOLERANCE = 0.005
+GRASP_ATTACH_DELAY = 0.12
 
 
 class PandaSim(object):
@@ -230,7 +231,8 @@ class PandaSim(object):
 
         if self.state == 3:
             self.setGripper(0)
-            self.attach_held_object(held_object_id)
+            if self.state_t >= GRASP_ATTACH_DELAY:
+                self.attach_held_object(held_object_id)
             return False
 
         if self.state == 4:

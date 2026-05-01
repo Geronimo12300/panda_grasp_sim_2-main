@@ -322,21 +322,28 @@ class SimEnv(object):
             urdf_id = self.p.loadURDF(self.urdfs_filename[i], basePosition, baseOrientation, globalScaling=scaling_factor)
             placed_positions.append(basePosition)
             self.p.changeVisualShape(urdf_id, -1, rgbaColor=cube_rgba_colors[i % len(cube_rgba_colors)])
+            filename = os.path.basename(self.urdfs_filename[i])
+            if filename.startswith('cube'):
+                lateral_friction = 2.8
+                spinning_friction = 0.05
+                rolling_friction = 0.001
+            else:
+                lateral_friction = 1.8
+                spinning_friction = 0.02
+                rolling_friction = 0.002
+
             self.p.changeDynamics(
                 urdf_id,
                 -1,
-                lateralFriction=1.8,
-                spinningFriction=0.02,
-                rollingFriction=0.002,
+                lateralFriction=lateral_friction,
+                spinningFriction=spinning_friction,
+                rollingFriction=rolling_friction,
                 restitution=0.0
             )
-
-
 
             # ??xyz??
             inf = self.p.getVisualShapeData(urdf_id)[0]
 
-            filename = os.path.basename(self.urdfs_filename[i])
             if filename.startswith('cone_top'):
                 shape_name = '?????'
             elif filename.startswith('cylinder'):
