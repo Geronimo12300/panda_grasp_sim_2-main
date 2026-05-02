@@ -46,9 +46,13 @@ PLACE_GRIPPER_OBJECT_MAX_OFFSET = 0.12
 PLACE_REGRIP_XY_OFFSET = 0.018
 GRASP_CENTER_OBJECT_ON_ATTACH = True
 GRASP_CENTER_ATTACH_MAX_XY_CORRECTION = 0.075
+GRASP_CAPTURE_ZONE_XY = 0.022
+GRASP_CAPTURE_ZONE_Z_MIN = 0.015
+GRASP_CAPTURE_ZONE_Z_MAX = 0.090
 GRASP_OBJECT_EE_MIN_Z_OFFSET = 0.045
 GRASP_OBJECT_EE_MAX_Z_OFFSET = 0.070
 GRASP_OBJECT_MIN_BOTTOM_CLEARANCE = 0.006
+GRASP_REGRIP_MIN_BOTTOM_Z = 0.055
 GRASP_CONSTRAINT_FORCE = 520
 GRASP_ATTACH_DELAY = 0.12
 GRASP_CONTACT_TIMEOUT = 0.45
@@ -57,6 +61,9 @@ GRASP_CONTACT_XY_TOLERANCE = 0.025
 GRASP_CONTACT_Z_TOLERANCE = 0.06
 GRASP_POSE_ATTACH_XY_TOLERANCE = 0.04
 GRASP_POSE_ATTACH_Z_TOLERANCE = 0.09
+PHYSICAL_GRASP_LIFT_CLEARANCE = 0.014
+PHYSICAL_GRASP_HOLD_XY_TOLERANCE = 0.04
+PHYSICAL_GRASP_HOLD_Z_TOLERANCE = 0.11
 PLACE_SETTLE_DURATION = 0.35
 PLACE_APPROACH_TIMEOUT = 1.2
 PLACE_DESCENT_TIMEOUT = 1.4
@@ -116,10 +123,13 @@ class PandaSim(object):
         self.held_object_id = None
         self.stack_anchor = None
         self.place_target_snapshot = None
+        self.place_target_override = None
         self.release_snapped = False
         self.release_open_start_t = None
         self.place_animation = None
         self.release_wait_warned = False
+        self.motion_stall_counter = 0
+        self.last_ee_pos = None
 
         c = self.p.createConstraint(
             self.panda,
@@ -193,138 +203,109 @@ class PandaSim(object):
         self.place_position = None
         self.current_place_char = None
         self.place_target_snapshot = None
+        self.place_target_override = None
         self.release_snapped = False
         self.release_open_start_t = None
         self.place_animation = None
         self.release_wait_warned = False
+        self.motion_stall_counter = 0
+        self.last_ee_pos = None
         self.place_count = 0
         self.placed_objects = []
         self.stack_center = None
         self.stack_anchor = None
 
     def attach_held_object(self, held_object_id):
-        if held_object_id is None or self.active_grasp_constraint is not None:
+        if held_object_id is None:
             return
 
+        self.active_grasp_constraint = None
+        self.held_object_id = held_object_id
+        self.setGripper(GRIPPER_CLOSED_WIDTH, force=GRIPPER_GRASP_FORCE)
+
+    def object_is_in_gripper_capture_zone(self, target_object_id):
+        if target_object_id is None:
+            return False
+
         link_state = self.p.getLinkState(self.panda, pandaEndEffectorIndex)
         ee_pos = link_state[4]
         ee_orn = link_state[5]
-        obj_pos, obj_orn = self.p.getBasePositionAndOrientation(held_object_id)
-
-        if GRASP_CENTER_OBJECT_ON_ATTACH:
-            aabb_min, aabb_max = self.p.getAABB(held_object_id)
-            object_height = max(aabb_max[2] - aabb_min[2], 0.02)
-            desired_z_offset = float(
-                np.clip(
-                    object_height * 0.5 + 0.022,
-                    GRASP_OBJECT_EE_MIN_Z_OFFSET,
-                    GRASP_OBJECT_EE_MAX_Z_OFFSET,
-                )
-            )
-            min_center_z = object_height / 2.0 + GRASP_OBJECT_MIN_BOTTOM_CLEARANCE
-            centered_pos = np.array(
-                [ee_pos[0], ee_pos[1], max(ee_pos[2] - desired_z_offset, min_center_z)],
-                dtype=float,
-            )
-            correction_xy = np.linalg.norm(centered_pos[:2] - np.array(obj_pos[:2], dtype=float))
-            if correction_xy > GRASP_CENTER_ATTACH_MAX_XY_CORRECTION:
-                print(
-                    f"抓取失败：物块偏离夹爪中心 {correction_xy:.3f}m，"
-                    "不建立夹持约束，等待重新规划。"
-                )
-                return
-
-            obj_yaw = self.p.getEulerFromQuaternion(obj_orn)[2]
-            obj_orn = self.p.getQuaternionFromEuler([0, 0, obj_yaw])
-            obj_pos = centered_pos.tolist()
-            self.p.resetBasePositionAndOrientation(held_object_id, obj_pos, obj_orn)
-            self.p.resetBaseVelocity(held_object_id, [0, 0, 0], [0, 0, 0])
-
+        obj_pos, _ = self.p.getBasePositionAndOrientation(target_object_id)
         inv_pos, inv_orn = self.p.invertTransform(ee_pos, ee_orn)
-        parent_frame_pos, parent_frame_orn = self.p.multiplyTransforms(inv_pos, inv_orn, obj_pos, obj_orn)
+        local_pos, _ = self.p.multiplyTransforms(inv_pos, inv_orn, obj_pos, [0, 0, 0, 1])
+        return (
+            abs(float(local_pos[0])) <= GRASP_CAPTURE_ZONE_XY
+            and abs(float(local_pos[1])) <= GRASP_CAPTURE_ZONE_XY
+            and GRASP_CAPTURE_ZONE_Z_MIN <= abs(float(local_pos[2])) <= GRASP_CAPTURE_ZONE_Z_MAX
+        )
 
-        self.active_grasp_constraint = self.p.createConstraint(
-            self.panda,
-            pandaEndEffectorIndex,
-            held_object_id,
-            -1,
-            self.p.JOINT_FIXED,
-            [0, 0, 0],
-            parent_frame_pos,
-            [0, 0, 0],
-            parentFrameOrientation=parent_frame_orn,
-            childFrameOrientation=[0, 0, 0, 1],
-        )
-        self.p.changeConstraint(
-            self.active_grasp_constraint,
-            maxForce=GRASP_CONSTRAINT_FORCE,
-            erp=0.85,
-        )
-        self.held_object_id = held_object_id
-        self.setGripper(GRIPPER_CLOSED_WIDTH, force=GRIPPER_GRASP_FORCE)
+    def get_held_object_bottom_z(self, held_object_id):
+        if held_object_id is None:
+            return 0.0
+        aabb_min, _ = self.p.getAABB(held_object_id)
+        return float(aabb_min[2])
 
     def recenter_held_object_in_gripper(self, held_object_id, reason=""):
-        if held_object_id is None or self.active_grasp_constraint is None:
-            return False
+        return False
 
-        offset = self.get_held_object_offset_from_ee(held_object_id)
-        if np.linalg.norm(offset[:2]) <= PLACE_REGRIP_XY_OFFSET:
-            return False
+    def set_place_target_override(self, place_pose=None):
+        if not place_pose:
+            self.place_target_override = None
+            return
 
-        old_constraint = self.active_grasp_constraint
-        self.active_grasp_constraint = None
-        self.p.removeConstraint(old_constraint)
+        self.place_target_override = {
+            "x": float(place_pose.get("x", 0.5)),
+            "y": float(place_pose.get("y", 0.0)),
+            "z": float(place_pose.get("z", 0.0)),
+        }
 
-        link_state = self.p.getLinkState(self.panda, pandaEndEffectorIndex)
-        ee_pos = link_state[4]
-        ee_orn = link_state[5]
-        aabb_min, aabb_max = self.p.getAABB(held_object_id)
-        object_height = max(aabb_max[2] - aabb_min[2], 0.02)
-        desired_z_offset = float(
-            np.clip(
-                object_height * 0.5 + 0.022,
-                GRASP_OBJECT_EE_MIN_Z_OFFSET,
-                GRASP_OBJECT_EE_MAX_Z_OFFSET,
-            )
-        )
-        min_center_z = object_height / 2.0 + GRASP_OBJECT_MIN_BOTTOM_CLEARANCE
-        _, obj_orn = self.p.getBasePositionAndOrientation(held_object_id)
-        obj_yaw = self.p.getEulerFromQuaternion(obj_orn)[2]
-        obj_pos = [ee_pos[0], ee_pos[1], max(ee_pos[2] - desired_z_offset, min_center_z)]
-        obj_orn = self.p.getQuaternionFromEuler([0, 0, obj_yaw])
-        self.p.resetBasePositionAndOrientation(held_object_id, obj_pos, obj_orn)
-        self.p.resetBaseVelocity(held_object_id, [0, 0, 0], [0, 0, 0])
-
-        inv_pos, inv_orn = self.p.invertTransform(ee_pos, ee_orn)
-        parent_frame_pos, parent_frame_orn = self.p.multiplyTransforms(inv_pos, inv_orn, obj_pos, obj_orn)
-        self.active_grasp_constraint = self.p.createConstraint(
-            self.panda,
-            pandaEndEffectorIndex,
-            held_object_id,
-            -1,
-            self.p.JOINT_FIXED,
-            [0, 0, 0],
-            parent_frame_pos,
-            [0, 0, 0],
-            parentFrameOrientation=parent_frame_orn,
-            childFrameOrientation=[0, 0, 0, 1],
-        )
-        self.p.changeConstraint(
-            self.active_grasp_constraint,
-            maxForce=GRASP_CONSTRAINT_FORCE,
-            erp=0.9,
-        )
-        self.held_object_id = held_object_id
-        self.setGripper(GRIPPER_CLOSED_WIDTH, force=GRIPPER_GRASP_FORCE)
-        if reason:
-            print(f"夹持校正：{reason}，已将物块重新夹回夹爪中心线。")
-        return True
+    def reset_motion_watchdog(self):
+        self.motion_stall_counter = 0
+        self.last_ee_pos = None
 
     def detach_held_object(self):
         if self.active_grasp_constraint is not None:
             self.p.removeConstraint(self.active_grasp_constraint)
             self.active_grasp_constraint = None
         self.held_object_id = None
+
+    def object_is_physically_held(self, held_object_id, require_lift=False):
+        if held_object_id is None:
+            return False
+
+        left_contact, right_contact, contact_count = self.get_target_contact_summary(held_object_id)
+        if contact_count == 0:
+            return False
+
+        is_cylinder = self.is_cylinder_object(held_object_id)
+        has_stable_contact = (
+            contact_count >= 1
+            if is_cylinder
+            else (left_contact and right_contact) or contact_count >= 2
+        )
+        if not has_stable_contact:
+            return False
+
+        ee_pos = self.get_end_effector_position()
+        obj_pos, _ = self.p.getBasePositionAndOrientation(held_object_id)
+        xy_error = np.linalg.norm(np.array(obj_pos[:2], dtype=float) - ee_pos[:2])
+        z_error = abs(float(obj_pos[2]) - float(ee_pos[2]))
+        if xy_error > PHYSICAL_GRASP_HOLD_XY_TOLERANCE or z_error > PHYSICAL_GRASP_HOLD_Z_TOLERANCE:
+            return False
+
+        if require_lift and self.get_held_object_bottom_z(held_object_id) <= PHYSICAL_GRASP_LIFT_CLEARANCE:
+            return False
+
+        return True
+
+    def refresh_physical_hold_state(self, held_object_id, require_lift=False):
+        if self.object_is_physically_held(held_object_id, require_lift=require_lift):
+            self.held_object_id = held_object_id
+            return True
+
+        if self.held_object_id == held_object_id:
+            self.held_object_id = None
+        return False
 
     def calcJointLocation(self, pos, orn):
         return self.p.calculateInverseKinematics(
@@ -503,7 +484,7 @@ class PandaSim(object):
         )
 
     def force_release_held_object(self):
-        self.detach_held_object()
+        self.held_object_id = None
         self.reset_gripper_open_immediately()
 
     def get_stack_support_top_z(self, exclude_object_id=None):
@@ -533,57 +514,9 @@ class PandaSim(object):
         return target_pos, upright_orn
 
     def snap_object_to_stack(self, held_object_id):
-        target_pos, upright_orn = self.get_stack_target_pose(held_object_id)
-        if target_pos is None:
-            return False
-
-        self.detach_held_object()
-        self.p.resetBasePositionAndOrientation(held_object_id, target_pos, upright_orn)
-        self.p.resetBaseVelocity(held_object_id, [0, 0, 0], [0, 0, 0])
-        if FREEZE_PLACED_OBJECTS:
-            self.p.changeDynamics(held_object_id, -1, mass=0)
-        return True
+        return False
 
     def update_gripper_place_animation(self, held_object_id):
-        target_pos, target_orn = self.get_stack_target_pose(held_object_id)
-        if target_pos is None:
-            return False
-
-        if self.place_animation is None or self.place_animation.get("object_id") != held_object_id:
-            start_pos = self.get_end_effector_position()
-            self.place_animation = {
-                "object_id": held_object_id,
-                "start_t": self.state_t,
-                "start_pos": np.array(start_pos, dtype=float),
-            }
-
-        animation = self.place_animation
-        elapsed = max(0.0, self.state_t - animation["start_t"])
-        progress = float(np.clip(elapsed / PLACE_OBJECT_MOVE_DURATION, 0.0, 1.0))
-        smooth_progress = progress * progress * (3.0 - 2.0 * progress)
-        held_aabb = self.p.getAABB(held_object_id)
-        ee_pos = self.get_end_effector_position()
-        ee_to_object_bottom = max(ee_pos[2] - held_aabb[0][2], 0.06)
-        target_ee_pos = np.array(
-            [
-                target_pos[0],
-                target_pos[1],
-                target_pos[2] + ee_to_object_bottom,
-            ],
-            dtype=float,
-        )
-        current_ee_pos = (
-            animation["start_pos"]
-            + smooth_progress * (target_ee_pos - animation["start_pos"])
-        )
-        orn = self.p.getQuaternionFromEuler([math.pi, 0.0, math.pi / 2])
-        self.setArm(self.calcJointLocation(current_ee_pos.tolist(), orn))
-        self.setGripper(GRIPPER_CLOSED_WIDTH, force=GRIPPER_GRASP_FORCE)
-
-        if progress >= 1.0:
-            self.place_animation = None
-            return True
-
         return False
 
     def advance_state(self):
@@ -592,6 +525,7 @@ class PandaSim(object):
             self.cur_state = 0
         self.state_t = 0
         self.state = self.states[self.cur_state]
+        self.reset_motion_watchdog()
 
     def setArm(self, jointPoses, max_velocity=ARM_MAX_VELOCITY):
         for i in range(pandaNumDofs):
@@ -648,11 +582,14 @@ class PandaSim(object):
             self.setArm(self.calcJointLocation(squeeze_pos, orn))
             self.setGripper(0, force=GRIPPER_GRASP_FORCE)
             can_attach_by_contact = self.can_attach_grasp_target(held_object_id)
-            can_attach_by_pose = self.can_attach_grasp_target_by_pose(held_object_id, target_pos)
-            can_attach_deterministically = DETERMINISTIC_OBJECT_TRANSPORT and self.state_t >= GRASP_ATTACH_DELAY
-            if self.state_t >= GRASP_ATTACH_DELAY and (can_attach_by_contact or can_attach_by_pose or can_attach_deterministically):
+            can_attach_by_pose = (
+                self.can_attach_grasp_target_by_pose(held_object_id, target_pos)
+                and self.object_is_in_gripper_capture_zone(held_object_id)
+            )
+            can_attach_deterministically = False
+            if self.state_t >= GRASP_ATTACH_DELAY and (can_attach_by_contact or can_attach_by_pose):
                 if can_attach_by_pose and not can_attach_by_contact:
-                    print("夹爪已到达目标位姿，使用位姿兜底抓取。")
+                    print("夹爪已包住目标物块，使用位姿兜底建立夹持。")
                 if can_attach_deterministically and not (can_attach_by_contact or can_attach_by_pose):
                     print("启用确定性搬运：不等待接触点，直接挂接目标物块。")
                 self.attach_held_object(held_object_id)
@@ -684,7 +621,6 @@ class PandaSim(object):
 
     def place_step(self, char, held_object_id=None):
         self.update_state()
-
         if self.state == 7:
             self.recenter_held_object_in_gripper(held_object_id, reason="放置上方移动前检测到偏心")
             if char not in PLACE_TARGETS:
@@ -692,9 +628,11 @@ class PandaSim(object):
 
             pos = PLACE_TARGETS[char]
             self.current_place_char = char
+            place_x = self.place_target_override["x"] if self.place_target_override else pos[0]
+            place_y = self.place_target_override["y"] if self.place_target_override else pos[1]
             if self.stack_center is None or self.place_count == 0:
-                self.stack_center = [pos[0], pos[1]]
-                self.stack_anchor = [pos[0], pos[1]]
+                self.stack_center = [place_x, place_y]
+                self.stack_anchor = [place_x, place_y]
             elif self.stack_anchor is not None:
                 self.stack_center = [self.stack_anchor[0], self.stack_anchor[1]]
 
@@ -796,6 +734,7 @@ class PandaSim(object):
             )
             release_timed_out = release_elapsed > max(PLACE_RELEASE_TIMEOUT, PLACE_SLOW_RELEASE_DURATION + 0.2)
             if contacts_released or release_timed_out:
+                self.held_object_id = None
                 if release_timed_out and contact_count > 0:
                     print("夹爪释放后仍检测到接触，继续抬升以脱离物块。")
                 self.advance_state()
@@ -804,7 +743,7 @@ class PandaSim(object):
         if self.state == 11:
             retreat_pos = [self.place_position[0], self.place_position[1], 0.4]
             orn = self.p.getQuaternionFromEuler([math.pi, 0.0, math.pi / 2])
-            self.setArm(self.calcJointLocation(retreat_pos, orn))
+            self.setArm(self.calcJointLocation(retreat_pos, orn), max_velocity=ARM_CARRY_MAX_VELOCITY)
             self.open_gripper_for_release()
             if not self.has_reached_position(retreat_pos, PLACE_XY_TOLERANCE, PLACE_Z_TOLERANCE) and self.state_t <= self.state_durations[self.cur_state] + 1.0:
                 return False
@@ -823,10 +762,12 @@ class PandaSim(object):
         self.place_position = None
         self.current_place_char = None
         self.place_target_snapshot = None
+        self.place_target_override = None
         self.release_snapped = False
         self.release_open_start_t = None
         self.place_animation = None
         self.release_wait_warned = False
+        self.reset_motion_watchdog()
         if self.place_count == 0:
             self.stack_anchor = None
         self.detach_held_object()
@@ -839,6 +780,7 @@ class PandaSim(object):
         self.release_open_start_t = None
         self.place_animation = None
         self.release_wait_warned = False
+        self.reset_motion_watchdog()
 
 
 class PandaSimAuto(PandaSim):

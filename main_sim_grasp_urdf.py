@@ -307,6 +307,132 @@ def ask_bailian_for_stack_success(image_paths=None, expected_count=None):
         print(f"调用阿里云百炼 / Qwen-VL 堆叠验收失败: {e}")
         return False, f"模型验收失败: {e}"
 
+
+def clamp_value(value, lower, upper):
+    return max(lower, min(upper, value))
+
+
+def parse_object_index(value, object_count):
+    if isinstance(value, int):
+        idx = value - 1
+    elif isinstance(value, str):
+        digits = ''.join(ch for ch in value if ch.isdigit())
+        if not digits:
+            return None
+        idx = int(digits) - 1
+    else:
+        return None
+
+    if 0 <= idx < object_count:
+        return idx
+    return None
+
+
+def ask_bailian_for_pick_place_actions(cubes_info, image_paths=None, stack_target=None):
+    """
+    让大模型直接输出结构化抓取/放置动作。
+    返回原始动作列表；后续仍需做本地安全裁剪。
+    """
+    stack_target = stack_target or {"x": 0.5, "y": 0.0, "z": 0.0}
+    object_lines = []
+    for cube in cubes_info:
+        grasp_pose = cube.get("default_grasp_pose", {})
+        object_lines.append(
+            f"物块{cube['index'] + 1}: "
+            f"颜色={cube.get('color', '未知')}, "
+            f"形状={cube.get('shape', '未知')}, "
+            f"位置=({cube['position'][0]:.3f}, {cube['position'][1]:.3f}), "
+            f"默认抓取候选=(x={grasp_pose.get('x', 0.0):.3f}, y={grasp_pose.get('y', 0.0):.3f}, "
+            f"z={grasp_pose.get('z', 0.0):.3f}, yaw={grasp_pose.get('yaw', 0.0):.3f}, "
+            f"width={grasp_pose.get('width', 0.05):.3f})"
+        )
+
+    json_example = """{
+  "actions": [
+    {
+      "target_object": "物块1",
+      "grasp_pose": {"x": 0.10, "y": -0.02, "z": 0.03, "yaw": 0.0, "width": 0.05},
+      "place_pose": {"x": 0.50, "y": 0.00, "z": 0.00},
+      "reason": "适合做底层"
+    }
+  ]
+}"""
+
+    prompt = f"""你是一个机械臂抓取与堆叠规划专家。
+
+现在有 {len(cubes_info)} 个物块，你需要直接给出“抓谁、怎么抓、放到哪里”的动作计划。
+
+场景中物块信息如下：
+{os.linesep.join(object_lines)}
+
+我还会给你三张场景图：俯视图、左侧视图、右侧视图。
+
+堆叠目标点建议为：
+place_pose = (x={stack_target['x']:.3f}, y={stack_target['y']:.3f}, z={stack_target['z']:.3f})
+
+规则：
+1. 每个物块只能出现一次。
+2. 第一个 action 放在最底层，最后一个 action 放在最上层。
+3. 请优先使用我提供的默认抓取候选，只在必要时做小幅调整。
+4. 你输出的 grasp_pose 必须是机械臂可以执行的单次抓取位姿。
+5. 所有 place_pose 应该围绕同一个堆叠中心，便于竖直堆叠。
+6. 如果三角体不适合承托其他物块，应尽量放在上层。
+7. 只能使用给定的物块编号，不要创造新编号。
+
+请只返回 JSON，不要添加其他解释。格式如下：
+{json_example}
+"""
+
+    user_content = [{"type": "text", "text": prompt}]
+    for image_path in image_paths or []:
+        image_data_url = encode_image_to_data_url(image_path)
+        if image_data_url:
+            user_content.append({
+                "type": "image_url",
+                "image_url": {"url": image_data_url}
+            })
+
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {BAILIAN_API_KEY}"
+    }
+
+    data = {
+        "model": "qwen-vl-max-latest",
+        "messages": [
+            {"role": "system", "content": "你是机器人抓取规划专家，请直接返回结构化 JSON 动作计划。"},
+            {"role": "user", "content": user_content}
+        ],
+        "temperature": 0.1,
+        "max_tokens": 600
+    }
+
+    try:
+        response = requests.post(BAILIAN_API_URL, headers=headers, json=data, timeout=30)
+        response.raise_for_status()
+        result = response.json()
+        content = result["choices"][0]["message"]["content"]
+
+        print("\n" + "=" * 50)
+        print("【阿里云百炼 / Qwen-VL 动作计划原始返回】")
+        print(content)
+        print("=" * 50)
+
+        json_match = content
+        if "```json" in content:
+            json_match = content.split("```json")[1].split("```")[0]
+        elif "```" in content:
+            json_match = content.split("```")[1].split("```")[0]
+
+        plan = json.loads(json_match.strip())
+        actions = plan.get("actions", [])
+        if not isinstance(actions, list):
+            raise ValueError("actions 字段不是列表")
+        return actions
+    except Exception as e:
+        print(f"调用阿里云百炼 / Qwen-VL 动作规划失败: {e}")
+        return None
+
 def enforce_stacking_constraints(order_indices, cubes_info):
     valid_indices = [idx for idx in order_indices if 0 <= idx < len(cubes_info)]
     missing_indices = [i for i in range(len(cubes_info)) if i not in valid_indices]
@@ -442,6 +568,7 @@ def run():
     ball_positions = []
     grasp_obj_index = 0
     grasp_order_indices = []
+    planned_actions = []
     stack_evaluation_done = False
     auto_scene_settle_counter = 0
     trial_step_counter = 0
@@ -628,7 +755,7 @@ def run():
 
     def reset_robot_and_runtime():
         nonlocal GRASP_STATE, PLACE_STATE, IN_STATE, pressed_char
-        nonlocal ball_positions, grasp_obj_index, grasp_order_indices
+        nonlocal ball_positions, grasp_obj_index, grasp_order_indices, planned_actions
         nonlocal stack_evaluation_done, auto_scene_settle_counter, trial_step_counter
         nonlocal grasp_action_step_counter, place_action_step_counter
 
@@ -640,6 +767,7 @@ def run():
         ball_positions = []
         grasp_obj_index = 0
         grasp_order_indices = []
+        planned_actions = []
         stack_evaluation_done = False
         auto_scene_settle_counter = 0
         trial_step_counter = 0
@@ -664,6 +792,127 @@ def run():
         clear_world_before_trial()
         env.loadObjsInURDF(0, obj_nums, shape_sequence=group['shapes'])
         reset_robot_and_runtime()
+
+    def build_default_grasp_pose(obj_idx, detected_pos):
+        detected_x, detected_y, detected_z, detected_angle, detected_width = detected_pos
+        pose = {
+            'x': float(detected_x),
+            'y': float(detected_y),
+            'z': float(detected_z),
+            'yaw': float(detected_angle),
+            'width': float(detected_width),
+        }
+
+        if obj_idx >= len(env.urdfs_id):
+            return pose
+
+        target_obj_id = env.urdfs_id[obj_idx]
+        aabb_min, aabb_max = p.getAABB(target_obj_id)
+        size_x = aabb_max[0] - aabb_min[0]
+        size_y = aabb_max[1] - aabb_min[1]
+        size_z = aabb_max[2] - aabb_min[2]
+        pose['x'] = float((aabb_min[0] + aabb_max[0]) / 2.0)
+        pose['y'] = float((aabb_min[1] + aabb_max[1]) / 2.0)
+        pose['z'] = float((aabb_min[2] + aabb_max[2]) / 2.0)
+
+        _, obj_orn = p.getBasePositionAndOrientation(target_obj_id)
+        obj_yaw = p.getEulerFromQuaternion(obj_orn)[2]
+        if obj_yaw > np.pi / 2:
+            obj_yaw -= np.pi
+        elif obj_yaw < -np.pi / 2:
+            obj_yaw += np.pi
+        pose['yaw'] = float(obj_yaw)
+
+        target_filename = os.path.basename(env.urdfs_filename[obj_idx]) if obj_idx < len(env.urdfs_filename) else ''
+        if target_filename.startswith('cube'):
+            cube_edge = size_z
+            pose['width'] = float(np.clip(cube_edge + 2 * GRASP_GAP, 0.025, GRASP_WIDTH))
+            pose['z'] = float(aabb_min[2] + 0.38 * size_z)
+        elif target_filename.startswith('cylinder'):
+            cylinder_diameter = max(size_x, size_y)
+            pose['width'] = float(np.clip(cylinder_diameter + 0.025, 0.045, GRASP_WIDTH))
+            pose['z'] = float(aabb_min[2] + 0.42 * size_z)
+            pose['yaw'] = 0.0
+        elif target_filename.startswith('cone_top'):
+            flat_face_span = min(size_x, size_y)
+            pose['width'] = float(np.clip(flat_face_span + 2 * GRASP_GAP, 0.02, GRASP_WIDTH))
+            target_color = env.urdfs_colors[obj_idx] if obj_idx < len(env.urdfs_colors) else None
+            adjusted_angle, _ = infer_triangle_grasp_angle_from_side_views(img_path, target_color, pose['yaw'])
+            pose['yaw'] = float(adjusted_angle)
+        return pose
+
+    def build_default_action_plan(cubes_info, detected_positions, stack_target_xy=(0.5, 0.0)):
+        ordered_indices = enforce_stacking_constraints(
+            list(range(len(cubes_info))),
+            cubes_info,
+        )
+        actions = []
+        for order_rank, obj_idx in enumerate(ordered_indices):
+            default_grasp_pose = cubes_info[obj_idx]['default_grasp_pose']
+            actions.append({
+                'target_index': obj_idx,
+                'grasp_pose': dict(default_grasp_pose),
+                'place_pose': {
+                    'x': float(stack_target_xy[0]),
+                    'y': float(stack_target_xy[1]),
+                    'z': float(order_rank * 0.04),
+                },
+                'reason': '默认规则规划：按稳定性与形状约束堆叠',
+            })
+        return actions
+
+    def sanitize_action_plan(raw_actions, default_actions, object_count, stack_target_xy=(0.5, 0.0)):
+        if not raw_actions:
+            return list(default_actions)
+
+        def get_float(source, key, fallback):
+            try:
+                return float(source.get(key, fallback))
+            except (TypeError, ValueError, AttributeError):
+                return float(fallback)
+
+        default_by_index = {action['target_index']: action for action in default_actions}
+        planned = []
+        used_indices = set()
+
+        for raw_action in raw_actions:
+            if not isinstance(raw_action, dict):
+                continue
+            obj_idx = parse_object_index(raw_action.get('target_object'), object_count)
+            if obj_idx is None or obj_idx in used_indices or obj_idx not in default_by_index:
+                continue
+
+            default_action = default_by_index[obj_idx]
+            default_grasp = default_action['grasp_pose']
+            raw_grasp = raw_action.get('grasp_pose', {}) or {}
+            raw_place = raw_action.get('place_pose', {}) or {}
+
+            grasp_pose = {
+                'x': clamp_value(get_float(raw_grasp, 'x', default_grasp['x']), default_grasp['x'] - 0.05, default_grasp['x'] + 0.05),
+                'y': clamp_value(get_float(raw_grasp, 'y', default_grasp['y']), default_grasp['y'] - 0.05, default_grasp['y'] + 0.05),
+                'z': clamp_value(get_float(raw_grasp, 'z', default_grasp['z']), max(0.0, default_grasp['z'] - 0.02), default_grasp['z'] + 0.03),
+                'yaw': float(normalize_grasp_angle(get_float(raw_grasp, 'yaw', default_grasp['yaw']))),
+                'width': clamp_value(get_float(raw_grasp, 'width', default_grasp['width']), 0.02, GRASP_WIDTH),
+            }
+            place_pose = {
+                'x': clamp_value(get_float(raw_place, 'x', stack_target_xy[0]), stack_target_xy[0] - 0.02, stack_target_xy[0] + 0.02),
+                'y': clamp_value(get_float(raw_place, 'y', stack_target_xy[1]), stack_target_xy[1] - 0.02, stack_target_xy[1] + 0.02),
+                'z': clamp_value(get_float(raw_place, 'z', default_action['place_pose']['z']), 0.0, 0.25),
+            }
+
+            planned.append({
+                'target_index': obj_idx,
+                'grasp_pose': grasp_pose,
+                'place_pose': place_pose,
+                'reason': str(raw_action.get('reason', '大模型动作规划')).strip() or '大模型动作规划',
+            })
+            used_indices.add(obj_idx)
+
+        for default_action in default_actions:
+            if default_action['target_index'] not in used_indices:
+                planned.append(default_action)
+
+        return planned
 
     def advance_to_next_trial():
         nonlocal current_group_index, current_trial_index, batch_finished
@@ -735,7 +984,7 @@ def run():
         return True
 
     def plan_scene():
-        nonlocal ball_positions, grasp_order_indices, grasp_obj_index, stack_evaluation_done
+        nonlocal ball_positions, grasp_order_indices, grasp_obj_index, planned_actions, stack_evaluation_done
 
         env.renderURDFImage(save_path=img_path)
         detected_positions = get_positions(img_path, env.urdfs_id)
@@ -743,6 +992,7 @@ def run():
 
         ball_positions = []
         grasp_order_indices = []
+        planned_actions = []
         grasp_obj_index = 0
         stack_evaluation_done = False
         if len(detected_positions) != len(env.urdfs_id):
@@ -803,122 +1053,100 @@ def run():
                 'source_filename': source_filename,
                 'position': [obj_pos[0], obj_pos[1]],
             }
+            cube_info['default_grasp_pose'] = build_default_grasp_pose(i, mask_pos)
             cube_info.update(shape_params)
             cubes_info.append(cube_info)
             print(f"    -> Mask 抓取候选 ({mask_pos[0]:.3f}, {mask_pos[1]:.3f})")
 
         print('=' * 50 + '\n')
-        print('正在询问阿里云百炼 / Qwen-VL 最优堆叠顺序...')
+        print('正在询问阿里云百炼 / Qwen-VL 直接生成抓取放置动作...')
 
         if not cubes_info:
             return False
 
+        stack_target_xy = (0.5, 0.0)
         scene_image_paths = [
             os.path.join(img_path, 'camera_rgb.png'),
             os.path.join(img_path, 'camera_rgb_left.png'),
             os.path.join(img_path, 'camera_rgb_right.png')
         ]
-        order_indices = ask_bailian_for_stacking_order(cubes_info, image_paths=scene_image_paths)
-        order_indices = push_triangle_objects_to_end(order_indices, env.urdfs_filename)
-        missing_order_indices = [idx for idx in order_indices if idx not in detected_positions]
-        if missing_order_indices:
-            print(f"规划顺序中存在未检测物块: {[idx + 1 for idx in missing_order_indices]}，等待重新渲染。")
-            return False
+        default_actions = build_default_action_plan(cubes_info, detected_positions, stack_target_xy=stack_target_xy)
+        raw_actions = ask_bailian_for_pick_place_actions(
+            cubes_info,
+            image_paths=scene_image_paths,
+            stack_target={'x': stack_target_xy[0], 'y': stack_target_xy[1], 'z': 0.0},
+        )
+        planned_actions = sanitize_action_plan(
+            raw_actions,
+            default_actions,
+            len(cubes_info),
+            stack_target_xy=stack_target_xy,
+        )
+        grasp_order_indices = [action['target_index'] for action in planned_actions]
+        ball_positions = [
+            (
+                action['grasp_pose']['x'],
+                action['grasp_pose']['y'],
+                action['grasp_pose']['z'],
+                action['grasp_pose']['yaw'],
+                action['grasp_pose']['width'],
+            )
+            for action in planned_actions
+        ]
 
-        grasp_order_indices = order_indices
-        ball_positions = [detected_positions[idx] for idx in order_indices]
-
-        print(f"最终抓取顺序: {ball_positions}")
-        print(f"物块ID顺序: {grasp_order_indices}")
-        return len(ball_positions) > 0
+        print("\n" + "=" * 50)
+        print("【最终动作计划】")
+        for action_idx, action in enumerate(planned_actions, 1):
+            grasp_pose = action['grasp_pose']
+            place_pose = action['place_pose']
+            print(
+                f"  Action {action_idx}: 物块{action['target_index'] + 1}, "
+                f"grasp=({grasp_pose['x']:.3f}, {grasp_pose['y']:.3f}, {grasp_pose['z']:.3f}, "
+                f"yaw={grasp_pose['yaw']:.3f}, width={grasp_pose['width']:.3f}), "
+                f"place=({place_pose['x']:.3f}, {place_pose['y']:.3f}, {place_pose['z']:.3f}), "
+                f"reason={action['reason']}"
+            )
+        print("=" * 50 + "\n")
+        return len(planned_actions) > 0
 
     def begin_next_grasp():
         nonlocal GRASP_STATE, grasp_action_step_counter
 
-        if not ball_positions:
-            print('未找到物体位置，请先渲染图像并捕捉位置。')
+        if not planned_actions:
+            print('未生成动作计划，请先完成场景规划。')
             return False
 
-        grasp_order_local = push_triangle_objects_to_end(grasp_order_indices, env.urdfs_filename)
-        if grasp_obj_index >= len(grasp_order_local):
+        if grasp_obj_index >= len(planned_actions):
             return False
 
-        detected_x, detected_y, detected_z, detected_angle, detected_width = ball_positions[0]
-        grasp_config['angle'] = detected_angle
-        grasp_config['width'] = detected_width
+        current_action = planned_actions[grasp_obj_index]
+        grasp_pose = current_action['grasp_pose']
+        grasp_config['x'] = grasp_pose['x']
+        grasp_config['y'] = grasp_pose['y']
+        grasp_config['z'] = grasp_pose['z']
+        grasp_config['angle'] = grasp_pose['yaw']
+        grasp_config['width'] = grasp_pose['width']
 
         target_obj_id = None
-        obj_idx = grasp_order_local[grasp_obj_index]
+        obj_idx = current_action['target_index']
         if obj_idx < len(env.urdfs_id):
             target_obj_id = env.urdfs_id[obj_idx]
 
         if target_obj_id is not None:
-            aabb_min, aabb_max = p.getAABB(target_obj_id)
-            size_x = aabb_max[0] - aabb_min[0]
-            size_y = aabb_max[1] - aabb_min[1]
-            size_z = aabb_max[2] - aabb_min[2]
-            grasp_config['x'] = (aabb_min[0] + aabb_max[0]) / 2.0
-            grasp_config['y'] = (aabb_min[1] + aabb_max[1]) / 2.0
-            grasp_config['z'] = (aabb_min[2] + aabb_max[2]) / 2.0
-            _, obj_orn = p.getBasePositionAndOrientation(target_obj_id)
-            obj_yaw = p.getEulerFromQuaternion(obj_orn)[2]
-            if obj_yaw > np.pi / 2:
-                obj_yaw -= np.pi
-            elif obj_yaw < -np.pi / 2:
-                obj_yaw += np.pi
-            grasp_config['angle'] = obj_yaw
-
-            target_filename = os.path.basename(env.urdfs_filename[obj_idx]) if obj_idx < len(env.urdfs_filename) else ''
-            if target_filename.startswith('cube'):
-                cube_edge = size_z
-                grasp_config['width'] = np.clip(cube_edge + 2 * GRASP_GAP, 0.025, GRASP_WIDTH)
-                grasp_config['z'] = aabb_min[2] + 0.38 * size_z
-                print(
-                    f"立方体抓取修正: 边长估计={cube_edge:.4f}m, "
-                    f"夹爪开口={grasp_config['width']:.4f}m, 抓取高度={grasp_config['z']:.4f}m"
-                )
-            elif target_filename.startswith('cylinder'):
-                cylinder_diameter = max(size_x, size_y)
-                grasp_config['width'] = np.clip(cylinder_diameter + 0.025, 0.045, GRASP_WIDTH)
-                grasp_config['z'] = aabb_min[2] + 0.42 * size_z
-                # 圆柱顶视图近似圆形，mask 角度不稳定；固定水平抓取更可靠。
-                grasp_config['angle'] = 0.0
-                print(
-                    f"圆柱体抓取修正: 直径估计={cylinder_diameter:.4f}m, "
-                    f"夹爪预开口={grasp_config['width']:.4f}m, 抓取高度={grasp_config['z']:.4f}m"
-                )
-            elif target_filename.startswith('cone_top'):
-                flat_face_span = min(size_x, size_y)
-                grasp_config['width'] = np.clip(flat_face_span + 2 * GRASP_GAP, 0.02, GRASP_WIDTH)
-                target_color = env.urdfs_colors[obj_idx] if obj_idx < len(env.urdfs_colors) else None
-                adjusted_angle, angle_reason = infer_triangle_grasp_angle_from_side_views(
-                    img_path,
-                    target_color,
-                    grasp_config['angle']
-                )
-                grasp_config['angle'] = adjusted_angle
-                print(
-                    f"三角积木抓取策略: 厚度={flat_face_span:.4f}m, "
-                    f"开口={grasp_config['width']:.4f}m, 角度={grasp_config['angle']:.4f} rad, {angle_reason}"
-                )
-
             print(
-                f"抓取中心已修正到物块包围盒中心 "
+                f"执行动作: 抓取物块{obj_idx + 1}, "
                 f"({grasp_config['x']:.4f}, {grasp_config['y']:.4f}, {grasp_config['z']:.4f}), "
-                f"抓取角度={grasp_config['angle']:.4f} rad"
+                f"抓取角度={grasp_config['angle']:.4f} rad, "
+                f"夹爪宽度={grasp_config['width']:.4f}m, "
+                f"放置点=({current_action['place_pose']['x']:.4f}, {current_action['place_pose']['y']:.4f}, {current_action['place_pose']['z']:.4f})"
             )
-        else:
-            grasp_config['x'] = detected_x
-            grasp_config['y'] = detected_y
-            grasp_config['z'] = detected_z
 
         GRASP_STATE = True
         grasp_action_step_counter = 0
-        ball_positions.pop(0)
         return True
 
     def abort_current_grasp(reason):
-        nonlocal GRASP_STATE, ball_positions, grasp_order_indices, auto_scene_settle_counter
+        nonlocal GRASP_STATE, ball_positions, grasp_order_indices, planned_actions, auto_scene_settle_counter
         nonlocal grasp_action_step_counter
 
         print(reason)
@@ -929,6 +1157,7 @@ def run():
         if AUTO_RUN:
             ball_positions = []
             grasp_order_indices = []
+            planned_actions = []
             auto_scene_settle_counter = 0
             queue_auto_capture()
 
@@ -982,7 +1211,7 @@ def run():
             plan_scene()
 
         if AUTO_RUN and not auto_capture_pending and not GRASP_STATE and not PLACE_STATE and not IN_STATE:
-            if ball_positions and grasp_obj_index < len(grasp_order_indices) and auto_scene_settle_counter >= SCENE_SETTLE_STEPS:
+            if planned_actions and grasp_obj_index < len(planned_actions) and auto_scene_settle_counter >= SCENE_SETTLE_STEPS:
                 begin_next_grasp()
                 auto_scene_settle_counter = 0
 
@@ -1012,6 +1241,7 @@ def run():
                 else:
                     if AUTO_RUN:
                         pressed_char = AUTO_PLACE_CHAR
+                        panda.set_place_target_override(planned_actions[grasp_obj_index]['place_pose'])
                         panda.start_place()
                         place_action_step_counter = 0
                         PLACE_STATE = True
@@ -1024,6 +1254,7 @@ def run():
                 key_code = ord(char)
                 if key_code in keys and keys[key_code] & p.KEY_WAS_TRIGGERED:
                     pressed_char = char
+                    panda.set_place_target_override(None)
                     panda.start_place()
                     place_action_step_counter = 0
                     IN_STATE = False
