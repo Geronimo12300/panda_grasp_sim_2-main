@@ -16,6 +16,9 @@ BAILIAN_API_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/comple
 GRASP_GAP = 0.005
 GRASP_DEPTH = 0.005
 GRASP_WIDTH = 0.08
+SCENE_SETTLE_LINEAR_VEL = 0.015
+SCENE_SETTLE_ANGULAR_VEL = 0.08
+SCENE_SETTLE_STEPS = 45
 
 def encode_image_to_data_url(image_path):
     if not image_path or not os.path.exists(image_path):
@@ -235,6 +238,72 @@ def ask_bailian_for_stacking_order(cubes_info, image_paths=None):
         )
         return enforce_stacking_constraints(default_order, cubes_info)
 
+
+def ask_bailian_for_stack_success(image_paths=None, expected_count=None):
+    count_text = f"{expected_count}个物块" if expected_count is not None else "这些物块"
+    prompt = f"""你是一个机器人堆叠结果验收助手。
+
+我会提供当前堆叠完成后的场景图片，请你判断 {count_text} 是否已经成功堆叠。
+
+判定标准：
+1. 主要关注目标物块是否形成了明显的竖向堆叠，而不是散落在桌面
+2. 如果大部分物块已经叠在一起且整体稳定，没有明显倒塌，判定为成功
+3. 如果物块散落、明显滑落、倒塌，或者没有形成堆叠，判定为失败
+4. 只根据图片判断，不要补充额外假设
+
+请只返回 JSON，格式如下：
+{{"success": true, "reason": "一句简短中文说明"}}
+"""
+
+    user_content = [{"type": "text", "text": prompt}]
+    for image_path in image_paths or []:
+        image_data_url = encode_image_to_data_url(image_path)
+        if image_data_url:
+            user_content.append({
+                "type": "image_url",
+                "image_url": {"url": image_data_url}
+            })
+
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {BAILIAN_API_KEY}"
+    }
+
+    data = {
+        "model": "qwen-vl-max-latest",
+        "messages": [
+            {"role": "system", "content": "你是一个机器人堆叠结果验收助手，请直接返回JSON格式结果。"},
+            {"role": "user", "content": user_content}
+        ],
+        "temperature": 0.1,
+        "max_tokens": 120
+    }
+
+    try:
+        response = requests.post(BAILIAN_API_URL, headers=headers, json=data, timeout=30)
+        response.raise_for_status()
+        result = response.json()
+        content = result["choices"][0]["message"]["content"]
+
+        print("\n" + "=" * 50)
+        print("【阿里云百炼 / Qwen-VL 堆叠验收原始返回】")
+        print(content)
+        print("=" * 50)
+
+        json_match = content
+        if "```json" in content:
+            json_match = content.split("```json")[1].split("```")[0]
+        elif "```" in content:
+            json_match = content.split("```")[1].split("```")[0]
+
+        verdict = json.loads(json_match.strip())
+        success = bool(verdict.get("success", False))
+        reason = verdict.get("reason", "未提供原因")
+        return success, reason
+    except Exception as e:
+        print(f"调用阿里云百炼 / Qwen-VL 堆叠验收失败: {e}")
+        return False, f"模型验收失败: {e}"
+
 def enforce_stacking_constraints(order_indices, cubes_info):
     valid_indices = [idx for idx in order_indices if 0 <= idx < len(cubes_info)]
     missing_indices = [i for i in range(len(cubes_info)) if i not in valid_indices]
@@ -378,14 +447,28 @@ def run():
     ball_positions = []
     grasp_obj_index = 0
     grasp_order_indices = []
+    stack_evaluation_done = False
+    auto_scene_settle_counter = 0
 
     def queue_auto_capture():
         nonlocal auto_capture_pending, auto_capture_countdown
         auto_capture_pending = AUTO_RUN
         auto_capture_countdown = AUTO_CAPTURE_DELAY_STEPS
 
+    def scene_is_settled():
+        if not env.urdfs_id:
+            return False
+
+        for obj_id in env.urdfs_id:
+            linear_vel, angular_vel = p.getBaseVelocity(obj_id)
+            if np.linalg.norm(linear_vel) > SCENE_SETTLE_LINEAR_VEL:
+                return False
+            if np.linalg.norm(angular_vel) > SCENE_SETTLE_ANGULAR_VEL:
+                return False
+        return True
+
     def plan_scene():
-        nonlocal ball_positions, grasp_order_indices, grasp_obj_index
+        nonlocal ball_positions, grasp_order_indices, grasp_obj_index, stack_evaluation_done
 
         env.renderURDFImage(save_path=img_path)
         detected_positions = get_positions(img_path)
@@ -394,6 +477,7 @@ def run():
         ball_positions = []
         grasp_order_indices = []
         grasp_obj_index = 0
+        stack_evaluation_done = False
         if len(detected_positions) == 0:
             return False
 
@@ -519,6 +603,7 @@ def run():
             aabb_min, aabb_max = p.getAABB(target_obj_id)
             size_x = aabb_max[0] - aabb_min[0]
             size_y = aabb_max[1] - aabb_min[1]
+            size_z = aabb_max[2] - aabb_min[2]
             grasp_config['x'] = (aabb_min[0] + aabb_max[0]) / 2.0
             grasp_config['y'] = (aabb_min[1] + aabb_max[1]) / 2.0
             grasp_config['z'] = (aabb_min[2] + aabb_max[2]) / 2.0
@@ -532,12 +617,12 @@ def run():
 
             target_filename = os.path.basename(env.urdfs_filename[obj_idx]) if obj_idx < len(env.urdfs_filename) else ""
             if target_filename.startswith('cube'):
-                cube_span = min(size_x, size_y)
-                grasp_config['width'] = np.clip(cube_span + GRASP_GAP, 0.02, GRASP_WIDTH)
-                grasp_config['z'] = aabb_min[2] + 0.45 * (aabb_max[2] - aabb_min[2])
+                cube_edge = size_z
+                grasp_config['width'] = np.clip(cube_edge + 2 * GRASP_GAP, 0.025, GRASP_WIDTH)
+                grasp_config['z'] = aabb_min[2] + 0.38 * size_z
                 print(
-                    f"立方体抓取修正: 夹爪开口={grasp_config['width']:.4f}m, "
-                    f"抓取高度={grasp_config['z']:.4f}m"
+                    f"立方体抓取修正: 边长估计={cube_edge:.4f}m, "
+                    f"夹爪开口={grasp_config['width']:.4f}m, 抓取高度={grasp_config['z']:.4f}m"
                 )
             elif target_filename.startswith('cone_top'):
                 flat_face_span = min(size_x, size_y)
@@ -577,11 +662,17 @@ def run():
 
         keys = p.getKeyboardEvents()
 
+        if scene_is_settled():
+            auto_scene_settle_counter += 1
+        else:
+            auto_scene_settle_counter = 0
+
         if AUTO_RUN and auto_capture_pending and not GRASP_STATE and not PLACE_STATE and not IN_STATE:
             auto_capture_countdown -= 1
-            if auto_capture_countdown <= 0:
+            if auto_capture_countdown <= 0 and auto_scene_settle_counter >= SCENE_SETTLE_STEPS:
                 if plan_scene():
                     auto_capture_pending = False
+                    auto_scene_settle_counter = 0
                 else:
                     auto_capture_countdown = AUTO_CAPTURE_DELAY_STEPS
 
@@ -589,8 +680,9 @@ def run():
             plan_scene()
 
         if AUTO_RUN and not auto_capture_pending and not GRASP_STATE and not PLACE_STATE and not IN_STATE:
-            if ball_positions and grasp_obj_index < len(grasp_order_indices):
+            if ball_positions and grasp_obj_index < len(grasp_order_indices) and auto_scene_settle_counter >= SCENE_SETTLE_STEPS:
                 begin_next_grasp()
+                auto_scene_settle_counter = 0
 
         if not AUTO_RUN and ord('2') in keys and keys[ord('2')] & p.KEY_WAS_TRIGGERED:
             begin_next_grasp()
@@ -605,13 +697,24 @@ def run():
 
             if panda.grasp_step(target_position, grasp_config['angle'], grasp_config['width'], current_held_obj_id):
                 GRASP_STATE = False
-                if AUTO_RUN:
-                    pressed_char = AUTO_PLACE_CHAR
-                    panda.start_place()
-                    PLACE_STATE = True
+                if panda.held_object_id is None:
+                    panda.reset()
+                    print("抓取失败：未抓稳目标物块，重新规划当前场景。")
+                    if AUTO_RUN:
+                        ball_positions = []
+                        grasp_order_indices = []
+                        auto_scene_settle_counter = 0
+                        queue_auto_capture()
+                    else:
+                        IN_STATE = False
                 else:
-                    IN_STATE = True
-                print("抓取完成。")
+                    if AUTO_RUN:
+                        pressed_char = AUTO_PLACE_CHAR
+                        panda.start_place()
+                        PLACE_STATE = True
+                    else:
+                        IN_STATE = True
+                    print("抓取完成。")
 
         if IN_STATE:
             for char in ['7', '8', '9', '0']:
@@ -634,20 +737,40 @@ def run():
                 print("放置完成。")
                 if AUTO_RUN and grasp_obj_index >= len(grasp_order_indices):
                     print("Auto run finished: all objects processed.")
+                if grasp_obj_index >= len(grasp_order_indices) and not stack_evaluation_done:
+                    stack_evaluation_done = True
+                    env.renderURDFImage(save_path=img_path)
+                    evaluation_images = [
+                        os.path.join(img_path, 'camera_rgb.png'),
+                        os.path.join(img_path, 'camera_rgb_left.png'),
+                        os.path.join(img_path, 'camera_rgb_right.png')
+                    ]
+                    success, reason = ask_bailian_for_stack_success(
+                        image_paths=evaluation_images,
+                        expected_count=len(grasp_order_indices)
+                    )
+                    print("\n" + "=" * 50)
+                    print("【堆叠验收结果】")
+                    print(f"是否成功: {'成功' if success else '失败'}")
+                    print(f"原因: {reason}")
+                    print("=" * 50 + "\n")
 
         if ord('3') in keys and keys[ord('3')] & p.KEY_WAS_TRIGGERED:
             env.loadObjsInURDF(0, obj_nums)
             ball_positions = []
             grasp_obj_index = 0
             grasp_order_indices = []
+            stack_evaluation_done = False
             panda.reset()
             panda.place_count = 0
             panda.placed_objects = []
             panda.stack_center = None
+            panda.stack_anchor = None
             GRASP_STATE = False
             PLACE_STATE = False
             IN_STATE = False
             pressed_char = None
+            auto_scene_settle_counter = 0
             queue_auto_capture()
             print("环境已重置。")
 

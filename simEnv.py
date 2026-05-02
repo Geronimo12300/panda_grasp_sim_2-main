@@ -405,6 +405,11 @@ class SimEnv(object):
         # im_depthCamera = A / (B - C * depth)  # 单位 m
         im_depthCamera = np.divide(A, (np.subtract(B, np.multiply(C, depth))))  # 单位 m
         im_depthCamera_rev = np.ones((IMAGEHEIGHT, IMAGEWIDTH), dtype=np.float64) * im_depthCamera.max() - im_depthCamera # 反转深度
+        print(
+            f'>> depth stats: min={np.nanmin(im_depthCamera):.6f}, '
+            f'max={np.nanmax(im_depthCamera):.6f}, '
+            f'unique~={len(np.unique(np.round(im_depthCamera, 6)))}'
+        )
 
         # 获取分割图像
         im_mask = np.reshape(mask, (h, w))

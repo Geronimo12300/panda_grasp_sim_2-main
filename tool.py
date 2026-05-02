@@ -32,16 +32,27 @@ def depth2Gray(im_depth):
     """
     将深度图转至8位灰度图
     """
-    # 16位转8位
-    x_max = np.max(im_depth)
-    x_min = np.min(im_depth)
-    if x_max == x_min:
-        print('图像渲染出错 ...')
-        raise EOFError
-    
-    k = 255 / (x_max - x_min)
-    b = 255 - k * x_max
-    return (im_depth * k + b).astype(np.uint8)
+    depth = np.asarray(im_depth, dtype=np.float64)
+    if depth.size == 0:
+        return np.zeros((0, 0), dtype=np.uint8)
+
+    finite_mask = np.isfinite(depth)
+    if not np.any(finite_mask):
+        print('depth2Gray: no finite depth values, fallback to zeros.')
+        return np.zeros(depth.shape, dtype=np.uint8)
+
+    finite_depth = depth[finite_mask]
+    x_max = np.max(finite_depth)
+    x_min = np.min(finite_depth)
+    if np.isclose(x_max, x_min):
+        print(f'depth2Gray: flat depth image detected (min=max={x_min:.6f}), fallback to zeros.')
+        return np.zeros(depth.shape, dtype=np.uint8)
+
+    normalized = np.zeros(depth.shape, dtype=np.float64)
+    normalized[finite_mask] = (depth[finite_mask] - x_min) / (x_max - x_min)
+    gray = 255.0 - normalized * 255.0
+    gray[~finite_mask] = 0.0
+    return np.clip(gray, 0, 255).astype(np.uint8)
 
 # def resize(img):
 #     returncv2.resize(img, (1000, 1000))
