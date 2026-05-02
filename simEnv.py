@@ -213,7 +213,7 @@ class SimEnv(object):
     """
     原始加载函数
     """
-    def loadObjsInURDF(self, idx, num):
+    def loadObjsInURDF(self, idx, num, shape_sequence=None):
         """
         以URDF的格式加载多个obj物体
 
@@ -234,6 +234,9 @@ class SimEnv(object):
             raise ValueError(f"idx ({idx}) 超出了 urdfs_list 的范围 (0-{len(self.urdfs_list) - 1})")
 
     # 计算 self.num_urdf
+        if self.urdfs_id:
+            self.removeObjsInURDF()
+
         self.num_urdf = num
 
     # 获取物体文件，允许从现有立方体模板中复用生成更多实例
@@ -245,7 +248,27 @@ class SimEnv(object):
         cylinder_urdfs = [path for path in available_urdfs if os.path.basename(path).startswith('cylinder')]
         cone_top_urdfs = [path for path in available_urdfs if os.path.basename(path).startswith('cone_top')]
 
-        if cube_urdfs and cylinder_urdfs and cone_top_urdfs:
+        if shape_sequence is not None:
+            if len(shape_sequence) != self.num_urdf:
+                raise ValueError(f"shape_sequence 长度({len(shape_sequence)})必须等于 num({self.num_urdf})")
+
+            shape_pools = {
+                'cube': cube_urdfs,
+                'cylinder': cylinder_urdfs,
+                'cone_top': cone_top_urdfs,
+            }
+            shape_counters = {key: 0 for key in shape_pools}
+            self.urdfs_filename = []
+            for shape_name in shape_sequence:
+                if shape_name not in shape_pools:
+                    raise ValueError(f"不支持的 shape_sequence 类型: {shape_name}")
+                candidates = shape_pools[shape_name]
+                if not candidates:
+                    raise ValueError(f"当前资源中缺少 {shape_name} 对应的 URDF 文件")
+                candidate_idx = shape_counters[shape_name] % len(candidates)
+                self.urdfs_filename.append(candidates[candidate_idx])
+                shape_counters[shape_name] += 1
+        elif cube_urdfs and cylinder_urdfs and cone_top_urdfs:
             self.urdfs_filename = []
             for i in range(self.num_urdf):
                 if i == self.num_urdf - 1:
@@ -270,13 +293,13 @@ class SimEnv(object):
         self.urdfs_shapes = []
         
         spawn_region = {
-            "x_min": -0.11,
-            "x_max": 0.11,
-            "y_min": -0.08,
-            "y_max": 0.10,
+            "x_min": -0.18,
+            "x_max": 0.18,
+            "y_min": -0.14,
+            "y_max": 0.14,
             "z": 0.022
         }
-        min_spawn_distance = 0.055
+        min_spawn_distance = 0.09
 
         randomized_scales = [round(random.uniform(0.6, 1.2), 2) for _ in range(self.num_urdf)]
         randomized_yaws = [random.uniform(-math.pi, math.pi) for _ in range(self.num_urdf)]
@@ -287,13 +310,13 @@ class SimEnv(object):
             [0.95, 0.80, 0.20, 1.0],
             [0.65, 0.30, 0.80, 1.0]
         ]
-        cube_colors = ['??', '??', '??', '??', '??']
+        cube_colors = ['红色', '绿色', '蓝色', '黄色', '紫色']
 
-        print(f"?????????: {randomized_scales}")
+        print(f"随机缩放比例: {randomized_scales}")
         placed_positions = []
 
         for i in range(self.num_urdf):
-            for _ in range(80):
+            for _ in range(220):
                 candidate_position = [
                     random.uniform(spawn_region["x_min"], spawn_region["x_max"]),
                     random.uniform(spawn_region["y_min"], spawn_region["y_max"]),
@@ -306,11 +329,18 @@ class SimEnv(object):
                     basePosition = candidate_position
                     break
             else:
-                basePosition = [
-                    random.uniform(spawn_region["x_min"], spawn_region["x_max"]),
-                    random.uniform(spawn_region["y_min"], spawn_region["y_max"]),
-                    spawn_region["z"]
+                grid_candidates = [
+                    [x, y, spawn_region["z"]]
+                    for x in np.linspace(spawn_region["x_min"], spawn_region["x_max"], 4)
+                    for y in np.linspace(spawn_region["y_min"], spawn_region["y_max"], 3)
                 ]
+                basePosition = max(
+                    grid_candidates,
+                    key=lambda candidate: min(
+                        [((candidate[0] - pos[0]) ** 2 + (candidate[1] - pos[1]) ** 2) ** 0.5 for pos in placed_positions]
+                        or [float("inf")]
+                    )
+                )
 
             yaw = randomized_yaws[i] if i < len(randomized_yaws) else random.uniform(-math.pi, math.pi)
             baseOrientation = self.p.getQuaternionFromEuler([0, 0, yaw])
@@ -341,24 +371,24 @@ class SimEnv(object):
                 restitution=0.0
             )
 
-            # ??xyz??
+            # 获取可视形状信息
             inf = self.p.getVisualShapeData(urdf_id)[0]
 
             if filename.startswith('cone_top'):
-                shape_name = '?????'
+                shape_name = '三角体'
             elif filename.startswith('cylinder'):
-                shape_name = '???'
+                shape_name = '圆柱体'
             else:
-                shape_name = '???'
+                shape_name = '正方体'
 
             self.urdfs_id.append(urdf_id)
             self.urdfs_xyz.append(inf[5])
             self.urdfs_scale.append(scaling_factor)
-            self.urdfs_colors.append(cube_colors[i] if i < len(cube_colors) else f'??{i+1}')
+            self.urdfs_colors.append(cube_colors[i] if i < len(cube_colors) else f'物块{i+1}')
             self.urdfs_shapes.append(shape_name)
             print(
-                f"??{i+1} ???: ??=({basePosition[0]:.3f}, {basePosition[1]:.3f}, {basePosition[2]:.3f}), "
-                f"???={yaw:.3f} rad"
+                f"物块{i+1} 已加载: 位置=({basePosition[0]:.3f}, {basePosition[1]:.3f}, {basePosition[2]:.3f}), "
+                f"偏航角={yaw:.3f} rad"
             )
 
         self.obj_ids = self.urdfs_id

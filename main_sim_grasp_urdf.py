@@ -5,10 +5,13 @@ import numpy as np
 import os
 import cv2
 import base64
+import shutil
+import scipy.io as scio
 from simEnv import SimEnv
 import panda_sim_grasp as panda_sim
 import requests
 import json
+import re
 
 BAILIAN_API_KEY = "sk-4ea064d0eb6b4c39b6ae8479e8975443"
 BAILIAN_API_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
@@ -337,123 +340,387 @@ def push_triangle_objects_to_end(order_indices, urdf_filenames):
 
     return normal_indices + triangle_indices
 
-def get_positions(path):
+def get_positions(path, object_ids=None):
     """
-    获取所有小球的位置
-    :param path: 从上方拍摄的容器内物体的图片所在路径
-    :return: 物体位置列表 [(x1, y1, z1, angle1, width1), (x2, y2, z2, angle2, width2), ...]
+    从 PyBullet 原始 segmentation mask 中提取每个真实物块的抓取候选。
+    返回值为 {物块索引: (x, y, z, angle, width)}。
     """
+    mask_file = os.path.join(path, 'camera_mask.mat')
+    if not os.path.exists(mask_file) or not object_ids:
+        return {}
 
-    # 读取图像（假设路径为目录，图片名为 'capture.png'）
-    img_file = os.path.join(path, 'camera_mask.png')
-    if not os.path.exists(img_file):
-        return []
+    mask_data = scio.loadmat(mask_file).get('A')
+    if mask_data is None:
+        return {}
 
-    image = cv2.imread(img_file)
-    cv2.imwrite(path + '/camera_rgb_new.png', image)
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    cv2.imwrite(path + '/camera_rgb_gray.png', gray)
-    # 图像预处理
-    blurred = cv2.GaussianBlur(gray, (5, 5), 0)
-    _, thresh = cv2.threshold(blurred, 127, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
-    cv2.imwrite(path + '/camera_rgb_thresh.png', thresh)
-
-    # 形态学操作（可选）
-    kernel = np.ones((3, 3), np.uint8)
-    cleaned = cv2.bitwise_not(cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel, iterations=2))
-    cv2.imwrite(path + '/camera_rgb_cleaned.png', cleaned)
-
-
-    # 检测轮廓
-    contours, _ = cv2.findContours(cleaned, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-    positions = []
-    height, width = image.shape[:2]
+    raw_mask = np.asarray(mask_data, dtype=np.int64)
+    height, width = raw_mask.shape[:2]
     scale_x = 0.4 / (width / 2)
     scale_y = scale_x
+    object_uid_mask = np.bitwise_and(raw_mask, (1 << 24) - 1)
 
-    for cnt in contours:
-        # 过滤小面积噪声
-        if cv2.contourArea(cnt) < 100:
+    positions = {}
+    debug_mask = np.zeros((height, width), dtype=np.uint8)
+    kernel = np.ones((3, 3), np.uint8)
+    min_area = 80
+    max_area = height * width * 0.12
+
+    for obj_index, obj_id in enumerate(object_ids):
+        binary = ((raw_mask == obj_id) | (object_uid_mask == obj_id)).astype(np.uint8) * 255
+        binary = cv2.morphologyEx(binary, cv2.MORPH_OPEN, kernel, iterations=1)
+        binary = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kernel, iterations=2)
+        contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        if not contours:
+            print(f"Mask 未检测到物块{obj_index + 1}，等待重新渲染。")
             continue
 
-        # 计算最小外接矩形
-        rect = cv2.minAreaRect(cnt)
+        contour = max(contours, key=cv2.contourArea)
+        area = cv2.contourArea(contour)
+        if area < min_area or area > max_area:
+            print(f"Mask 过滤物块{obj_index + 1}: 轮廓面积异常 area={area:.1f}")
+            continue
+
+        rect = cv2.minAreaRect(contour)
         (x_img, y_img), (w_px, h_px), angle_deg = rect
+        if w_px <= 1 or h_px <= 1:
+            print(f"Mask 过滤物块{obj_index + 1}: 外接矩形异常 w={w_px:.1f}, h={h_px:.1f}")
+            continue
 
-        # 坐标转换
         x_sim = (x_img - width / 2) * scale_x
-        y_sim = (height / 2 - y_img) * scale_y  # Y轴方向翻转
-        z_sim = 0.02  # 假设物体在平面上
-
-        # 动态计算抓取宽度（取外接矩形长边）
-        grasp_width = max(w_px, h_px) * scale_x  # 转换为仿真环境单位
-        grasp_width = np.clip(grasp_width, 0.03, 0.20)  # 限制抓取宽度范围
-
-        # 计算抓取角度（弧度）
+        y_sim = (height / 2 - y_img) * scale_y
+        grasp_width = np.clip(max(w_px, h_px) * scale_x, 0.03, GRASP_WIDTH)
         grasp_angle = np.deg2rad(angle_deg)
         if w_px < h_px:
-            grasp_angle += np.pi / 2  # 修正长边方向
-        if grasp_angle > np.pi / 2:
-            grasp_angle -= np.pi
+            grasp_angle += np.pi / 2
+        grasp_angle = normalize_grasp_angle(grasp_angle)
 
-        positions.append((x_sim, y_sim, z_sim, grasp_angle, grasp_width))
+        positions[obj_index] = (x_sim, y_sim, 0.02, grasp_angle, grasp_width)
+        debug_mask[binary > 0] = min(255, 40 + obj_index * 40)
 
+    cv2.imwrite(os.path.join(path, 'camera_mask_objects.png'), debug_mask)
     return positions
 
 def run():
     AUTO_RUN = True
     AUTO_PLACE_CHAR = '7'
     AUTO_CAPTURE_DELAY_STEPS = 240
-
-    # 数据库路径
-    database_path = [
-        'cube',
-        'cylinder',
-        'cone_top'
+    TRIAL_TIMEOUT_STEPS = 30000
+    GRASP_ACTION_TIMEOUT_STEPS = 2200
+    PLACE_ACTION_TIMEOUT_STEPS = 6000
+    RESULTS_MARKDOWN_PATH = 'experiment_results.md'
+    SCREENSHOT_DIR = '1'
+    FINAL_RENDER_DIR = 'img/img_urdf'
+    TRIALS_PER_GROUP = 10
+    RESUME_FROM_GROUP_INDEX = 3
+    RESUME_FROM_TRIAL_INDEX = 5
+    RESTART_FROM_RESUME_GROUP = True
+    EXPERIMENT_GROUPS = [
+        {'name': '第一组：5个正方体', 'shapes': ['cube'] * 5},
+        {'name': '第二组：5个圆柱体', 'shapes': ['cylinder'] * 5},
+        {'name': '第三组：3个正方体 + 2个圆柱体', 'shapes': ['cube', 'cube', 'cube', 'cylinder', 'cylinder']},
+        {'name': '第四组：2个正方体 + 2个圆柱体 + 1个三角体', 'shapes': ['cube', 'cube', 'cylinder', 'cylinder', 'cone_top']},
     ]
 
-    # 连接 PyBullet 服务器
-    cid = p.connect(p.GUI)
-    p.setAdditionalSearchPath(pybullet_data.getDataPath())  # 设置 PyBullet 数据路径
+    database_path = ['cube', 'cylinder', 'cone_top']
 
-    # 初始化虚拟环境
+    p.connect(p.GUI)
+    p.setAdditionalSearchPath(pybullet_data.getDataPath())
+
     env = SimEnv(p, database_path)
-
-    # 初始化 Panda 机器人
     panda = panda_sim.PandaSimAuto(p, [0, -0.5, 0])
 
-    # 抓取状态
     GRASP_STATE = False
     grasp_config = {'x': 0, 'y': 0, 'z': 0.05, 'angle': 0, 'width': GRASP_WIDTH}
-
-    # 放置状态
     PLACE_STATE = False
-
-    # 输入状态
     IN_STATE = False
     pressed_char = None
     auto_capture_pending = AUTO_RUN
     auto_capture_countdown = AUTO_CAPTURE_DELAY_STEPS
+    img_path = FINAL_RENDER_DIR
+    obj_nums = 5
 
-    # 图像保存路径
-    img_path = 'img/img_urdf'
-
-    # 加载物体
-    obj_nums = 5  # 每次加载的物体个数
-    env.loadObjsInURDF(0, obj_nums)
-
-    # 全局变量
     ball_positions = []
     grasp_obj_index = 0
     grasp_order_indices = []
     stack_evaluation_done = False
     auto_scene_settle_counter = 0
+    trial_step_counter = 0
+    grasp_action_step_counter = 0
+    place_action_step_counter = 0
+    current_group_index = 0
+    current_trial_index = 0
+    batch_finished = False
+    experiment_results = [{'name': group['name'], 'records': []} for group in EXPERIMENT_GROUPS]
 
     def queue_auto_capture():
         nonlocal auto_capture_pending, auto_capture_countdown
         auto_capture_pending = AUTO_RUN
         auto_capture_countdown = AUTO_CAPTURE_DELAY_STEPS
+
+    def ensure_output_paths():
+        os.makedirs(SCREENSHOT_DIR, exist_ok=True)
+        os.makedirs(img_path, exist_ok=True)
+
+    def render_group_links(records):
+        if not records:
+            return ['- 暂无截图']
+
+        lines = []
+        for record in records:
+            links = record['links']
+            lines.append(
+                f"- 第{record['trial']}次："
+                f"[顶视图]({links['top']}) / "
+                f"[左视图]({links['left']}) / "
+                f"[右视图]({links['right']})"
+            )
+        return lines
+
+    def write_markdown_report():
+        lines = [
+            '# 自动化堆叠实验结果',
+            '',
+            f'- 每组实验次数：{TRIALS_PER_GROUP}',
+            f'- 物块总数：{obj_nums}',
+            '',
+        ]
+
+        for group_result in experiment_results:
+            records = group_result['records']
+            success_count = sum(1 for record in records if record['success'])
+            lines.append(f"## {group_result['name']}")
+            lines.append('')
+            if records:
+                lines.append('| 次数 | 大模型判定 | 原因 |')
+                lines.append('| --- | --- | --- |')
+                for record in records:
+                    verdict = '成功' if record['success'] else '失败'
+                    reason = str(record['reason']).replace('\n', ' ').strip()
+                    lines.append(f"| {record['trial']} | {verdict} | {reason} |")
+                lines.append('')
+                lines.append(f'成功次数：{success_count}/{len(records)}')
+            else:
+                lines.append('当前组还没有完成的实验结果。')
+            lines.append('')
+            lines.append('截图链接：')
+            lines.extend(render_group_links(records))
+            lines.append('')
+
+        with open(RESULTS_MARKDOWN_PATH, 'w', encoding='utf-8') as markdown_file:
+            markdown_file.write('\n'.join(lines))
+
+    def default_trial_links(group_number, trial_number):
+        return {
+            'top': f'{SCREENSHOT_DIR}/group{group_number}_trial{trial_number:02d}_top.png',
+            'left': f'{SCREENSHOT_DIR}/group{group_number}_trial{trial_number:02d}_left.png',
+            'right': f'{SCREENSHOT_DIR}/group{group_number}_trial{trial_number:02d}_right.png',
+        }
+
+    def load_existing_markdown_report():
+        if not os.path.exists(RESULTS_MARKDOWN_PATH):
+            return
+
+        group_by_name = {group['name']: index for index, group in enumerate(EXPERIMENT_GROUPS)}
+        parsed_records = {index: {} for index in range(len(EXPERIMENT_GROUPS))}
+        current_group_index_for_parse = None
+
+        with open(RESULTS_MARKDOWN_PATH, 'r', encoding='utf-8') as markdown_file:
+            for raw_line in markdown_file:
+                line = raw_line.strip()
+                if line.startswith('## '):
+                    group_name = line[3:].strip()
+                    current_group_index_for_parse = group_by_name.get(group_name)
+                    continue
+
+                if current_group_index_for_parse is None:
+                    continue
+
+                if line.startswith('|') and not line.startswith('| ---') and '次数' not in line:
+                    cells = [cell.strip() for cell in line.strip('|').split('|')]
+                    if len(cells) >= 3 and cells[0].isdigit():
+                        trial_number = int(cells[0])
+                        parsed_records[current_group_index_for_parse][trial_number] = {
+                            'trial': trial_number,
+                            'success': cells[1] == '成功',
+                            'reason': cells[2],
+                            'links': default_trial_links(current_group_index_for_parse + 1, trial_number),
+                        }
+                    continue
+
+                link_match = re.match(
+                    r'- 第(\d+)次：\[顶视图\]\(([^)]+)\) / \[左视图\]\(([^)]+)\) / \[右视图\]\(([^)]+)\)',
+                    line,
+                )
+                if link_match:
+                    trial_number = int(link_match.group(1))
+                    record = parsed_records[current_group_index_for_parse].setdefault(
+                        trial_number,
+                        {
+                            'trial': trial_number,
+                            'success': False,
+                            'reason': '从已有报告恢复，未解析到判定原因',
+                            'links': default_trial_links(current_group_index_for_parse + 1, trial_number),
+                        },
+                    )
+                    record['links'] = {
+                        'top': link_match.group(2),
+                        'left': link_match.group(3),
+                        'right': link_match.group(4),
+                    }
+
+        for group_index, records_by_trial in parsed_records.items():
+            experiment_results[group_index]['records'] = [
+                records_by_trial[trial_number]
+                for trial_number in sorted(records_by_trial)
+                if 1 <= trial_number <= TRIALS_PER_GROUP
+            ]
+
+    def prepare_resume_state():
+        nonlocal current_group_index, current_trial_index, batch_finished
+
+        resume_group_index = max(0, min(RESUME_FROM_GROUP_INDEX, len(EXPERIMENT_GROUPS) - 1))
+        resume_trial_index = max(0, min(RESUME_FROM_TRIAL_INDEX, TRIALS_PER_GROUP - 1))
+        if RESTART_FROM_RESUME_GROUP:
+            experiment_results[resume_group_index]['records'] = [
+                record
+                for record in experiment_results[resume_group_index]['records']
+                if record['trial'] <= resume_trial_index
+            ]
+            for group_index in range(resume_group_index + 1, len(EXPERIMENT_GROUPS)):
+                experiment_results[group_index]['records'] = []
+            current_group_index = resume_group_index
+            current_trial_index = resume_trial_index
+            print(
+                f"已保留第{resume_group_index}组及以前的记录，并保留当前组前{resume_trial_index}次记录，将从 "
+                f"{EXPERIMENT_GROUPS[current_group_index]['name']} 第{current_trial_index + 1}次重新开始。"
+            )
+            return
+
+        for group_index in range(resume_group_index, len(EXPERIMENT_GROUPS)):
+            completed_trials = {record['trial'] for record in experiment_results[group_index]['records']}
+            for trial_index in range(TRIALS_PER_GROUP):
+                if trial_index + 1 not in completed_trials:
+                    current_group_index = group_index
+                    current_trial_index = trial_index
+                    print(
+                        f"已加载已有记录，将从 {EXPERIMENT_GROUPS[current_group_index]['name']} "
+                        f"第{current_trial_index + 1}次继续。"
+                    )
+                    return
+
+        batch_finished = True
+        print('从第二组开始的实验记录已经全部完成。')
+
+    def copy_trial_screenshots(group_number, trial_number):
+        screenshot_targets = {
+            'top': ('camera_rgb.png', f'group{group_number}_trial{trial_number:02d}_top.png'),
+            'left': ('camera_rgb_left.png', f'group{group_number}_trial{trial_number:02d}_left.png'),
+            'right': ('camera_rgb_right.png', f'group{group_number}_trial{trial_number:02d}_right.png'),
+        }
+        copied_links = {}
+        for view_name, (source_name, target_name) in screenshot_targets.items():
+            source_path = os.path.join(img_path, source_name)
+            target_path = os.path.join(SCREENSHOT_DIR, target_name)
+            if os.path.exists(source_path):
+                shutil.copy2(source_path, target_path)
+            copied_links[view_name] = os.path.join(SCREENSHOT_DIR, target_name).replace('\\', '/')
+        return copied_links
+
+    def reset_robot_and_runtime():
+        nonlocal GRASP_STATE, PLACE_STATE, IN_STATE, pressed_char
+        nonlocal ball_positions, grasp_obj_index, grasp_order_indices
+        nonlocal stack_evaluation_done, auto_scene_settle_counter, trial_step_counter
+        nonlocal grasp_action_step_counter, place_action_step_counter
+
+        panda.reset_to_initial_pose(settle_steps=40)
+        GRASP_STATE = False
+        PLACE_STATE = False
+        IN_STATE = False
+        pressed_char = None
+        ball_positions = []
+        grasp_obj_index = 0
+        grasp_order_indices = []
+        stack_evaluation_done = False
+        auto_scene_settle_counter = 0
+        trial_step_counter = 0
+        grasp_action_step_counter = 0
+        place_action_step_counter = 0
+        queue_auto_capture()
+
+    def clear_world_before_trial():
+        panda.reset_to_initial_pose(settle_steps=120)
+        if getattr(env, 'urdfs_id', None):
+            env.removeObjsInURDF()
+        for _ in range(60):
+            p.stepSimulation()
+        panda.reset_to_initial_pose(settle_steps=20)
+
+    def start_current_trial():
+        group = EXPERIMENT_GROUPS[current_group_index]
+        print('\n' + '=' * 60)
+        print(f"开始实验：{group['name']}，第 {current_trial_index + 1}/{TRIALS_PER_GROUP} 次")
+        print(f"物块组合：{group['shapes']}")
+        print('=' * 60)
+        clear_world_before_trial()
+        env.loadObjsInURDF(0, obj_nums, shape_sequence=group['shapes'])
+        reset_robot_and_runtime()
+
+    def advance_to_next_trial():
+        nonlocal current_group_index, current_trial_index, batch_finished
+
+        if current_trial_index + 1 < TRIALS_PER_GROUP:
+            current_trial_index += 1
+            start_current_trial()
+            return
+
+        if current_group_index + 1 < len(EXPERIMENT_GROUPS):
+            current_group_index += 1
+            current_trial_index = 0
+            start_current_trial()
+            return
+
+        batch_finished = True
+        print('\n所有自动化实验均已完成。')
+        print(f"实验结果已写入：{os.path.abspath(RESULTS_MARKDOWN_PATH)}")
+        print(f"截图目录：{os.path.abspath(SCREENSHOT_DIR)}")
+
+    def finalize_current_trial(forced_failure_reason=None):
+        nonlocal stack_evaluation_done
+
+        if stack_evaluation_done:
+            return
+
+        stack_evaluation_done = True
+        env.renderURDFImage(save_path=img_path)
+        evaluation_images = [
+            os.path.join(img_path, 'camera_rgb.png'),
+            os.path.join(img_path, 'camera_rgb_left.png'),
+            os.path.join(img_path, 'camera_rgb_right.png')
+        ]
+        model_success, model_reason = ask_bailian_for_stack_success(
+            image_paths=evaluation_images,
+            expected_count=obj_nums
+        )
+        success = model_success if forced_failure_reason is None else False
+        reason = model_reason if forced_failure_reason is None else f"{forced_failure_reason}; 大模型判断：{model_reason}"
+        links = copy_trial_screenshots(current_group_index + 1, current_trial_index + 1)
+        experiment_results[current_group_index]['records'].append({
+            'trial': current_trial_index + 1,
+            'success': success,
+            'reason': reason,
+            'links': links,
+        })
+        write_markdown_report()
+
+        print('\n' + '=' * 50)
+        print('【堆叠验收结果】')
+        print(f"实验组别: {EXPERIMENT_GROUPS[current_group_index]['name']}")
+        print(f"实验次数: 第 {current_trial_index + 1} 次")
+        print(f"是否成功: {'成功' if success else '失败'}")
+        print(f"原因: {reason}")
+        print('=' * 50 + '\n')
+
+        advance_to_next_trial()
 
     def scene_is_settled():
         if not env.urdfs_id:
@@ -471,30 +738,31 @@ def run():
         nonlocal ball_positions, grasp_order_indices, grasp_obj_index, stack_evaluation_done
 
         env.renderURDFImage(save_path=img_path)
-        detected_positions = get_positions(img_path)
-        print(f"图像检测到的位置数量: {len(detected_positions)}")
+        detected_positions = get_positions(img_path, env.urdfs_id)
+        print(f"Mask 检测到的物块数量: {len(detected_positions)}/{len(env.urdfs_id)}")
 
         ball_positions = []
         grasp_order_indices = []
         grasp_obj_index = 0
         stack_evaluation_done = False
-        if len(detected_positions) == 0:
+        if len(detected_positions) != len(env.urdfs_id):
+            missing = [i + 1 for i in range(len(env.urdfs_id)) if i not in detected_positions]
+            print(f"Mask 未检测到全部物块，缺失物块编号: {missing}，等待重新渲染。")
             return False
 
         cubes_info = []
-        matched_positions = []
 
-        print("\n" + "=" * 50)
-        print("【仿真环境中的物块信息】")
+        print('\n' + '=' * 50)
+        print('【仿真环境中的物块信息】')
 
         for i in range(len(env.urdfs_id)):
             scale = env.urdfs_scale[i] if i < len(env.urdfs_scale) else 1.0
             obj_pos, _ = p.getBasePositionAndOrientation(env.urdfs_id[i])
             color = env.urdfs_colors[i] if i < len(env.urdfs_colors) else f'物块{i+1}'
-            shape = env.urdfs_shapes[i] if hasattr(env, 'urdfs_shapes') and i < len(env.urdfs_shapes) else '立方体'
-            source_filename = os.path.basename(env.urdfs_filename[i]) if i < len(env.urdfs_filename) else ""
+            shape = env.urdfs_shapes[i] if hasattr(env, 'urdfs_shapes') and i < len(env.urdfs_shapes) else '正方体'
+            source_filename = os.path.basename(env.urdfs_filename[i]) if i < len(env.urdfs_filename) else ''
             is_triangle = source_filename.startswith('cone_top')
-            top_only = is_triangle or shape == '尖锥顶物块'
+            top_only = is_triangle or shape == '三角体'
             aabb = p.getAABB(env.urdfs_id[i])
             size_x = aabb[1][0] - aabb[0][0]
             size_y = aabb[1][1] - aabb[0][1]
@@ -505,29 +773,18 @@ def run():
                 diameter = max(size_x, size_y)
                 height = size_z
                 volume = np.pi * (diameter / 2.0) ** 2 * height
-                shape_params.update({
-                    'diameter': diameter,
-                    'height': height,
-                    'volume': volume
-                })
+                shape_params.update({'diameter': diameter, 'height': height, 'volume': volume})
                 shape_summary = f"直径={diameter:.4f}m, 高度={height:.4f}m, 体积={volume:.8f}m^3"
-            elif shape == '尖锥顶物块':
+            elif shape == '三角体':
                 base_diameter = max(size_x, size_y)
                 height = size_z
                 volume = (np.pi * (base_diameter / 2.0) ** 2 * height) / 3.0
-                shape_params.update({
-                    'base_diameter': base_diameter,
-                    'height': height,
-                    'volume': volume
-                })
+                shape_params.update({'base_diameter': base_diameter, 'height': height, 'volume': volume})
                 shape_summary = f"底面直径={base_diameter:.4f}m, 高度={height:.4f}m, 体积={volume:.8f}m^3"
             else:
                 edge_length = max(size_x, size_y, size_z)
                 volume = edge_length ** 3
-                shape_params.update({
-                    'edge_length': edge_length,
-                    'volume': volume
-                })
+                shape_params.update({'edge_length': edge_length, 'volume': volume})
                 shape_summary = f"边长={edge_length:.4f}m, 体积={volume:.8f}m^3"
 
             print(
@@ -535,34 +792,25 @@ def run():
                 f"{shape_summary}, 位置=({obj_pos[0]:.3f}, {obj_pos[1]:.3f})"
             )
 
-            min_dist = float('inf')
-            matched_pos = None
-            for det_pos in detected_positions:
-                dist = ((det_pos[0] - obj_pos[0]) ** 2 + (det_pos[1] - obj_pos[1]) ** 2) ** 0.5
-                if dist < min_dist:
-                    min_dist = dist
-                    matched_pos = det_pos
+            mask_pos = detected_positions[i]
+            cube_info = {
+                'index': i,
+                'scale': scale,
+                'color': color,
+                'shape': shape,
+                'top_only': top_only,
+                'is_triangle': is_triangle,
+                'source_filename': source_filename,
+                'position': [obj_pos[0], obj_pos[1]],
+            }
+            cube_info.update(shape_params)
+            cubes_info.append(cube_info)
+            print(f"    -> Mask 抓取候选 ({mask_pos[0]:.3f}, {mask_pos[1]:.3f})")
 
-            if matched_pos:
-                matched_positions.append(matched_pos)
-                cube_info = {
-                    'index': i,
-                    'scale': scale,
-                    'color': color,
-                    'shape': shape,
-                    'top_only': top_only,
-                    'is_triangle': is_triangle,
-                    'source_filename': source_filename,
-                    'position': [obj_pos[0], obj_pos[1]]
-                }
-                cube_info.update(shape_params)
-                cubes_info.append(cube_info)
-                print(f"    -> 匹配到检测位置: ({matched_pos[0]:.3f}, {matched_pos[1]:.3f})")
+        print('=' * 50 + '\n')
+        print('正在询问阿里云百炼 / Qwen-VL 最优堆叠顺序...')
 
-        print("=" * 50 + "\n")
-        print("正在询问阿里云百炼 / Qwen-VL 最优堆叠顺序...")
-
-        if not cubes_info or not matched_positions:
+        if not cubes_info:
             return False
 
         scene_image_paths = [
@@ -572,18 +820,23 @@ def run():
         ]
         order_indices = ask_bailian_for_stacking_order(cubes_info, image_paths=scene_image_paths)
         order_indices = push_triangle_objects_to_end(order_indices, env.urdfs_filename)
+        missing_order_indices = [idx for idx in order_indices if idx not in detected_positions]
+        if missing_order_indices:
+            print(f"规划顺序中存在未检测物块: {[idx + 1 for idx in missing_order_indices]}，等待重新渲染。")
+            return False
+
         grasp_order_indices = order_indices
-        ball_positions = [matched_positions[i] for i in order_indices if i < len(matched_positions)]
+        ball_positions = [detected_positions[idx] for idx in order_indices]
 
         print(f"最终抓取顺序: {ball_positions}")
         print(f"物块ID顺序: {grasp_order_indices}")
         return len(ball_positions) > 0
 
     def begin_next_grasp():
-        nonlocal GRASP_STATE
+        nonlocal GRASP_STATE, grasp_action_step_counter
 
         if not ball_positions:
-            print("未找到物体位置，请先渲染图像并捕捉位置。")
+            print('未找到物体位置，请先渲染图像并捕捉位置。')
             return False
 
         grasp_order_local = push_triangle_objects_to_end(grasp_order_indices, env.urdfs_filename)
@@ -615,7 +868,7 @@ def run():
                 obj_yaw += np.pi
             grasp_config['angle'] = obj_yaw
 
-            target_filename = os.path.basename(env.urdfs_filename[obj_idx]) if obj_idx < len(env.urdfs_filename) else ""
+            target_filename = os.path.basename(env.urdfs_filename[obj_idx]) if obj_idx < len(env.urdfs_filename) else ''
             if target_filename.startswith('cube'):
                 cube_edge = size_z
                 grasp_config['width'] = np.clip(cube_edge + 2 * GRASP_GAP, 0.025, GRASP_WIDTH)
@@ -623,6 +876,16 @@ def run():
                 print(
                     f"立方体抓取修正: 边长估计={cube_edge:.4f}m, "
                     f"夹爪开口={grasp_config['width']:.4f}m, 抓取高度={grasp_config['z']:.4f}m"
+                )
+            elif target_filename.startswith('cylinder'):
+                cylinder_diameter = max(size_x, size_y)
+                grasp_config['width'] = np.clip(cylinder_diameter + 0.025, 0.045, GRASP_WIDTH)
+                grasp_config['z'] = aabb_min[2] + 0.42 * size_z
+                # 圆柱顶视图近似圆形，mask 角度不稳定；固定水平抓取更可靠。
+                grasp_config['angle'] = 0.0
+                print(
+                    f"圆柱体抓取修正: 直径估计={cylinder_diameter:.4f}m, "
+                    f"夹爪预开口={grasp_config['width']:.4f}m, 抓取高度={grasp_config['z']:.4f}m"
                 )
             elif target_filename.startswith('cone_top'):
                 flat_face_span = min(size_x, size_y)
@@ -640,7 +903,7 @@ def run():
                 )
 
             print(
-                f"抓取中心已修正到物块包围盒中心: "
+                f"抓取中心已修正到物块包围盒中心 "
                 f"({grasp_config['x']:.4f}, {grasp_config['y']:.4f}, {grasp_config['z']:.4f}), "
                 f"抓取角度={grasp_config['angle']:.4f} rad"
             )
@@ -650,15 +913,54 @@ def run():
             grasp_config['z'] = detected_z
 
         GRASP_STATE = True
+        grasp_action_step_counter = 0
         ball_positions.pop(0)
         return True
 
+    def abort_current_grasp(reason):
+        nonlocal GRASP_STATE, ball_positions, grasp_order_indices, auto_scene_settle_counter
+        nonlocal grasp_action_step_counter
+
+        print(reason)
+        panda.force_release_held_object()
+        panda.reset()
+        GRASP_STATE = False
+        grasp_action_step_counter = 0
+        if AUTO_RUN:
+            ball_positions = []
+            grasp_order_indices = []
+            auto_scene_settle_counter = 0
+            queue_auto_capture()
+
+    def abort_current_place(reason):
+        nonlocal PLACE_STATE, place_action_step_counter
+
+        print(reason)
+        panda.force_release_held_object()
+        for _ in range(80):
+            p.stepSimulation()
+        PLACE_STATE = False
+        place_action_step_counter = 0
+        if AUTO_RUN:
+            finalize_current_trial(forced_failure_reason=reason)
+
+    ensure_output_paths()
+    load_existing_markdown_report()
+    prepare_resume_state()
+    write_markdown_report()
+    if not batch_finished:
+        start_current_trial()
+
     if AUTO_RUN:
-        print("Auto run enabled: 1 -> 2 -> 7 loop on slot 7.")
+        print('Auto run enabled: experiment scheduler is active.')
 
     while True:
+        if batch_finished:
+            break
+
         p.stepSimulation()
         time.sleep(1. / 250.)
+        trial_step_counter += 1
 
         keys = p.getKeyboardEvents()
 
@@ -699,7 +1001,7 @@ def run():
                 GRASP_STATE = False
                 if panda.held_object_id is None:
                     panda.reset()
-                    print("抓取失败：未抓稳目标物块，重新规划当前场景。")
+                    print('抓取失败：未抓稳目标物块，重新规划当前场景。')
                     if AUTO_RUN:
                         ball_positions = []
                         grasp_order_indices = []
@@ -711,10 +1013,11 @@ def run():
                     if AUTO_RUN:
                         pressed_char = AUTO_PLACE_CHAR
                         panda.start_place()
+                        place_action_step_counter = 0
                         PLACE_STATE = True
                     else:
                         IN_STATE = True
-                    print("抓取完成。")
+                    print('抓取完成。')
 
         if IN_STATE:
             for char in ['7', '8', '9', '0']:
@@ -722,6 +1025,7 @@ def run():
                 if key_code in keys and keys[key_code] & p.KEY_WAS_TRIGGERED:
                     pressed_char = char
                     panda.start_place()
+                    place_action_step_counter = 0
                     IN_STATE = False
                     PLACE_STATE = True
 
@@ -733,46 +1037,33 @@ def run():
                 held_obj_id = None
             if panda.place_step(pressed_char, held_obj_id):
                 PLACE_STATE = False
+                place_action_step_counter = 0
                 grasp_obj_index += 1
-                print("放置完成。")
+                print('放置完成。')
                 if AUTO_RUN and grasp_obj_index >= len(grasp_order_indices):
-                    print("Auto run finished: all objects processed.")
-                if grasp_obj_index >= len(grasp_order_indices) and not stack_evaluation_done:
-                    stack_evaluation_done = True
-                    env.renderURDFImage(save_path=img_path)
-                    evaluation_images = [
-                        os.path.join(img_path, 'camera_rgb.png'),
-                        os.path.join(img_path, 'camera_rgb_left.png'),
-                        os.path.join(img_path, 'camera_rgb_right.png')
-                    ]
-                    success, reason = ask_bailian_for_stack_success(
-                        image_paths=evaluation_images,
-                        expected_count=len(grasp_order_indices)
-                    )
-                    print("\n" + "=" * 50)
-                    print("【堆叠验收结果】")
-                    print(f"是否成功: {'成功' if success else '失败'}")
-                    print(f"原因: {reason}")
-                    print("=" * 50 + "\n")
+                    print('Auto run finished: all objects processed.')
+                if grasp_obj_index >= len(grasp_order_indices):
+                    finalize_current_trial()
+
+        if GRASP_STATE:
+            grasp_action_step_counter += 1
+            if grasp_action_step_counter > GRASP_ACTION_TIMEOUT_STEPS:
+                abort_current_grasp('抓取动作超时：已强制释放并重新规划当前场景。')
+
+        if PLACE_STATE:
+            place_action_step_counter += 1
+            if place_action_step_counter > PLACE_ACTION_TIMEOUT_STEPS:
+                abort_current_place('放置动作超时：已强制松爪，当前小次实验按失败记录并进入下一次。')
+
+        if AUTO_RUN and trial_step_counter > TRIAL_TIMEOUT_STEPS:
+            print('当前实验超过时长上限，按失败记录并自动进入下一次。')
+            finalize_current_trial(forced_failure_reason='实验超时，未在限定步数内完成堆叠')
 
         if ord('3') in keys and keys[ord('3')] & p.KEY_WAS_TRIGGERED:
-            env.loadObjsInURDF(0, obj_nums)
-            ball_positions = []
-            grasp_obj_index = 0
-            grasp_order_indices = []
-            stack_evaluation_done = False
-            panda.reset()
-            panda.place_count = 0
-            panda.placed_objects = []
-            panda.stack_center = None
-            panda.stack_anchor = None
-            GRASP_STATE = False
-            PLACE_STATE = False
-            IN_STATE = False
-            pressed_char = None
-            auto_scene_settle_counter = 0
-            queue_auto_capture()
-            print("环境已重置。")
+            start_current_trial()
+            print('环境已重置。')
+
+    p.disconnect()
 
 if __name__ == "__main__":
     run()
