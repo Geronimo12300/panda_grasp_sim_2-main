@@ -247,6 +247,7 @@ class SimEnv(object):
         cube_urdfs = [path for path in available_urdfs if os.path.basename(path).startswith('cube')]
         cylinder_urdfs = [path for path in available_urdfs if os.path.basename(path).startswith('cylinder')]
         cone_top_urdfs = [path for path in available_urdfs if os.path.basename(path).startswith('cone_top')]
+        cuboid_bar_urdfs = [path for path in available_urdfs if os.path.basename(path).startswith('cuboid_bar')]
 
         if shape_sequence is not None:
             if len(shape_sequence) != self.num_urdf:
@@ -256,6 +257,7 @@ class SimEnv(object):
                 'cube': cube_urdfs,
                 'cylinder': cylinder_urdfs,
                 'cone_top': cone_top_urdfs,
+                'cuboid_bar': cuboid_bar_urdfs,
             }
             shape_counters = {key: 0 for key in shape_pools}
             self.urdfs_filename = []
@@ -344,18 +346,28 @@ class SimEnv(object):
 
             yaw = randomized_yaws[i] if i < len(randomized_yaws) else random.uniform(-math.pi, math.pi)
             baseOrientation = self.p.getQuaternionFromEuler([0, 0, yaw])
+            filename = os.path.basename(self.urdfs_filename[i])
 
             if i < len(randomized_scales):
                 scaling_factor = randomized_scales[i]
             else:
                 scaling_factor = round(random.uniform(0.6, 1.2), 2)
+            if filename.startswith('cuboid_bar'):
+                scaling_factor = round(random.uniform(0.9, 1.15), 2)
+            if filename.startswith('cuboid_bar'):
+                basePosition[2] = 0.04 * scaling_factor + 0.002
+            else:
+                basePosition[2] = 0.02 * scaling_factor + 0.002
             urdf_id = self.p.loadURDF(self.urdfs_filename[i], basePosition, baseOrientation, globalScaling=scaling_factor)
             placed_positions.append(basePosition)
             self.p.changeVisualShape(urdf_id, -1, rgbaColor=cube_rgba_colors[i % len(cube_rgba_colors)])
-            filename = os.path.basename(self.urdfs_filename[i])
             if filename.startswith('cube'):
                 lateral_friction = 2.8
                 spinning_friction = 0.05
+                rolling_friction = 0.001
+            elif filename.startswith('cuboid_bar'):
+                lateral_friction = 2.6
+                spinning_friction = 0.06
                 rolling_friction = 0.001
             else:
                 lateral_friction = 1.8
@@ -376,6 +388,8 @@ class SimEnv(object):
 
             if filename.startswith('cone_top'):
                 shape_name = '三角体'
+            elif filename.startswith('cuboid_bar'):
+                shape_name = '细长长方体'
             elif filename.startswith('cylinder'):
                 shape_name = '圆柱体'
             else:

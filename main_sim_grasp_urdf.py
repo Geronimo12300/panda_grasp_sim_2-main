@@ -328,12 +328,13 @@ def parse_object_index(value, object_count):
     return None
 
 
-def ask_bailian_for_pick_place_actions(cubes_info, image_paths=None, stack_target=None):
+def ask_bailian_for_pick_place_actions(cubes_info, image_paths=None, stack_target=None, structure_mode='single_column'):
     """
     让大模型直接输出结构化抓取/放置动作。
     返回原始动作列表；后续仍需做本地安全裁剪。
     """
     stack_target = stack_target or {"x": 0.5, "y": 0.0, "z": 0.0}
+    structure_mode = structure_mode or 'single_column'
     object_lines = []
     for cube in cubes_info:
         grasp_pose = cube.get("default_grasp_pose", {})
@@ -342,16 +343,27 @@ def ask_bailian_for_pick_place_actions(cubes_info, image_paths=None, stack_targe
             f"颜色={cube.get('color', '未知')}, "
             f"形状={cube.get('shape', '未知')}, "
             f"位置=({cube['position'][0]:.3f}, {cube['position'][1]:.3f}), "
+            f"底面=({cube.get('footprint_x', 0.0):.4f}m x {cube.get('footprint_y', 0.0):.4f}m), "
+            f"底面积={cube.get('footprint_area', 0.0):.6f}m^2, "
+            f"高度={cube.get('height', 0.0):.4f}m, "
+            f"细长比={cube.get('slenderness_ratio', 0.0):.3f}, "
             f"默认抓取候选=(x={grasp_pose.get('x', 0.0):.3f}, y={grasp_pose.get('y', 0.0):.3f}, "
             f"z={grasp_pose.get('z', 0.0):.3f}, yaw={grasp_pose.get('yaw', 0.0):.3f}, "
             f"width={grasp_pose.get('width', 0.05):.3f})"
         )
 
+    structure_rules = {
+        'single_column': '这是常规单柱堆叠任务。优先围绕同一个堆叠中心逐层竖直堆叠。',
+        'long_bar_pair': '这是实验五。只有两个细长长方体需要并排放置：它们可以作为最底层并排支撑，应被规划到同一 layer_index，并且 slot 必须分别为 left 和 right，朝向保持平行。其余普通物块保持 center 的单柱堆叠即可。',
+        'triangle_pair_top': '这是实验六。只有两个三角体需要并排放置：它们应被规划到最高层的同一 layer_index，并且 slot 必须分别为 left 和 right，朝向保持平行。其余普通物块保持 center 的单柱堆叠即可。',
+    }
     json_example = """{
   "actions": [
     {
       "target_object": "物块1",
       "grasp_pose": {"x": 0.10, "y": -0.02, "z": 0.03, "yaw": 0.0, "width": 0.05},
+      "layer_index": 0,
+      "slot": "center",
       "place_pose": {"x": 0.50, "y": 0.00, "z": 0.00},
       "reason": "适合做底层"
     }
@@ -370,14 +382,19 @@ def ask_bailian_for_pick_place_actions(cubes_info, image_paths=None, stack_targe
 堆叠目标点建议为：
 place_pose = (x={stack_target['x']:.3f}, y={stack_target['y']:.3f}, z={stack_target['z']:.3f})
 
+任务结构要求：
+{structure_rules.get(structure_mode, structure_rules['single_column'])}
+
 规则：
 1. 每个物块只能出现一次。
 2. 第一个 action 放在最底层，最后一个 action 放在最上层。
 3. 请优先使用我提供的默认抓取候选，只在必要时做小幅调整。
 4. 你输出的 grasp_pose 必须是机械臂可以执行的单次抓取位姿。
-5. 所有 place_pose 应该围绕同一个堆叠中心，便于竖直堆叠。
-6. 如果三角体不适合承托其他物块，应尽量放在上层。
-7. 只能使用给定的物块编号，不要创造新编号。
+5. 你必须为每个 action 输出 layer_index 和 slot。
+6. slot 只能是 center、left、right 之一。
+7. 当同一层需要并排放两个物块时，必须使用相同的 layer_index，并把两个 slot 分别写成 left 和 right。
+8. left/right 的物块要围绕同一个堆叠中心左右对称，且朝向保持平行。
+9. 只能使用给定的物块编号，不要创造新编号。
 
 请只返回 JSON，不要添加其他解释。格式如下：
 {json_example}
@@ -534,20 +551,57 @@ def run():
     GRASP_ACTION_TIMEOUT_STEPS = 2200
     PLACE_ACTION_TIMEOUT_STEPS = 6000
     RESULTS_MARKDOWN_PATH = 'experiment_results.md'
+    SPECIAL_RESULTS_MARKDOWN_PATH = 'special_experiment_results.md'
     SCREENSHOT_DIR = '1'
+    SPECIAL_SCREENSHOT_DIR = '2'
     FINAL_RENDER_DIR = 'img/img_urdf'
     TRIALS_PER_GROUP = 10
-    RESUME_FROM_GROUP_INDEX = 3
-    RESUME_FROM_TRIAL_INDEX = 5
+    SPECIAL_TRIALS_PER_GROUP = 5
+    RESUME_FROM_GROUP_INDEX = 4
+    RESUME_FROM_TRIAL_INDEX = 0
     RESTART_FROM_RESUME_GROUP = True
-    EXPERIMENT_GROUPS = [
-        {'name': '第一组：5个正方体', 'shapes': ['cube'] * 5},
-        {'name': '第二组：5个圆柱体', 'shapes': ['cylinder'] * 5},
-        {'name': '第三组：3个正方体 + 2个圆柱体', 'shapes': ['cube', 'cube', 'cube', 'cylinder', 'cylinder']},
-        {'name': '第四组：2个正方体 + 2个圆柱体 + 1个三角体', 'shapes': ['cube', 'cube', 'cylinder', 'cylinder', 'cone_top']},
+    PAIR_SLOT_OFFSET = 0.032
+    LONG_BAR_PAIR_SLOT_OFFSET = 0.022
+    LONG_BAR_SECOND_PLACE_HOLD_WIDTH = 0.006
+    STANDARD_EXPERIMENT_GROUPS = [
+        {'name': '第一组：5个正方体', 'shapes': ['cube'] * 5, 'trials': TRIALS_PER_GROUP, 'report_kind': 'standard'},
+        {'name': '第二组：5个圆柱体', 'shapes': ['cylinder'] * 5, 'trials': TRIALS_PER_GROUP, 'report_kind': 'standard'},
+        {'name': '第三组：3个正方体 + 2个圆柱体', 'shapes': ['cube', 'cube', 'cube', 'cylinder', 'cylinder'], 'trials': TRIALS_PER_GROUP, 'report_kind': 'standard'},
+        {'name': '第四组：2个正方体 + 2个圆柱体 + 1个三角体', 'shapes': ['cube', 'cube', 'cylinder', 'cylinder', 'cone_top'], 'trials': TRIALS_PER_GROUP, 'report_kind': 'standard'},
     ]
+    SPECIAL_EXPERIMENT_GROUPS = [
+        {
+            'name': '第五组：3个正方体 + 2个细长长方体',
+            'shapes': ['cube', 'cube', 'cube', 'cuboid_bar', 'cuboid_bar'],
+            'trials': SPECIAL_TRIALS_PER_GROUP,
+            'report_kind': 'special',
+            'structure_mode': 'long_bar_pair',
+        },
+        {
+            'name': '第六组：3个正方体 + 2个三角体',
+            'shapes': ['cube', 'cube', 'cube', 'cone_top', 'cone_top'],
+            'trials': SPECIAL_TRIALS_PER_GROUP,
+            'report_kind': 'special',
+            'structure_mode': 'triangle_pair_top',
+        },
+    ]
+    ALL_EXPERIMENT_GROUPS = []
+    standard_result_index = 0
+    special_result_index = 0
+    for group_no, base_group in enumerate(STANDARD_EXPERIMENT_GROUPS + SPECIAL_EXPERIMENT_GROUPS, start=1):
+        group = dict(base_group)
+        group['group_no'] = group_no
+        if group['report_kind'] == 'special':
+            group['result_index'] = special_result_index
+            special_result_index += 1
+        else:
+            group['result_index'] = standard_result_index
+            standard_result_index += 1
+        base_group['group_no'] = group['group_no']
+        base_group['result_index'] = group['result_index']
+        ALL_EXPERIMENT_GROUPS.append(group)
 
-    database_path = ['cube', 'cylinder', 'cone_top']
+    database_path = ['cube', 'cylinder', 'cone_top', 'cuboid_bar']
 
     p.connect(p.GUI)
     p.setAdditionalSearchPath(pybullet_data.getDataPath())
@@ -577,7 +631,9 @@ def run():
     current_group_index = 0
     current_trial_index = 0
     batch_finished = False
-    experiment_results = [{'name': group['name'], 'records': []} for group in EXPERIMENT_GROUPS]
+    experiment_results = [{'name': group['name'], 'records': []} for group in STANDARD_EXPERIMENT_GROUPS]
+    special_experiment_results = [{'name': group['name'], 'records': []} for group in SPECIAL_EXPERIMENT_GROUPS]
+    current_plan_evaluation = None
 
     def queue_auto_capture():
         nonlocal auto_capture_pending, auto_capture_countdown
@@ -586,6 +642,7 @@ def run():
 
     def ensure_output_paths():
         os.makedirs(SCREENSHOT_DIR, exist_ok=True)
+        os.makedirs(SPECIAL_SCREENSHOT_DIR, exist_ok=True)
         os.makedirs(img_path, exist_ok=True)
 
     def render_group_links(records):
@@ -603,27 +660,51 @@ def run():
             )
         return lines
 
-    def write_markdown_report():
+    def get_group_trials(group):
+        return int(group.get('trials', TRIALS_PER_GROUP))
+
+    def get_group_result_entry(group):
+        if group['report_kind'] == 'special':
+            return special_experiment_results[group['result_index']]
+        return experiment_results[group['result_index']]
+
+    def get_group_screenshot_dir(group):
+        return SPECIAL_SCREENSHOT_DIR if group['report_kind'] == 'special' else SCREENSHOT_DIR
+
+    def get_group_report_path(group):
+        return SPECIAL_RESULTS_MARKDOWN_PATH if group['report_kind'] == 'special' else RESULTS_MARKDOWN_PATH
+
+    def write_report(markdown_path, group_defs, group_results, title):
         lines = [
-            '# 自动化堆叠实验结果',
+            f'# {title}',
             '',
-            f'- 每组实验次数：{TRIALS_PER_GROUP}',
             f'- 物块总数：{obj_nums}',
             '',
         ]
 
-        for group_result in experiment_results:
+        for group_def, group_result in zip(group_defs, group_results):
             records = group_result['records']
             success_count = sum(1 for record in records if record['success'])
             lines.append(f"## {group_result['name']}")
             lines.append('')
+            lines.append(f"- 实验次数：{get_group_trials(group_def)}")
             if records:
-                lines.append('| 次数 | 大模型判定 | 原因 |')
-                lines.append('| --- | --- | --- |')
-                for record in records:
-                    verdict = '成功' if record['success'] else '失败'
-                    reason = str(record['reason']).replace('\n', ' ').strip()
-                    lines.append(f"| {record['trial']} | {verdict} | {reason} |")
+                if group_def['report_kind'] == 'special':
+                    lines.append('| 次数 | 规划判定 | 规划摘要 | 最终验收 | 原因 |')
+                    lines.append('| --- | --- | --- | --- | --- |')
+                    for record in records:
+                        verdict = '成功' if record['success'] else '失败'
+                        planning_success = '符合' if record.get('planning_success') else '不符合'
+                        planning_reason = str(record.get('planning_reason', '')).replace('\n', ' ').strip()
+                        reason = str(record['reason']).replace('\n', ' ').strip()
+                        lines.append(f"| {record['trial']} | {planning_success} | {planning_reason} | {verdict} | {reason} |")
+                else:
+                    lines.append('| 次数 | 大模型判定 | 原因 |')
+                    lines.append('| --- | --- | --- |')
+                    for record in records:
+                        verdict = '成功' if record['success'] else '失败'
+                        reason = str(record['reason']).replace('\n', ' ').strip()
+                        lines.append(f"| {record['trial']} | {verdict} | {reason} |")
                 lines.append('')
                 lines.append(f'成功次数：{success_count}/{len(records)}')
             else:
@@ -633,25 +714,32 @@ def run():
             lines.extend(render_group_links(records))
             lines.append('')
 
-        with open(RESULTS_MARKDOWN_PATH, 'w', encoding='utf-8') as markdown_file:
+        with open(markdown_path, 'w', encoding='utf-8') as markdown_file:
             markdown_file.write('\n'.join(lines))
 
-    def default_trial_links(group_number, trial_number):
+    def write_markdown_report():
+        write_report(RESULTS_MARKDOWN_PATH, STANDARD_EXPERIMENT_GROUPS, experiment_results, '自动化堆叠实验结果')
+
+    def write_special_markdown_report():
+        write_report(SPECIAL_RESULTS_MARKDOWN_PATH, SPECIAL_EXPERIMENT_GROUPS, special_experiment_results, '非常规结构实验结果')
+
+    def default_trial_links(group, trial_number):
+        screenshot_dir = get_group_screenshot_dir(group)
         return {
-            'top': f'{SCREENSHOT_DIR}/group{group_number}_trial{trial_number:02d}_top.png',
-            'left': f'{SCREENSHOT_DIR}/group{group_number}_trial{trial_number:02d}_left.png',
-            'right': f'{SCREENSHOT_DIR}/group{group_number}_trial{trial_number:02d}_right.png',
+            'top': f"{screenshot_dir}/group{group['group_no']}_trial{trial_number:02d}_top.png",
+            'left': f"{screenshot_dir}/group{group['group_no']}_trial{trial_number:02d}_left.png",
+            'right': f"{screenshot_dir}/group{group['group_no']}_trial{trial_number:02d}_right.png",
         }
 
-    def load_existing_markdown_report():
-        if not os.path.exists(RESULTS_MARKDOWN_PATH):
+    def load_existing_report(markdown_path, group_defs, group_results):
+        if not os.path.exists(markdown_path):
             return
 
-        group_by_name = {group['name']: index for index, group in enumerate(EXPERIMENT_GROUPS)}
-        parsed_records = {index: {} for index in range(len(EXPERIMENT_GROUPS))}
+        group_by_name = {group['name']: index for index, group in enumerate(group_defs)}
+        parsed_records = {index: {} for index in range(len(group_defs))}
         current_group_index_for_parse = None
 
-        with open(RESULTS_MARKDOWN_PATH, 'r', encoding='utf-8') as markdown_file:
+        with open(markdown_path, 'r', encoding='utf-8') as markdown_file:
             for raw_line in markdown_file:
                 line = raw_line.strip()
                 if line.startswith('## '):
@@ -664,14 +752,24 @@ def run():
 
                 if line.startswith('|') and not line.startswith('| ---') and '次数' not in line:
                     cells = [cell.strip() for cell in line.strip('|').split('|')]
-                    if len(cells) >= 3 and cells[0].isdigit():
-                        trial_number = int(cells[0])
-                        parsed_records[current_group_index_for_parse][trial_number] = {
-                            'trial': trial_number,
-                            'success': cells[1] == '成功',
-                            'reason': cells[2],
-                            'links': default_trial_links(current_group_index_for_parse + 1, trial_number),
-                        }
+                    if not cells or not cells[0].isdigit():
+                        continue
+                    trial_number = int(cells[0])
+                    record = {
+                        'trial': trial_number,
+                        'success': False,
+                        'reason': '',
+                        'links': default_trial_links(group_defs[current_group_index_for_parse], trial_number),
+                    }
+                    if len(cells) >= 5:
+                        record['planning_success'] = cells[1] == '符合'
+                        record['planning_reason'] = cells[2]
+                        record['success'] = cells[3] == '成功'
+                        record['reason'] = cells[4]
+                    elif len(cells) >= 3:
+                        record['success'] = cells[1] == '成功'
+                        record['reason'] = cells[2]
+                    parsed_records[current_group_index_for_parse][trial_number] = record
                     continue
 
                 link_match = re.match(
@@ -686,7 +784,7 @@ def run():
                             'trial': trial_number,
                             'success': False,
                             'reason': '从已有报告恢复，未解析到判定原因',
-                            'links': default_trial_links(current_group_index_for_parse + 1, trial_number),
+                            'links': default_trial_links(group_defs[current_group_index_for_parse], trial_number),
                         },
                     )
                     record['links'] = {
@@ -696,68 +794,77 @@ def run():
                     }
 
         for group_index, records_by_trial in parsed_records.items():
-            experiment_results[group_index]['records'] = [
+            group_results[group_index]['records'] = [
                 records_by_trial[trial_number]
                 for trial_number in sorted(records_by_trial)
-                if 1 <= trial_number <= TRIALS_PER_GROUP
+                if 1 <= trial_number <= get_group_trials(group_defs[group_index])
             ]
+
+    def load_existing_markdown_report():
+        load_existing_report(RESULTS_MARKDOWN_PATH, STANDARD_EXPERIMENT_GROUPS, experiment_results)
+
+    def load_existing_special_report():
+        load_existing_report(SPECIAL_RESULTS_MARKDOWN_PATH, SPECIAL_EXPERIMENT_GROUPS, special_experiment_results)
 
     def prepare_resume_state():
         nonlocal current_group_index, current_trial_index, batch_finished
 
-        resume_group_index = max(0, min(RESUME_FROM_GROUP_INDEX, len(EXPERIMENT_GROUPS) - 1))
-        resume_trial_index = max(0, min(RESUME_FROM_TRIAL_INDEX, TRIALS_PER_GROUP - 1))
+        resume_group_index = max(0, min(RESUME_FROM_GROUP_INDEX, len(ALL_EXPERIMENT_GROUPS) - 1))
+        resume_trial_index = max(0, min(RESUME_FROM_TRIAL_INDEX, get_group_trials(ALL_EXPERIMENT_GROUPS[resume_group_index]) - 1))
         if RESTART_FROM_RESUME_GROUP:
-            experiment_results[resume_group_index]['records'] = [
+            resume_group = ALL_EXPERIMENT_GROUPS[resume_group_index]
+            get_group_result_entry(resume_group)['records'] = [
                 record
-                for record in experiment_results[resume_group_index]['records']
+                for record in get_group_result_entry(resume_group)['records']
                 if record['trial'] <= resume_trial_index
             ]
-            for group_index in range(resume_group_index + 1, len(EXPERIMENT_GROUPS)):
-                experiment_results[group_index]['records'] = []
+            for group_index in range(resume_group_index + 1, len(ALL_EXPERIMENT_GROUPS)):
+                get_group_result_entry(ALL_EXPERIMENT_GROUPS[group_index])['records'] = []
             current_group_index = resume_group_index
             current_trial_index = resume_trial_index
             print(
-                f"已保留第{resume_group_index}组及以前的记录，并保留当前组前{resume_trial_index}次记录，将从 "
-                f"{EXPERIMENT_GROUPS[current_group_index]['name']} 第{current_trial_index + 1}次重新开始。"
+                f"已保留前面记录，并保留当前组前 {resume_trial_index} 次记录，将从 "
+                f"{ALL_EXPERIMENT_GROUPS[current_group_index]['name']} 第 {current_trial_index + 1} 次重新开始。"
             )
             return
 
-        for group_index in range(resume_group_index, len(EXPERIMENT_GROUPS)):
-            completed_trials = {record['trial'] for record in experiment_results[group_index]['records']}
-            for trial_index in range(TRIALS_PER_GROUP):
+        for group_index in range(resume_group_index, len(ALL_EXPERIMENT_GROUPS)):
+            group = ALL_EXPERIMENT_GROUPS[group_index]
+            completed_trials = {record['trial'] for record in get_group_result_entry(group)['records']}
+            for trial_index in range(get_group_trials(group)):
                 if trial_index + 1 not in completed_trials:
                     current_group_index = group_index
                     current_trial_index = trial_index
                     print(
-                        f"已加载已有记录，将从 {EXPERIMENT_GROUPS[current_group_index]['name']} "
-                        f"第{current_trial_index + 1}次继续。"
+                        f"已加载已有记录，将从 {ALL_EXPERIMENT_GROUPS[current_group_index]['name']} "
+                        f"第 {current_trial_index + 1} 次继续。"
                     )
                     return
 
         batch_finished = True
-        print('从第二组开始的实验记录已经全部完成。')
+        print('所有实验记录已经全部完成。')
 
-    def copy_trial_screenshots(group_number, trial_number):
+    def copy_trial_screenshots(group, trial_number):
+        screenshot_dir = get_group_screenshot_dir(group)
         screenshot_targets = {
-            'top': ('camera_rgb.png', f'group{group_number}_trial{trial_number:02d}_top.png'),
-            'left': ('camera_rgb_left.png', f'group{group_number}_trial{trial_number:02d}_left.png'),
-            'right': ('camera_rgb_right.png', f'group{group_number}_trial{trial_number:02d}_right.png'),
+            'top': ('camera_rgb.png', f"group{group['group_no']}_trial{trial_number:02d}_top.png"),
+            'left': ('camera_rgb_left.png', f"group{group['group_no']}_trial{trial_number:02d}_left.png"),
+            'right': ('camera_rgb_right.png', f"group{group['group_no']}_trial{trial_number:02d}_right.png"),
         }
         copied_links = {}
         for view_name, (source_name, target_name) in screenshot_targets.items():
             source_path = os.path.join(img_path, source_name)
-            target_path = os.path.join(SCREENSHOT_DIR, target_name)
+            target_path = os.path.join(screenshot_dir, target_name)
             if os.path.exists(source_path):
                 shutil.copy2(source_path, target_path)
-            copied_links[view_name] = os.path.join(SCREENSHOT_DIR, target_name).replace('\\', '/')
+            copied_links[view_name] = os.path.join(screenshot_dir, target_name).replace('\\', '/')
         return copied_links
 
     def reset_robot_and_runtime():
         nonlocal GRASP_STATE, PLACE_STATE, IN_STATE, pressed_char
         nonlocal ball_positions, grasp_obj_index, grasp_order_indices, planned_actions
         nonlocal stack_evaluation_done, auto_scene_settle_counter, trial_step_counter
-        nonlocal grasp_action_step_counter, place_action_step_counter
+        nonlocal grasp_action_step_counter, place_action_step_counter, current_plan_evaluation
 
         panda.reset_to_initial_pose(settle_steps=40)
         GRASP_STATE = False
@@ -769,6 +876,7 @@ def run():
         grasp_order_indices = []
         planned_actions = []
         stack_evaluation_done = False
+        current_plan_evaluation = None
         auto_scene_settle_counter = 0
         trial_step_counter = 0
         grasp_action_step_counter = 0
@@ -784,9 +892,9 @@ def run():
         panda.reset_to_initial_pose(settle_steps=20)
 
     def start_current_trial():
-        group = EXPERIMENT_GROUPS[current_group_index]
+        group = ALL_EXPERIMENT_GROUPS[current_group_index]
         print('\n' + '=' * 60)
-        print(f"开始实验：{group['name']}，第 {current_trial_index + 1}/{TRIALS_PER_GROUP} 次")
+        print(f"开始实验：{group['name']}，第 {current_trial_index + 1}/{get_group_trials(group)} 次")
         print(f"物块组合：{group['shapes']}")
         print('=' * 60)
         clear_world_before_trial()
@@ -828,6 +936,10 @@ def run():
             cube_edge = size_z
             pose['width'] = float(np.clip(cube_edge + 2 * GRASP_GAP, 0.025, GRASP_WIDTH))
             pose['z'] = float(aabb_min[2] + 0.38 * size_z)
+        elif target_filename.startswith('cuboid_bar'):
+            grasp_span = max(size_x, size_y)
+            pose['width'] = float(np.clip(grasp_span + 2 * GRASP_GAP, 0.022, 0.055))
+            pose['z'] = float(aabb_min[2] + 0.45 * size_z)
         elif target_filename.startswith('cylinder'):
             cylinder_diameter = max(size_x, size_y)
             pose['width'] = float(np.clip(cylinder_diameter + 0.025, 0.045, GRASP_WIDTH))
@@ -841,27 +953,131 @@ def run():
             pose['yaw'] = float(adjusted_angle)
         return pose
 
-    def build_default_action_plan(cubes_info, detected_positions, stack_target_xy=(0.5, 0.0)):
-        ordered_indices = enforce_stacking_constraints(
-            list(range(len(cubes_info))),
-            cubes_info,
+    def build_place_pose(stack_target_xy, layer_index, slot, structure_mode='single_column'):
+        place_x = float(stack_target_xy[0])
+        place_y = float(stack_target_xy[1])
+        slot_offset = LONG_BAR_PAIR_SLOT_OFFSET if structure_mode == 'long_bar_pair' else PAIR_SLOT_OFFSET
+        if slot == 'left':
+            place_x -= slot_offset
+        elif slot == 'right':
+            place_x += slot_offset
+        return {
+            'x': place_x,
+            'y': place_y,
+            'z': float(max(0, layer_index) * 0.04),
+            'layer_index': int(layer_index),
+            'slot': slot,
+        }
+
+    def sort_actions_for_execution(actions):
+        slot_order = {'center': 0, 'left': 1, 'right': 2}
+        return sorted(
+            actions,
+            key=lambda action: (
+                int(action.get('layer_index', 0)),
+                slot_order.get(action.get('slot', 'center'), 9),
+                action['target_index'],
+            ),
         )
+
+    def build_single_column_action_plan(cubes_info, stack_target_xy=(0.5, 0.0)):
+        ordered_indices = enforce_stacking_constraints(list(range(len(cubes_info))), cubes_info)
         actions = []
         for order_rank, obj_idx in enumerate(ordered_indices):
             default_grasp_pose = cubes_info[obj_idx]['default_grasp_pose']
             actions.append({
                 'target_index': obj_idx,
                 'grasp_pose': dict(default_grasp_pose),
-                'place_pose': {
-                    'x': float(stack_target_xy[0]),
-                    'y': float(stack_target_xy[1]),
-                    'z': float(order_rank * 0.04),
-                },
-                'reason': '默认规则规划：按稳定性与形状约束堆叠',
+                'layer_index': order_rank,
+                'slot': 'center',
+                'place_pose': build_place_pose(stack_target_xy, order_rank, 'center', structure_mode='single_column'),
+                'reason': '默认规则规划：按稳定性与形状约束单柱堆叠',
             })
         return actions
 
-    def sanitize_action_plan(raw_actions, default_actions, object_count, stack_target_xy=(0.5, 0.0)):
+    def build_special_pair_action_plan(cubes_info, stack_target_xy=(0.5, 0.0), structure_mode='single_column'):
+        if structure_mode == 'long_bar_pair':
+            pair_indices = [cube['index'] for cube in cubes_info if cube.get('is_long_bar')]
+            pair_reason = '默认模板：两个细长长方体放在同一层左右并排更稳'
+        else:
+            pair_indices = [cube['index'] for cube in cubes_info if cube.get('is_triangle')]
+            pair_reason = '默认模板：两个三角体放在最高层左右并排'
+        normal_indices = [
+            cube['index']
+            for cube in sorted(cubes_info, key=lambda item: item.get('volume', 0.0), reverse=True)
+            if cube['index'] not in pair_indices
+        ]
+        if len(normal_indices) < 3 or len(pair_indices) != 2:
+            return build_single_column_action_plan(cubes_info, stack_target_xy=stack_target_xy)
+
+        if structure_mode == 'long_bar_pair':
+            layout = [
+                (pair_indices[0], 0, 'left', '默认模板：细长长方体作为最底层左侧支撑'),
+                (pair_indices[1], 0, 'right', '默认模板：细长长方体作为最底层右侧支撑'),
+                (normal_indices[0], 1, 'center', '默认普通物块：第二层中心单柱堆叠'),
+                (normal_indices[1], 2, 'center', '默认普通物块：第三层中心单柱堆叠'),
+                (normal_indices[2], 3, 'center', '默认普通物块：第四层中心单柱堆叠'),
+            ]
+        else:
+            pair_layer_index = min(3, len(normal_indices))
+            layout = [
+                (normal_indices[0], 0, 'center', '默认普通物块：底层中心单柱堆叠'),
+                (normal_indices[1], 1, 'center', '默认普通物块：中层中心单柱堆叠'),
+                (normal_indices[2], 2, 'center', '默认普通物块：上层中心单柱堆叠'),
+                (pair_indices[0], pair_layer_index, 'left', pair_reason),
+                (pair_indices[1], pair_layer_index, 'right', pair_reason),
+            ]
+        actions = []
+        for obj_idx, layer_index, slot, reason in layout:
+            place_pose = build_place_pose(stack_target_xy, layer_index, slot, structure_mode=structure_mode)
+            if structure_mode == 'long_bar_pair' and slot == 'right':
+                place_pose['place_hold_width'] = LONG_BAR_SECOND_PLACE_HOLD_WIDTH
+            actions.append({
+                'target_index': obj_idx,
+                'grasp_pose': dict(cubes_info[obj_idx]['default_grasp_pose']),
+                'layer_index': layer_index,
+                'slot': slot,
+                'place_pose': place_pose,
+                'reason': reason,
+            })
+        return sort_actions_for_execution(actions)
+
+    def build_default_action_plan(cubes_info, detected_positions, stack_target_xy=(0.5, 0.0), structure_mode='single_column'):
+        if structure_mode in {'long_bar_pair', 'triangle_pair_top'}:
+            return build_special_pair_action_plan(cubes_info, stack_target_xy=stack_target_xy, structure_mode=structure_mode)
+        return build_single_column_action_plan(cubes_info, stack_target_xy=stack_target_xy)
+
+    def evaluate_structure_plan(actions, cubes_info, structure_mode='single_column'):
+        if structure_mode == 'single_column':
+            return True, '常规单柱实验'
+
+        if structure_mode == 'long_bar_pair':
+            pair_actions = [action for action in actions if cubes_info[action['target_index']].get('is_long_bar')]
+            target_name = '细长长方体'
+        else:
+            pair_actions = [action for action in actions if cubes_info[action['target_index']].get('is_triangle')]
+            target_name = '三角体'
+
+        if len(pair_actions) != 2:
+            return False, f'未能识别出 2 个{target_name}动作'
+
+        pair_layers = {int(action.get('layer_index', -1)) for action in pair_actions}
+        pair_slots = {action.get('slot', '') for action in pair_actions}
+        yaw_values = [float(action['grasp_pose'].get('yaw', 0.0)) for action in pair_actions]
+        yaw_delta = abs(normalize_grasp_angle(yaw_values[0] - yaw_values[1]))
+        if len(pair_layers) != 1:
+            return False, f'{target_name}没有被规划到同一层'
+        if pair_slots != {'left', 'right'}:
+            return False, f'{target_name}没有形成 left/right 成对布局'
+        if yaw_delta > 0.35:
+            return False, f'{target_name}抓取朝向不够平行（差值 {yaw_delta:.3f} rad）'
+        if structure_mode == 'triangle_pair_top':
+            highest_layer = max(int(action.get('layer_index', 0)) for action in actions)
+            if next(iter(pair_layers)) != highest_layer:
+                return False, '两个三角体没有被规划到最高层'
+        return True, f'{target_name}满足同层并排规划要求'
+
+    def sanitize_action_plan(raw_actions, default_actions, object_count, stack_target_xy=(0.5, 0.0), structure_mode='single_column'):
         if not raw_actions:
             return list(default_actions)
 
@@ -872,6 +1088,7 @@ def run():
                 return float(fallback)
 
         default_by_index = {action['target_index']: action for action in default_actions}
+        valid_slots = {'center', 'left', 'right'}
         planned = []
         used_indices = set()
 
@@ -886,6 +1103,13 @@ def run():
             default_grasp = default_action['grasp_pose']
             raw_grasp = raw_action.get('grasp_pose', {}) or {}
             raw_place = raw_action.get('place_pose', {}) or {}
+            try:
+                layer_index = int(raw_action.get('layer_index', default_action.get('layer_index', 0)))
+            except (TypeError, ValueError):
+                layer_index = int(default_action.get('layer_index', 0))
+            slot = str(raw_action.get('slot', default_action.get('slot', 'center'))).strip().lower()
+            if slot not in valid_slots:
+                slot = default_action.get('slot', 'center')
 
             grasp_pose = {
                 'x': clamp_value(get_float(raw_grasp, 'x', default_grasp['x']), default_grasp['x'] - 0.05, default_grasp['x'] + 0.05),
@@ -894,15 +1118,16 @@ def run():
                 'yaw': float(normalize_grasp_angle(get_float(raw_grasp, 'yaw', default_grasp['yaw']))),
                 'width': clamp_value(get_float(raw_grasp, 'width', default_grasp['width']), 0.02, GRASP_WIDTH),
             }
-            place_pose = {
-                'x': clamp_value(get_float(raw_place, 'x', stack_target_xy[0]), stack_target_xy[0] - 0.02, stack_target_xy[0] + 0.02),
-                'y': clamp_value(get_float(raw_place, 'y', stack_target_xy[1]), stack_target_xy[1] - 0.02, stack_target_xy[1] + 0.02),
-                'z': clamp_value(get_float(raw_place, 'z', default_action['place_pose']['z']), 0.0, 0.25),
-            }
+            place_pose = build_place_pose(stack_target_xy, layer_index, slot, structure_mode=structure_mode)
+            place_pose['z'] = clamp_value(get_float(raw_place, 'z', place_pose['z']), 0.0, 0.25)
+            if 'place_hold_width' in default_action.get('place_pose', {}):
+                place_pose['place_hold_width'] = float(default_action['place_pose']['place_hold_width'])
 
             planned.append({
                 'target_index': obj_idx,
                 'grasp_pose': grasp_pose,
+                'layer_index': layer_index,
+                'slot': slot,
                 'place_pose': place_pose,
                 'reason': str(raw_action.get('reason', '大模型动作规划')).strip() or '大模型动作规划',
             })
@@ -912,17 +1137,39 @@ def run():
             if default_action['target_index'] not in used_indices:
                 planned.append(default_action)
 
-        return planned
+        if structure_mode in {'long_bar_pair', 'triangle_pair_top'}:
+            allowed_pair_indices = {
+                action['target_index']
+                for action in default_actions
+                if action.get('slot') in {'left', 'right'}
+            }
+            normalized_planned = []
+            for action in planned:
+                if action['target_index'] not in allowed_pair_indices:
+                    default_action = default_by_index[action['target_index']]
+                    action = {
+                        'target_index': action['target_index'],
+                        'grasp_pose': action['grasp_pose'],
+                        'layer_index': default_action['layer_index'],
+                        'slot': default_action['slot'],
+                        'place_pose': dict(default_action['place_pose']),
+                        'reason': action['reason'],
+                    }
+                normalized_planned.append(action)
+            planned = normalized_planned
+
+        return sort_actions_for_execution(planned)
 
     def advance_to_next_trial():
         nonlocal current_group_index, current_trial_index, batch_finished
+        current_group = ALL_EXPERIMENT_GROUPS[current_group_index]
 
-        if current_trial_index + 1 < TRIALS_PER_GROUP:
+        if current_trial_index + 1 < get_group_trials(current_group):
             current_trial_index += 1
             start_current_trial()
             return
 
-        if current_group_index + 1 < len(EXPERIMENT_GROUPS):
+        if current_group_index + 1 < len(ALL_EXPERIMENT_GROUPS):
             current_group_index += 1
             current_trial_index = 0
             start_current_trial()
@@ -930,16 +1177,19 @@ def run():
 
         batch_finished = True
         print('\n所有自动化实验均已完成。')
-        print(f"实验结果已写入：{os.path.abspath(RESULTS_MARKDOWN_PATH)}")
-        print(f"截图目录：{os.path.abspath(SCREENSHOT_DIR)}")
+        print(f"标准实验结果已写入：{os.path.abspath(RESULTS_MARKDOWN_PATH)}")
+        print(f"标准实验截图目录：{os.path.abspath(SCREENSHOT_DIR)}")
+        print(f"非常规实验结果已写入：{os.path.abspath(SPECIAL_RESULTS_MARKDOWN_PATH)}")
+        print(f"非常规实验截图目录：{os.path.abspath(SPECIAL_SCREENSHOT_DIR)}")
 
     def finalize_current_trial(forced_failure_reason=None):
-        nonlocal stack_evaluation_done
+        nonlocal stack_evaluation_done, current_plan_evaluation
 
         if stack_evaluation_done:
             return
 
         stack_evaluation_done = True
+        current_group = ALL_EXPERIMENT_GROUPS[current_group_index]
         env.renderURDFImage(save_path=img_path)
         evaluation_images = [
             os.path.join(img_path, 'camera_rgb.png'),
@@ -952,22 +1202,38 @@ def run():
         )
         success = model_success if forced_failure_reason is None else False
         reason = model_reason if forced_failure_reason is None else f"{forced_failure_reason}; 大模型判断：{model_reason}"
-        links = copy_trial_screenshots(current_group_index + 1, current_trial_index + 1)
-        experiment_results[current_group_index]['records'].append({
+        links = copy_trial_screenshots(current_group, current_trial_index + 1)
+        if current_plan_evaluation is None:
+            if current_group['report_kind'] == 'special':
+                plan_evaluation = {'success': False, 'reason': '本轮未完成非常规结构规划'}
+            else:
+                plan_evaluation = {'success': True, 'reason': '常规实验未单独检查规划结构'}
+        else:
+            plan_evaluation = current_plan_evaluation
+        record = {
             'trial': current_trial_index + 1,
             'success': success,
             'reason': reason,
             'links': links,
-        })
+        }
+        if current_group['report_kind'] == 'special':
+            record['planning_success'] = bool(plan_evaluation.get('success'))
+            record['planning_reason'] = str(plan_evaluation.get('reason', '')).strip()
+        get_group_result_entry(current_group)['records'].append(record)
         write_markdown_report()
+        write_special_markdown_report()
 
         print('\n' + '=' * 50)
         print('【堆叠验收结果】')
-        print(f"实验组别: {EXPERIMENT_GROUPS[current_group_index]['name']}")
+        print(f"实验组别: {current_group['name']}")
         print(f"实验次数: 第 {current_trial_index + 1} 次")
+        if current_group['report_kind'] == 'special':
+            print(f"规划判定: {'符合' if plan_evaluation.get('success') else '不符合'}")
+            print(f"规划摘要: {plan_evaluation.get('reason', '')}")
         print(f"是否成功: {'成功' if success else '失败'}")
         print(f"原因: {reason}")
         print('=' * 50 + '\n')
+        current_plan_evaluation = None
 
         advance_to_next_trial()
 
@@ -985,6 +1251,7 @@ def run():
 
     def plan_scene():
         nonlocal ball_positions, grasp_order_indices, grasp_obj_index, planned_actions, stack_evaluation_done
+        nonlocal current_plan_evaluation
 
         env.renderURDFImage(save_path=img_path)
         detected_positions = get_positions(img_path, env.urdfs_id)
@@ -995,6 +1262,7 @@ def run():
         planned_actions = []
         grasp_obj_index = 0
         stack_evaluation_done = False
+        current_plan_evaluation = None
         if len(detected_positions) != len(env.urdfs_id):
             missing = [i + 1 for i in range(len(env.urdfs_id)) if i not in detected_positions]
             print(f"Mask 未检测到全部物块，缺失物块编号: {missing}，等待重新渲染。")
@@ -1012,14 +1280,31 @@ def run():
             shape = env.urdfs_shapes[i] if hasattr(env, 'urdfs_shapes') and i < len(env.urdfs_shapes) else '正方体'
             source_filename = os.path.basename(env.urdfs_filename[i]) if i < len(env.urdfs_filename) else ''
             is_triangle = source_filename.startswith('cone_top')
+            is_long_bar = source_filename.startswith('cuboid_bar') or shape == '细长长方体'
             top_only = is_triangle or shape == '三角体'
             aabb = p.getAABB(env.urdfs_id[i])
             size_x = aabb[1][0] - aabb[0][0]
             size_y = aabb[1][1] - aabb[0][1]
             size_z = aabb[1][2] - aabb[0][2]
+            footprint_x = min(size_x, size_y)
+            footprint_y = max(size_x, size_y)
+            footprint_area = footprint_x * footprint_y
+            slenderness_ratio = size_z / max(footprint_x, 1e-6)
 
             shape_params = {}
-            if shape == '圆柱体':
+            if is_long_bar:
+                volume = size_x * size_y * size_z
+                shape_params.update({
+                    'length': footprint_y,
+                    'width_body': footprint_x,
+                    'height': size_z,
+                    'volume': volume,
+                })
+                shape_summary = (
+                    f"底面={footprint_x:.4f}m x {footprint_y:.4f}m, "
+                    f"高度={size_z:.4f}m, 体积={volume:.8f}m^3"
+                )
+            elif shape == '圆柱体':
                 diameter = max(size_x, size_y)
                 height = size_z
                 volume = np.pi * (diameter / 2.0) ** 2 * height
@@ -1050,8 +1335,14 @@ def run():
                 'shape': shape,
                 'top_only': top_only,
                 'is_triangle': is_triangle,
+                'is_long_bar': is_long_bar,
                 'source_filename': source_filename,
                 'position': [obj_pos[0], obj_pos[1]],
+                'footprint_x': footprint_x,
+                'footprint_y': footprint_y,
+                'footprint_area': footprint_area,
+                'height': size_z,
+                'slenderness_ratio': slenderness_ratio,
             }
             cube_info['default_grasp_pose'] = build_default_grasp_pose(i, mask_pos)
             cube_info.update(shape_params)
@@ -1064,24 +1355,42 @@ def run():
         if not cubes_info:
             return False
 
+        current_group = ALL_EXPERIMENT_GROUPS[current_group_index]
+        structure_mode = current_group.get('structure_mode', 'single_column')
         stack_target_xy = (0.5, 0.0)
         scene_image_paths = [
             os.path.join(img_path, 'camera_rgb.png'),
             os.path.join(img_path, 'camera_rgb_left.png'),
             os.path.join(img_path, 'camera_rgb_right.png')
         ]
-        default_actions = build_default_action_plan(cubes_info, detected_positions, stack_target_xy=stack_target_xy)
+        default_actions = build_default_action_plan(
+            cubes_info,
+            detected_positions,
+            stack_target_xy=stack_target_xy,
+            structure_mode=structure_mode,
+        )
         raw_actions = ask_bailian_for_pick_place_actions(
             cubes_info,
             image_paths=scene_image_paths,
             stack_target={'x': stack_target_xy[0], 'y': stack_target_xy[1], 'z': 0.0},
+            structure_mode=structure_mode,
         )
-        planned_actions = sanitize_action_plan(
+        candidate_actions = sanitize_action_plan(
             raw_actions,
             default_actions,
             len(cubes_info),
             stack_target_xy=stack_target_xy,
+            structure_mode=structure_mode,
         )
+        planning_success, planning_reason = evaluate_structure_plan(candidate_actions, cubes_info, structure_mode=structure_mode)
+        if structure_mode != 'single_column' and not raw_actions:
+            planning_success = False
+            planning_reason = '大模型未返回有效非常规结构动作，已回退默认模板'
+        current_plan_evaluation = {
+            'success': planning_success,
+            'reason': planning_reason,
+        }
+        planned_actions = candidate_actions if planning_success or structure_mode == 'single_column' else list(default_actions)
         grasp_order_indices = [action['target_index'] for action in planned_actions]
         ball_positions = [
             (
@@ -1103,6 +1412,7 @@ def run():
                 f"  Action {action_idx}: 物块{action['target_index'] + 1}, "
                 f"grasp=({grasp_pose['x']:.3f}, {grasp_pose['y']:.3f}, {grasp_pose['z']:.3f}, "
                 f"yaw={grasp_pose['yaw']:.3f}, width={grasp_pose['width']:.3f}), "
+                f"layer={action.get('layer_index', 0)}, slot={action.get('slot', 'center')}, "
                 f"place=({place_pose['x']:.3f}, {place_pose['y']:.3f}, {place_pose['z']:.3f}), "
                 f"reason={action['reason']}"
             )
@@ -1138,6 +1448,7 @@ def run():
                 f"({grasp_config['x']:.4f}, {grasp_config['y']:.4f}, {grasp_config['z']:.4f}), "
                 f"抓取角度={grasp_config['angle']:.4f} rad, "
                 f"夹爪宽度={grasp_config['width']:.4f}m, "
+                f"层={current_action.get('layer_index', 0)}, 槽位={current_action.get('slot', 'center')}, "
                 f"放置点=({current_action['place_pose']['x']:.4f}, {current_action['place_pose']['y']:.4f}, {current_action['place_pose']['z']:.4f})"
             )
 
@@ -1175,8 +1486,10 @@ def run():
 
     ensure_output_paths()
     load_existing_markdown_report()
+    load_existing_special_report()
     prepare_resume_state()
     write_markdown_report()
+    write_special_markdown_report()
     if not batch_finished:
         start_current_trial()
 
