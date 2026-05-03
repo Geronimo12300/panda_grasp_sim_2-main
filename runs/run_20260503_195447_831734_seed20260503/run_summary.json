@@ -5,7 +5,7 @@
   "trial_seed_stride": 1000,
   "started_at": "2026-05-03T19:54:47.831734+08:00",
   "current_group_index": 9,
-  "current_trial_index": 5,
+  "current_trial_index": 7,
   "batch_finished": false,
   "standard_results": [
     {
@@ -168,6 +168,36 @@
             "top": "1/group10_trial05_top.png",
             "left": "1/group10_trial05_left.png",
             "right": "1/group10_trial05_right.png"
+          }
+        },
+        {
+          "trial": 6,
+          "success": true,
+          "reason": "五个物块已形成明显的竖向堆叠，整体稳定",
+          "links": {
+            "top": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/1/group10_trial06_top.png",
+            "left": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/1/group10_trial06_left.png",
+            "right": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/1/group10_trial06_right.png"
+          }
+        },
+        {
+          "trial": 7,
+          "success": false,
+          "reason": "物块散落在桌面，未形成堆叠",
+          "links": {
+            "top": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/1/group10_trial07_top.png",
+            "left": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/1/group10_trial07_left.png",
+            "right": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/1/group10_trial07_right.png"
+          }
+        },
+        {
+          "trial": 8,
+          "success": true,
+          "reason": "物块已形成明显的竖向堆叠，整体稳定",
+          "links": {
+            "top": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/1/group10_trial08_top.png",
+            "left": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/1/group10_trial08_left.png",
+            "right": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/1/group10_trial08_right.png"
           }
         }
       ]

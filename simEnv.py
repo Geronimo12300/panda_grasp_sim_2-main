@@ -295,42 +295,13 @@ class SimEnv(object):
         self.urdfs_shapes = []
         
         spawn_region = {
-            "x_min": -0.08,
-            "x_max": 0.20,
-            "y_min": -0.10,
-            "y_max": 0.12,
+            "x_min": -0.18,
+            "x_max": 0.18,
+            "y_min": -0.14,
+            "y_max": 0.14,
             "z": 0.022
         }
-        if scale_mode == "random":
-            spawn_region = {
-                "x_min": -0.06,
-                "x_max": 0.24,
-                "y_min": -0.08,
-                "y_max": 0.12,
-                "z": 0.022
-            }
-        min_spawn_distance = 0.08
-
-        def is_valid_spawn_xy(x, y, filename=""):
-            if x < 0 and y < 0:
-                return False
-            if filename.startswith('cube') and (x <= 0 or y <= 0):
-                return False
-            return True
-
-        def sample_spawn_candidate(filename=""):
-            prefer_first_quadrant = random.random() < 0.72
-            if prefer_first_quadrant:
-                return [
-                    random.uniform(max(0.02, spawn_region["x_min"]), spawn_region["x_max"]),
-                    random.uniform(0.01, spawn_region["y_max"]),
-                    spawn_region["z"]
-                ]
-            return [
-                random.uniform(spawn_region["x_min"], spawn_region["x_max"]),
-                random.uniform(spawn_region["y_min"], spawn_region["y_max"]),
-                spawn_region["z"]
-            ]
+        min_spawn_distance = 0.09
 
         fixed_scale_palette = [0.75, 0.85, 1.0, 1.15, 1.25]
         shared_shape_scales = {}
@@ -381,8 +352,12 @@ class SimEnv(object):
         for i in range(self.num_urdf):
             filename = os.path.basename(self.urdfs_filename[i]) if i < len(self.urdfs_filename) else ""
             for _ in range(220):
-                candidate_position = sample_spawn_candidate(filename)
-                if is_valid_spawn_xy(candidate_position[0], candidate_position[1], filename) and all(
+                candidate_position = [
+                    random.uniform(spawn_region["x_min"], spawn_region["x_max"]),
+                    random.uniform(spawn_region["y_min"], spawn_region["y_max"]),
+                    spawn_region["z"]
+                ]
+                if all(
                     ((candidate_position[0] - pos[0]) ** 2 + (candidate_position[1] - pos[1]) ** 2) ** 0.5 >= min_spawn_distance
                     for pos in placed_positions
                 ):
@@ -393,16 +368,12 @@ class SimEnv(object):
                     [x, y, spawn_region["z"]]
                     for x in np.linspace(spawn_region["x_min"], spawn_region["x_max"], 4)
                     for y in np.linspace(spawn_region["y_min"], spawn_region["y_max"], 3)
-                    if is_valid_spawn_xy(x, y, filename)
                 ]
                 basePosition = max(
                     grid_candidates,
-                    key=lambda candidate: (
-                        1 if (candidate[0] >= 0 and candidate[1] >= 0) else 0,
-                        min(
-                            [((candidate[0] - pos[0]) ** 2 + (candidate[1] - pos[1]) ** 2) ** 0.5 for pos in placed_positions]
-                            or [float("inf")]
-                        )
+                    key=lambda candidate: min(
+                        [((candidate[0] - pos[0]) ** 2 + (candidate[1] - pos[1]) ** 2) ** 0.5 for pos in placed_positions]
+                        or [float("inf")]
                     )
                 )
 
@@ -489,7 +460,26 @@ class SimEnv(object):
         # ======================== 渲染相机深度图 ========================
         print('>> 渲染相机深度图...')
         # 渲染图像
-        img_camera = self.p.getCameraImage(IMAGEWIDTH, IMAGEHEIGHT, self.viewMatrix, self.projectionMatrix, renderer=p.ER_BULLET_HARDWARE_OPENGL)
+        # 在DIRECT模式下使用软件渲染器，GUI模式下使用硬件渲染器
+        try:
+            # 先尝试使用硬件渲染器
+            img_camera = self.p.getCameraImage(IMAGEWIDTH, IMAGEHEIGHT, self.viewMatrix, self.projectionMatrix, renderer=p.ER_BULLET_HARDWARE_OPENGL)
+            # 检查渲染结果是否有效
+            dep = img_camera[3]
+            depth = np.reshape(dep, (IMAGEHEIGHT, IMAGEWIDTH))
+            A = np.ones((IMAGEHEIGHT, IMAGEWIDTH), dtype=np.float64) * farPlane * nearPlane
+            B = np.ones((IMAGEHEIGHT, IMAGEWIDTH), dtype=np.float64) * farPlane
+            C = np.ones((IMAGEHEIGHT, IMAGEWIDTH), dtype=np.float64) * (farPlane - nearPlane)
+            im_depthCamera = np.divide(A, (np.subtract(B, np.multiply(C, depth))))
+            unique_depths = len(np.unique(np.round(im_depthCamera, 6)))
+            if unique_depths <= 1:
+                # 硬件渲染失败，使用软件渲染器
+                print('>> 硬件渲染结果异常，切换到软件渲染器...')
+                img_camera = self.p.getCameraImage(IMAGEWIDTH, IMAGEHEIGHT, self.viewMatrix, self.projectionMatrix, renderer=p.ER_TINY_RENDERER)
+        except Exception as e:
+            print(f'>> 硬件渲染异常: {e}，使用软件渲染器...')
+            img_camera = self.p.getCameraImage(IMAGEWIDTH, IMAGEHEIGHT, self.viewMatrix, self.projectionMatrix, renderer=p.ER_TINY_RENDERER)
+        
         w = img_camera[0]      # width of the image, in pixels
         h = img_camera[1]      # height of the image, in pixels
         rgba = img_camera[2]    # color data RGB
@@ -520,28 +510,38 @@ class SimEnv(object):
 
         # 保存图像
         # print('>> 保存相机深度图')
-        scio.savemat(save_path + '/camera_rgb.mat', {'A':im_rgb})
-        scio.savemat(save_path + '/camera_depth.mat', {'A':im_depthCamera})
-        scio.savemat(save_path + '/camera_depth_rev.mat', {'A':im_depthCamera_rev})
-        scio.savemat(save_path + '/camera_mask.mat', {'A':im_mask})
+        scio.savemat(os.path.join(save_path, 'camera_rgb.mat'), {'A':im_rgb})
+        scio.savemat(os.path.join(save_path, 'camera_depth.mat'), {'A':im_depthCamera})
+        scio.savemat(os.path.join(save_path, 'camera_depth_rev.mat'), {'A':im_depthCamera_rev})
+        scio.savemat(os.path.join(save_path, 'camera_mask.mat'), {'A':im_mask})
 
-        cv2.imwrite(save_path + '/camera_rgb.png', im_rgb)
-        cv2.imwrite(save_path + '/camera_mask.png', im_mask*20)
-        cv2.imwrite(save_path + '/camera_depth.png', tool.depth2Gray(im_depthCamera))
-        cv2.imwrite(save_path + '/camera_depth_rev.png', tool.depth2Gray(im_depthCamera_rev))
+        cv2.imwrite(os.path.join(save_path, 'camera_rgb.png'), im_rgb)
+        cv2.imwrite(os.path.join(save_path, 'camera_mask.png'), im_mask*20)
+        cv2.imwrite(os.path.join(save_path, 'camera_depth.png'), tool.depth2Gray(im_depthCamera))
+        cv2.imwrite(os.path.join(save_path, 'camera_depth_rev.png'), tool.depth2Gray(im_depthCamera_rev))
 
         side_views = [
             ('left', self.leftViewMatrix),
             ('right', self.rightViewMatrix),
         ]
         for view_name, view_matrix in side_views:
-            side_camera = self.p.getCameraImage(
-                IMAGEWIDTH,
-                IMAGEHEIGHT,
-                view_matrix,
-                self.projectionMatrix,
-                renderer=p.ER_BULLET_HARDWARE_OPENGL
-            )
+            # 在DIRECT模式下使用软件渲染器
+            try:
+                side_camera = self.p.getCameraImage(
+                    IMAGEWIDTH,
+                    IMAGEHEIGHT,
+                    view_matrix,
+                    self.projectionMatrix,
+                    renderer=p.ER_BULLET_HARDWARE_OPENGL
+                )
+            except Exception:
+                side_camera = self.p.getCameraImage(
+                    IMAGEWIDTH,
+                    IMAGEHEIGHT,
+                    view_matrix,
+                    self.projectionMatrix,
+                    renderer=p.ER_BULLET_OPENGL
+                )
             side_width = side_camera[0]
             side_height = side_camera[1]
             side_rgba = side_camera[2]

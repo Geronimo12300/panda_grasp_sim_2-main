@@ -1,0 +1,1168 @@
+当前配置文件：E:\pycharmprojects\panda_grasp_sim_2-main_v10\runs\control_panel_configs\panel_launch_20260503_213841_664186.json
+实验运行目录：E:\pycharmprojects\panda_grasp_sim_2-main_v10\runs\run_20260503_213842_488737_seed20260503
+已保留前面记录，并保留当前组前 2 次记录，将从 随机尺寸 - 第一组：5个正方体 第 3 次重新开始。
+
+============================================================
+开始实验：随机尺寸 - 第一组：5个正方体，第 3/10 次
+物块组合：['cube', 'cube', 'cube', 'cube', 'cube']
+尺寸模式：随机尺寸 / random
+本次实验随机种子：20266505
+============================================================
+self.urdfs_filename =  ['cube\\cube_0.urdf', 'cube\\cube_1.urdf', 'cube\\cube_2.urdf', 'cube\\cube_0.urdf', 'cube\\cube_1.urdf']
+随机缩放比例: [0.7, 1.06, 0.68, 0.6, 0.95]
+物块1 已加载: 位置=(0.199, 0.094, 0.016), 偏航角=1.886 rad
+物块2 已加载: 位置=(0.075, 0.153, 0.023), 偏航角=-2.927 rad
+物块3 已加载: 位置=(0.273, 0.202, 0.016), 偏航角=1.966 rad
+物块4 已加载: 位置=(0.171, 0.176, 0.014), 偏航角=-1.073 rad
+物块5 已加载: 位置=(0.117, 0.058, 0.021), 偏航角=-3.062 rad
+Auto run enabled: experiment scheduler is active.
+>> 渲染相机深度图...
+>> depth stats: min=0.457610, max=0.500000, unique~=1730
+>> 侧视相机 left RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_left.png, success=True
+>> 侧视相机 right RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_right.png, success=True
+>> 渲染结束
+Mask 检测到的物块数量: 5/5
+
+==================================================
+【仿真环境中的物块信息】
+  物块1: 形状=正方体, 颜色=红色, 缩放比例=0.70, 边长=0.0353m, 体积=0.00004401m^3, 位置=(0.199, 0.094)
+  [抓取位姿] 物块1: 物体底部z=-0.0000, 物体高度=0.0280, 抓取点z=-0.0270, 末端执行器目标z=0.0200
+    -> Mask 抓取候选 (0.213, 0.102)
+  物块2: 形状=正方体, 颜色=绿色, 缩放比例=1.06, 边长=0.0504m, 体积=0.00012839m^3, 位置=(0.075, 0.153)
+  [抓取位姿] 物块2: 物体底部z=-0.0000, 物体高度=0.0424, 抓取点z=-0.0270, 末端执行器目标z=0.0200
+    -> Mask 抓取候选 (0.082, 0.168)
+  物块3: 形状=正方体, 颜色=蓝色, 缩放比例=0.68, 边长=0.0356m, 体积=0.00004505m^3, 位置=(0.273, 0.202)
+  [抓取位姿] 物块3: 物体底部z=-0.0000, 物体高度=0.0272, 抓取点z=-0.0270, 末端执行器目标z=0.0200
+    -> Mask 抓取候选 (0.291, 0.217)
+  物块4: 形状=正方体, 颜色=黄色, 缩放比例=0.60, 边长=0.0325m, 体积=0.00003447m^3, 位置=(0.171, 0.176)
+  [抓取位姿] 物块4: 物体底部z=-0.0000, 物体高度=0.0240, 抓取点z=-0.0270, 末端执行器目标z=0.0200
+    -> Mask 抓取候选 (0.182, 0.188)
+  物块5: 形状=正方体, 颜色=紫色, 缩放比例=0.95, 边长=0.0409m, 体积=0.00006850m^3, 位置=(0.117, 0.058)
+  [抓取位姿] 物块5: 物体底部z=-0.0000, 物体高度=0.0380, 抓取点z=-0.0270, 末端执行器目标z=0.0200
+    -> Mask 抓取候选 (0.127, 0.064)
+==================================================
+
+正在询问阿里云百炼 / Qwen-VL 直接生成抓取放置动作...
+
+==================================================
+【阿里云百炼 / Qwen-VL 动作计划原始返回】
+{
+  "actions": [
+    {
+      "target_object": "物块2",
+      "grasp_pose": {"x": 0.075, "y": 0.153, "z": -0.027, "yaw": 0.214, "width": 0.052},
+      "layer_index": 0,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.150, "z": 0.000},
+      "reason": "绿色物块最大，适合作为底层中心支撑"
+    },
+    {
+      "target_object": "物块5",
+      "grasp_pose": {"x": 0.117, "y": 0.058, "z": -0.027, "yaw": 0.080, "width": 0.048},
+      "layer_index": 1,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.150, "z": 0.038},
+      "reason": "紫色物块尺寸适中，适合堆叠在绿色物块之上"
+    },
+    {
+      "target_object": "物块1",
+      "grasp_pose": {"x": 0.199, "y": 0.094, "z": -0.027, "yaw": -1.255, "width": 0.034},
+      "layer_index": 2,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.150, "z": 0.066},
+      "reason": "红色物块较小，适合放在上层中心"
+    },
+    {
+      "target_object": "物块3",
+      "grasp_pose": {"x": 0.273, "y": 0.202, "z": -0.027, "yaw": -1.175, "width": 0.033},
+      "layer_index": 3,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.150, "z": 0.0932},
+      "reason": "蓝色物块较小，继续堆叠于中心"
+    },
+    {
+      "target_object": "物块4",
+      "grasp_pose": {"x": 0.171, "y": 0.176, "z": -0.027, "yaw": -1.073, "width": 0.030},
+      "layer_index": 4,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.150, "z": 0.1172},
+      "reason": "黄色物块最小，作为顶层中心放置"
+    }
+  ]
+}
+==================================================
+
+==================================================
+【最终动作计划】
+  Action 1: 物块2, grasp=(0.075, 0.153, 0.000, yaw=0.214, width=0.052), layer=0, slot=center, place=(0.500, 0.150, 0.000), reason=绿色物块最大，适合作为底层中心支撑
+  Action 2: 物块5, grasp=(0.117, 0.058, 0.000, yaw=0.080, width=0.048), layer=1, slot=center, place=(0.500, 0.150, 0.038), reason=紫色物块尺寸适中，适合堆叠在绿色物块之上
+  Action 3: 物块1, grasp=(0.199, 0.094, 0.000, yaw=-1.255, width=0.034), layer=2, slot=center, place=(0.500, 0.150, 0.066), reason=红色物块较小，适合放在上层中心
+  Action 4: 物块3, grasp=(0.273, 0.202, 0.000, yaw=-1.175, width=0.033), layer=3, slot=center, place=(0.500, 0.150, 0.093), reason=蓝色物块较小，继续堆叠于中心
+  Action 5: 物块4, grasp=(0.171, 0.176, 0.000, yaw=-1.073, width=0.030), layer=4, slot=center, place=(0.500, 0.150, 0.117), reason=黄色物块最小，作为顶层中心放置
+==================================================
+
+执行动作: 抓取物块2, (0.0750, 0.1530, 0.0000), 抓取角度=0.2140 rad, 夹爪宽度=0.0520m, 层=0, 槽位=center, 放置点=(0.5000, 0.1500, 0.0000)
+  [执行抓取] 目标位置: (0.0750, 0.1530, 0.0150), 末端执行器将达到: z=0.0620
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=True, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+    [Place State7] state_t=0.00, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.075, 0.156, 0.401), reached=False
+    [Place State7] state_t=0.01, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.075, 0.156, 0.401), reached=False
+    [Place State7] state_t=0.01, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.077, 0.157, 0.401), reached=False
+    [Place State7] state_t=0.02, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.079, 0.157, 0.401), reached=False
+    [Place State7] state_t=0.02, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.082, 0.158, 0.400), reached=False
+    [Place State7] state_t=0.02, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.084, 0.159, 0.400), reached=False
+    [Place State7] state_t=0.03, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.087, 0.160, 0.400), reached=False
+    [Place State7] state_t=0.03, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.090, 0.160, 0.399), reached=False
+    [Place State7] state_t=0.04, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.092, 0.161, 0.399), reached=False
+    [Place State7] state_t=0.04, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.095, 0.162, 0.399), reached=False
+    [Place State7] state_t=0.05, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.098, 0.163, 0.399), reached=False
+    [Place State7] state_t=0.05, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.101, 0.163, 0.398), reached=False
+    [Place State7] state_t=0.05, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.103, 0.164, 0.398), reached=False
+    [Place State7] state_t=0.06, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.106, 0.165, 0.398), reached=False
+    [Place State7] state_t=0.06, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.109, 0.165, 0.398), reached=False
+    [Place State7] state_t=0.07, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.112, 0.166, 0.397), reached=False
+    [Place State7] state_t=0.07, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.115, 0.166, 0.397), reached=False
+    [Place State7] state_t=0.07, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.118, 0.167, 0.397), reached=False
+    [Place State7] state_t=0.08, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.121, 0.168, 0.397), reached=False
+    [Place State7] state_t=0.08, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.124, 0.168, 0.396), reached=False
+    [Place State7] state_t=0.09, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.127, 0.169, 0.396), reached=False
+    [Place State7] state_t=0.09, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.130, 0.169, 0.396), reached=False
+    [Place State7] state_t=0.10, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.133, 0.170, 0.395), reached=False
+    [Place State7] state_t=0.10, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.136, 0.170, 0.395), reached=False
+    [Place State7] state_t=0.50, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.415, 0.122, 0.348), reached=False
+    [Place State7] state_t=0.51, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.417, 0.121, 0.347), reached=False
+    [Place State7] state_t=0.51, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.419, 0.120, 0.347), reached=False
+    [Place State7] state_t=0.52, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.420, 0.120, 0.346), reached=False
+    [Place State7] state_t=0.52, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.422, 0.119, 0.346), reached=False
+    [Place State7] state_t=0.52, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.424, 0.118, 0.345), reached=False
+    [Place State7] state_t=0.53, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.426, 0.118, 0.344), reached=False
+    [Place State7] state_t=0.53, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.427, 0.117, 0.344), reached=False
+    [Place State7] state_t=0.54, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.429, 0.116, 0.343), reached=False
+    [Place State7] state_t=0.54, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.431, 0.116, 0.343), reached=False
+    [Place State7] state_t=0.55, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.432, 0.115, 0.342), reached=False
+    [Place State7] state_t=0.55, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.434, 0.115, 0.341), reached=False
+    [Place State7] state_t=0.55, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.436, 0.114, 0.341), reached=False
+    [Place State7] state_t=0.56, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.437, 0.113, 0.340), reached=False
+    [Place State7] state_t=0.56, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.439, 0.113, 0.340), reached=False
+    [Place State7] state_t=0.57, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.440, 0.112, 0.339), reached=False
+    [Place State7] state_t=0.57, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.442, 0.111, 0.338), reached=False
+    [Place State7] state_t=0.57, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.443, 0.111, 0.338), reached=False
+    [Place State7] state_t=0.58, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.445, 0.110, 0.337), reached=False
+    [Place State7] state_t=0.58, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.446, 0.110, 0.336), reached=False
+    [Place State7] state_t=0.59, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.448, 0.109, 0.336), reached=False
+    [Place State7] state_t=0.59, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.450, 0.108, 0.335), reached=False
+    [Place State7] state_t=0.60, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.451, 0.108, 0.335), reached=False
+    [Place State7] state_t=0.60, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.452, 0.107, 0.334), reached=False
+    [Place State7] state_t=1.00, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.481, 0.125, 0.268), reached=False
+    [Place State7] state_t=1.01, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.481, 0.125, 0.267), reached=False
+    [Place State7] state_t=1.01, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.481, 0.125, 0.267), reached=False
+    [Place State7] state_t=1.02, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.481, 0.125, 0.266), reached=False
+    [Place State7] state_t=1.02, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.482, 0.125, 0.265), reached=False
+    [Place State7] state_t=1.02, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.482, 0.125, 0.264), reached=False
+    [Place State7] state_t=1.03, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.482, 0.126, 0.264), reached=False
+    [Place State7] state_t=1.03, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.482, 0.126, 0.263), reached=False
+    [Place State7] state_t=1.04, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.482, 0.126, 0.262), reached=False
+    [Place State7] state_t=1.04, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.482, 0.126, 0.262), reached=False
+    [Place State7] state_t=1.05, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.482, 0.126, 0.261), reached=False
+    [Place State7] state_t=1.05, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.482, 0.127, 0.260), reached=False
+    [Place State7] state_t=1.05, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.483, 0.127, 0.259), reached=False
+    [Place State7] state_t=1.06, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.483, 0.127, 0.259), reached=False
+    [Place State7] state_t=1.06, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.483, 0.127, 0.258), reached=False
+    [Place State7] state_t=1.07, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.483, 0.127, 0.257), reached=False
+    [Place State7] state_t=1.07, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.483, 0.127, 0.256), reached=False
+    [Place State7] state_t=1.07, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.483, 0.127, 0.256), reached=False
+    [Place State7] state_t=1.08, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.483, 0.128, 0.255), reached=False
+    [Place State7] state_t=1.08, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.483, 0.128, 0.254), reached=False
+    [Place State7] state_t=1.09, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.483, 0.128, 0.253), reached=False
+    [Place State7] state_t=1.09, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.484, 0.128, 0.253), reached=False
+    [Place State7] state_t=1.10, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.484, 0.128, 0.252), reached=False
+    [Place State7] state_t=1.10, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.484, 0.128, 0.251), reached=False
+    [Place State7] state_t=1.50, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.488, 0.134, 0.174), reached=False
+    [Place State7] state_t=1.51, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.488, 0.134, 0.174), reached=False
+    [Place State7] state_t=1.51, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.488, 0.133, 0.173), reached=False
+    [Place State7] state_t=1.52, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.488, 0.133, 0.172), reached=False
+    [Place State7] state_t=1.52, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.488, 0.133, 0.172), reached=False
+    [Place State7] state_t=1.52, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.488, 0.133, 0.171), reached=False
+    [Place State7] state_t=1.53, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.488, 0.133, 0.171), reached=False
+    [Place State7] state_t=1.53, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.488, 0.133, 0.170), reached=False
+    [Place State7] state_t=1.54, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.488, 0.134, 0.170), reached=False
+    [Place State7] state_t=1.54, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.488, 0.134, 0.170), reached=False
+    [Place State7] state_t=1.55, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.488, 0.134, 0.170), reached=False
+    [Place State7] state_t=1.55, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.488, 0.134, 0.170), reached=False
+    [Place State7] state_t=1.55, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.488, 0.134, 0.169), reached=False
+    [Place State7] state_t=1.56, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.488, 0.134, 0.169), reached=False
+    [Place State7] state_t=1.56, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.488, 0.134, 0.169), reached=False
+    [Place State7] state_t=1.57, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.488, 0.134, 0.169), reached=False
+    [Place State7] state_t=1.57, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.488, 0.134, 0.170), reached=False
+    [Place State7] state_t=1.57, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.488, 0.134, 0.170), reached=False
+    [Place State7] state_t=1.58, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.488, 0.134, 0.170), reached=False
+    [Place State7] state_t=1.58, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.488, 0.134, 0.170), reached=False
+    [Place State7] state_t=1.59, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.488, 0.135, 0.170), reached=False
+    [Place State7] state_t=1.59, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.488, 0.135, 0.170), reached=False
+    [Place State7] state_t=1.60, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.489, 0.135, 0.170), reached=False
+    [Place State7] state_t=1.60, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.489, 0.135, 0.171), reached=False
+    [Place State7] 到达接近位置，进入下降状态
+释放检查未完全通过：直接执行松爪释放，避免夹爪持续抓住物块。
+物理释放：物块中心已对准堆叠点，解除夹爪约束并慢速张开夹爪。
+放置完成。
+执行动作: 抓取物块5, (0.1170, 0.0580, 0.0000), 抓取角度=0.0800 rad, 夹爪宽度=0.0480m, 层=1, 槽位=center, 放置点=(0.5000, 0.1500, 0.0380)
+  [执行抓取] 目标位置: (0.1170, 0.0580, 0.0150), 末端执行器将达到: z=0.0620
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+    [Place State7] state_t=0.00, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.118, 0.061, 0.401), reached=False
+    [Place State7] state_t=0.01, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.118, 0.061, 0.401), reached=False
+    [Place State7] state_t=0.01, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.119, 0.061, 0.401), reached=False
+    [Place State7] state_t=0.02, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.122, 0.062, 0.401), reached=False
+    [Place State7] state_t=0.02, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.125, 0.063, 0.401), reached=False
+    [Place State7] state_t=0.02, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.128, 0.063, 0.401), reached=False
+    [Place State7] state_t=0.03, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.131, 0.064, 0.401), reached=False
+    [Place State7] state_t=0.03, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.134, 0.064, 0.401), reached=False
+    [Place State7] state_t=0.04, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.137, 0.065, 0.401), reached=False
+    [Place State7] state_t=0.04, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.141, 0.065, 0.401), reached=False
+    [Place State7] state_t=0.05, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.144, 0.065, 0.401), reached=False
+    [Place State7] state_t=0.05, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.147, 0.065, 0.401), reached=False
+    [Place State7] state_t=0.05, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.150, 0.066, 0.401), reached=False
+    [Place State7] state_t=0.06, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.153, 0.066, 0.401), reached=False
+    [Place State7] state_t=0.06, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.156, 0.066, 0.401), reached=False
+    [Place State7] state_t=0.07, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.159, 0.066, 0.401), reached=False
+    [Place State7] state_t=0.07, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.162, 0.066, 0.400), reached=False
+    [Place State7] state_t=0.07, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.165, 0.066, 0.400), reached=False
+    [Place State7] state_t=0.08, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.168, 0.066, 0.400), reached=False
+    [Place State7] state_t=0.08, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.171, 0.066, 0.400), reached=False
+    [Place State7] state_t=0.09, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.174, 0.066, 0.400), reached=False
+    [Place State7] state_t=0.09, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.177, 0.066, 0.400), reached=False
+    [Place State7] state_t=0.10, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.180, 0.066, 0.399), reached=False
+    [Place State7] state_t=0.10, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.183, 0.066, 0.399), reached=False
+    [Place State7] state_t=0.50, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.397, 0.026, 0.367), reached=False
+    [Place State7] state_t=0.51, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.398, 0.026, 0.367), reached=False
+    [Place State7] state_t=0.51, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.398, 0.027, 0.366), reached=False
+    [Place State7] state_t=0.52, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.399, 0.027, 0.366), reached=False
+    [Place State7] state_t=0.52, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.399, 0.027, 0.365), reached=False
+    [Place State7] state_t=0.52, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.399, 0.028, 0.365), reached=False
+    [Place State7] state_t=0.53, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.400, 0.028, 0.364), reached=False
+    [Place State7] state_t=0.53, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.400, 0.029, 0.364), reached=False
+    [Place State7] state_t=0.54, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.401, 0.029, 0.364), reached=False
+    [Place State7] state_t=0.54, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.401, 0.030, 0.363), reached=False
+    [Place State7] state_t=0.55, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.401, 0.030, 0.363), reached=False
+    [Place State7] state_t=0.55, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.402, 0.031, 0.362), reached=False
+    [Place State7] state_t=0.55, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.402, 0.031, 0.362), reached=False
+    [Place State7] state_t=0.56, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.403, 0.031, 0.362), reached=False
+    [Place State7] state_t=0.56, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.403, 0.032, 0.361), reached=False
+    [Place State7] state_t=0.57, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.403, 0.032, 0.361), reached=False
+    [Place State7] state_t=0.57, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.404, 0.033, 0.360), reached=False
+    [Place State7] state_t=0.57, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.404, 0.033, 0.360), reached=False
+    [Place State7] state_t=0.58, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.405, 0.034, 0.359), reached=False
+    [Place State7] state_t=0.58, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.405, 0.034, 0.359), reached=False
+    [Place State7] state_t=0.59, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.405, 0.034, 0.359), reached=False
+    [Place State7] state_t=0.59, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.406, 0.035, 0.358), reached=False
+    [Place State7] state_t=0.60, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.406, 0.035, 0.358), reached=False
+    [Place State7] state_t=0.60, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.407, 0.036, 0.357), reached=False
+    [Place State7] state_t=1.00, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.441, 0.074, 0.308), reached=False
+    [Place State7] state_t=1.01, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.441, 0.074, 0.307), reached=False
+    [Place State7] state_t=1.01, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.442, 0.075, 0.307), reached=False
+    [Place State7] state_t=1.02, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.442, 0.075, 0.306), reached=False
+    [Place State7] state_t=1.02, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.442, 0.076, 0.306), reached=False
+    [Place State7] state_t=1.02, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.442, 0.076, 0.305), reached=False
+    [Place State7] state_t=1.03, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.443, 0.076, 0.304), reached=False
+    [Place State7] state_t=1.03, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.443, 0.077, 0.304), reached=False
+    [Place State7] state_t=1.04, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.443, 0.077, 0.303), reached=False
+    [Place State7] state_t=1.04, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.444, 0.077, 0.303), reached=False
+    [Place State7] state_t=1.05, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.444, 0.078, 0.302), reached=False
+    [Place State7] state_t=1.05, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.444, 0.078, 0.301), reached=False
+    [Place State7] state_t=1.05, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.444, 0.078, 0.301), reached=False
+    [Place State7] state_t=1.06, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.445, 0.079, 0.300), reached=False
+    [Place State7] state_t=1.06, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.445, 0.079, 0.300), reached=False
+    [Place State7] state_t=1.07, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.445, 0.079, 0.299), reached=False
+    [Place State7] state_t=1.07, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.445, 0.080, 0.298), reached=False
+    [Place State7] state_t=1.07, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.446, 0.080, 0.298), reached=False
+    [Place State7] state_t=1.08, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.446, 0.080, 0.297), reached=False
+    [Place State7] state_t=1.08, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.446, 0.081, 0.297), reached=False
+    [Place State7] state_t=1.09, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.447, 0.081, 0.296), reached=False
+    [Place State7] state_t=1.09, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.447, 0.081, 0.296), reached=False
+    [Place State7] state_t=1.10, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.447, 0.082, 0.295), reached=False
+    [Place State7] state_t=1.10, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.447, 0.082, 0.294), reached=False
+    [Place State7] state_t=1.50, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.468, 0.108, 0.231), reached=False
+    [Place State7] state_t=1.51, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.468, 0.108, 0.230), reached=False
+    [Place State7] state_t=1.51, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.468, 0.109, 0.229), reached=False
+    [Place State7] state_t=1.52, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.468, 0.109, 0.229), reached=False
+    [Place State7] state_t=1.52, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.469, 0.109, 0.228), reached=False
+    [Place State7] state_t=1.52, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.469, 0.109, 0.227), reached=False
+    [Place State7] state_t=1.53, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.469, 0.109, 0.226), reached=False
+    [Place State7] state_t=1.53, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.469, 0.110, 0.226), reached=False
+    [Place State7] state_t=1.54, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.469, 0.110, 0.225), reached=False
+    [Place State7] state_t=1.54, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.469, 0.110, 0.224), reached=False
+    [Place State7] state_t=1.55, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.470, 0.110, 0.224), reached=False
+    [Place State7] state_t=1.55, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.470, 0.110, 0.223), reached=False
+    [Place State7] state_t=1.55, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.470, 0.111, 0.222), reached=False
+    [Place State7] state_t=1.56, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.470, 0.111, 0.221), reached=False
+    [Place State7] state_t=1.56, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.470, 0.111, 0.221), reached=False
+    [Place State7] state_t=1.57, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.470, 0.111, 0.220), reached=False
+    [Place State7] state_t=1.57, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.470, 0.111, 0.219), reached=False
+    [Place State7] state_t=1.57, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.470, 0.111, 0.219), reached=False
+    [Place State7] state_t=1.58, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.471, 0.112, 0.218), reached=False
+    [Place State7] state_t=1.58, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.471, 0.112, 0.217), reached=False
+    [Place State7] state_t=1.59, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.471, 0.112, 0.216), reached=False
+    [Place State7] state_t=1.59, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.471, 0.112, 0.216), reached=False
+    [Place State7] state_t=1.60, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.471, 0.112, 0.215), reached=False
+    [Place State7] state_t=1.60, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.471, 0.112, 0.214), reached=False
+    [Place State7] state_t=2.00, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.478, 0.121, 0.142), reached=False
+    [Place State7] state_t=2.01, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.478, 0.121, 0.142), reached=False
+    [Place State7] state_t=2.01, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.478, 0.121, 0.142), reached=False
+    [Place State7] state_t=2.02, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.478, 0.121, 0.142), reached=False
+    [Place State7] state_t=2.02, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.478, 0.121, 0.142), reached=False
+    [Place State7] state_t=2.02, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.478, 0.121, 0.142), reached=False
+    [Place State7] state_t=2.03, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.478, 0.121, 0.142), reached=False
+    [Place State7] state_t=2.03, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.478, 0.122, 0.142), reached=False
+    [Place State7] state_t=2.04, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.478, 0.122, 0.142), reached=False
+    [Place State7] state_t=2.04, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.479, 0.122, 0.143), reached=False
+    [Place State7] state_t=2.05, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.479, 0.122, 0.143), reached=False
+    [Place State7] state_t=2.05, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.479, 0.122, 0.143), reached=False
+    [Place State7] state_t=2.05, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.479, 0.122, 0.143), reached=False
+    [Place State7] state_t=2.06, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.479, 0.123, 0.144), reached=False
+    [Place State7] state_t=2.06, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.479, 0.123, 0.144), reached=False
+    [Place State7] state_t=2.07, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.479, 0.123, 0.144), reached=False
+    [Place State7] state_t=2.07, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.480, 0.123, 0.145), reached=False
+    [Place State7] state_t=2.07, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.480, 0.123, 0.145), reached=False
+    [Place State7] state_t=2.08, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.480, 0.124, 0.145), reached=False
+    [Place State7] state_t=2.08, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.480, 0.124, 0.146), reached=False
+    [Place State7] state_t=2.09, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.480, 0.124, 0.146), reached=False
+    [Place State7] state_t=2.09, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.480, 0.124, 0.146), reached=False
+    [Place State7] state_t=2.10, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.481, 0.125, 0.147), reached=False
+    [Place State7] state_t=2.10, target_xy=(0.500, 0.150), approach_height=0.180, ee_pos=(0.481, 0.125, 0.147), reached=False
+    [Place State7] 到达接近位置，进入下降状态
+释放检查未完全通过：直接执行松爪释放，避免夹爪持续抓住物块。
+物理释放：物块中心已对准堆叠点，解除夹爪约束并慢速张开夹爪。
+放置完成。
+执行动作: 抓取物块1, (0.1990, 0.0940, 0.0000), 抓取角度=-1.2550 rad, 夹爪宽度=0.0340m, 层=2, 槽位=center, 放置点=(0.5000, 0.1500, 0.0660)
+  [执行抓取] 目标位置: (0.1990, 0.0940, 0.0150), 末端执行器将达到: z=0.0620
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=True, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+    [Place State7] state_t=0.00, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.201, 0.097, 0.402), reached=False
+    [Place State7] state_t=0.01, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.201, 0.097, 0.401), reached=False
+    [Place State7] state_t=0.01, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.201, 0.098, 0.401), reached=False
+    [Place State7] state_t=0.02, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.201, 0.099, 0.401), reached=False
+    [Place State7] state_t=0.02, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.200, 0.101, 0.401), reached=False
+    [Place State7] state_t=0.02, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.200, 0.102, 0.401), reached=False
+    [Place State7] state_t=0.03, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.200, 0.103, 0.401), reached=False
+    [Place State7] state_t=0.03, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.200, 0.105, 0.401), reached=False
+    [Place State7] state_t=0.04, target_xy=(0.500, 0.150), approach_height=0.212, ee_pos=(0.200, 0.106, 0.401), reached=False
+    [Place State7] state_t=0.04, target_xy=(0.500, 0.150), approach_height=0.212, ee_pos=(0.199, 0.107, 0.401), reached=False
+    [Place State7] state_t=0.05, target_xy=(0.500, 0.150), approach_height=0.212, ee_pos=(0.199, 0.108, 0.400), reached=False
+    [Place State7] state_t=0.05, target_xy=(0.500, 0.150), approach_height=0.212, ee_pos=(0.199, 0.109, 0.400), reached=False
+    [Place State7] state_t=0.05, target_xy=(0.500, 0.150), approach_height=0.212, ee_pos=(0.198, 0.110, 0.400), reached=False
+    [Place State7] state_t=0.06, target_xy=(0.500, 0.150), approach_height=0.212, ee_pos=(0.198, 0.111, 0.400), reached=False
+    [Place State7] state_t=0.06, target_xy=(0.500, 0.150), approach_height=0.212, ee_pos=(0.198, 0.113, 0.399), reached=False
+    [Place State7] state_t=0.07, target_xy=(0.500, 0.150), approach_height=0.212, ee_pos=(0.197, 0.114, 0.399), reached=False
+    [Place State7] state_t=0.07, target_xy=(0.500, 0.150), approach_height=0.212, ee_pos=(0.197, 0.115, 0.399), reached=False
+    [Place State7] state_t=0.07, target_xy=(0.500, 0.150), approach_height=0.212, ee_pos=(0.197, 0.116, 0.399), reached=False
+    [Place State7] state_t=0.08, target_xy=(0.500, 0.150), approach_height=0.212, ee_pos=(0.196, 0.117, 0.398), reached=False
+    [Place State7] state_t=0.08, target_xy=(0.500, 0.150), approach_height=0.212, ee_pos=(0.196, 0.118, 0.398), reached=False
+    [Place State7] state_t=0.09, target_xy=(0.500, 0.150), approach_height=0.212, ee_pos=(0.196, 0.119, 0.398), reached=False
+    [Place State7] state_t=0.09, target_xy=(0.500, 0.150), approach_height=0.212, ee_pos=(0.195, 0.120, 0.397), reached=False
+    [Place State7] state_t=0.10, target_xy=(0.500, 0.150), approach_height=0.212, ee_pos=(0.195, 0.120, 0.397), reached=False
+    [Place State7] state_t=0.10, target_xy=(0.500, 0.150), approach_height=0.212, ee_pos=(0.194, 0.121, 0.396), reached=False
+    [Place State7] state_t=0.50, target_xy=(0.500, 0.150), approach_height=0.213, ee_pos=(0.169, 0.191, 0.328), reached=False
+    [Place State7] state_t=0.51, target_xy=(0.500, 0.150), approach_height=0.213, ee_pos=(0.169, 0.191, 0.327), reached=False
+    [Place State7] state_t=0.51, target_xy=(0.500, 0.150), approach_height=0.213, ee_pos=(0.169, 0.192, 0.326), reached=False
+    [Place State7] state_t=0.52, target_xy=(0.500, 0.150), approach_height=0.213, ee_pos=(0.169, 0.192, 0.325), reached=False
+    [Place State7] state_t=0.52, target_xy=(0.500, 0.150), approach_height=0.213, ee_pos=(0.170, 0.193, 0.324), reached=False
+    [Place State7] state_t=0.52, target_xy=(0.500, 0.150), approach_height=0.213, ee_pos=(0.170, 0.193, 0.323), reached=False
+    [Place State7] state_t=0.53, target_xy=(0.500, 0.150), approach_height=0.213, ee_pos=(0.170, 0.193, 0.322), reached=False
+    [Place State7] state_t=0.53, target_xy=(0.500, 0.150), approach_height=0.213, ee_pos=(0.170, 0.194, 0.321), reached=False
+    [Place State7] state_t=0.54, target_xy=(0.500, 0.150), approach_height=0.213, ee_pos=(0.170, 0.194, 0.321), reached=False
+    [Place State7] state_t=0.54, target_xy=(0.500, 0.150), approach_height=0.213, ee_pos=(0.170, 0.195, 0.320), reached=False
+    [Place State7] state_t=0.55, target_xy=(0.500, 0.150), approach_height=0.213, ee_pos=(0.171, 0.195, 0.319), reached=False
+    [Place State7] state_t=0.55, target_xy=(0.500, 0.150), approach_height=0.213, ee_pos=(0.171, 0.195, 0.318), reached=False
+    [Place State7] state_t=0.55, target_xy=(0.500, 0.150), approach_height=0.213, ee_pos=(0.171, 0.196, 0.317), reached=False
+    [Place State7] state_t=0.56, target_xy=(0.500, 0.150), approach_height=0.213, ee_pos=(0.171, 0.196, 0.316), reached=False
+    [Place State7] state_t=0.56, target_xy=(0.500, 0.150), approach_height=0.212, ee_pos=(0.171, 0.197, 0.315), reached=False
+    [Place State7] state_t=0.57, target_xy=(0.500, 0.150), approach_height=0.212, ee_pos=(0.171, 0.197, 0.314), reached=False
+    [Place State7] state_t=0.57, target_xy=(0.500, 0.150), approach_height=0.212, ee_pos=(0.172, 0.197, 0.313), reached=False
+    [Place State7] state_t=0.57, target_xy=(0.500, 0.150), approach_height=0.212, ee_pos=(0.172, 0.198, 0.312), reached=False
+    [Place State7] state_t=0.58, target_xy=(0.500, 0.150), approach_height=0.212, ee_pos=(0.172, 0.198, 0.311), reached=False
+    [Place State7] state_t=0.58, target_xy=(0.500, 0.150), approach_height=0.212, ee_pos=(0.172, 0.199, 0.310), reached=False
+    [Place State7] state_t=0.59, target_xy=(0.500, 0.150), approach_height=0.212, ee_pos=(0.172, 0.199, 0.309), reached=False
+    [Place State7] state_t=0.59, target_xy=(0.500, 0.150), approach_height=0.212, ee_pos=(0.173, 0.199, 0.308), reached=False
+    [Place State7] state_t=0.60, target_xy=(0.500, 0.150), approach_height=0.212, ee_pos=(0.173, 0.200, 0.307), reached=False
+    [Place State7] state_t=0.60, target_xy=(0.500, 0.150), approach_height=0.212, ee_pos=(0.173, 0.200, 0.306), reached=False
+    [Place State7] state_t=1.00, target_xy=(0.500, 0.150), approach_height=0.214, ee_pos=(0.202, 0.220, 0.200), reached=False
+    [Place State7] state_t=1.01, target_xy=(0.500, 0.150), approach_height=0.214, ee_pos=(0.203, 0.220, 0.198), reached=False
+    [Place State7] state_t=1.01, target_xy=(0.500, 0.150), approach_height=0.214, ee_pos=(0.203, 0.220, 0.197), reached=False
+    [Place State7] state_t=1.02, target_xy=(0.500, 0.150), approach_height=0.214, ee_pos=(0.204, 0.220, 0.196), reached=False
+    [Place State7] state_t=1.02, target_xy=(0.500, 0.150), approach_height=0.214, ee_pos=(0.204, 0.220, 0.195), reached=False
+    [Place State7] state_t=1.02, target_xy=(0.500, 0.150), approach_height=0.214, ee_pos=(0.204, 0.220, 0.194), reached=False
+    [Place State7] state_t=1.03, target_xy=(0.500, 0.150), approach_height=0.214, ee_pos=(0.205, 0.220, 0.193), reached=False
+    [Place State7] state_t=1.03, target_xy=(0.500, 0.150), approach_height=0.214, ee_pos=(0.205, 0.220, 0.192), reached=False
+    [Place State7] state_t=1.04, target_xy=(0.500, 0.150), approach_height=0.214, ee_pos=(0.206, 0.220, 0.191), reached=False
+    [Place State7] state_t=1.04, target_xy=(0.500, 0.150), approach_height=0.214, ee_pos=(0.206, 0.220, 0.189), reached=False
+    [Place State7] state_t=1.05, target_xy=(0.500, 0.150), approach_height=0.214, ee_pos=(0.206, 0.220, 0.188), reached=False
+    [Place State7] state_t=1.05, target_xy=(0.500, 0.150), approach_height=0.214, ee_pos=(0.207, 0.220, 0.187), reached=False
+    [Place State7] state_t=1.05, target_xy=(0.500, 0.150), approach_height=0.214, ee_pos=(0.207, 0.220, 0.186), reached=False
+    [Place State7] state_t=1.06, target_xy=(0.500, 0.150), approach_height=0.214, ee_pos=(0.208, 0.220, 0.185), reached=False
+    [Place State7] state_t=1.06, target_xy=(0.500, 0.150), approach_height=0.214, ee_pos=(0.208, 0.220, 0.184), reached=False
+    [Place State7] state_t=1.07, target_xy=(0.500, 0.150), approach_height=0.214, ee_pos=(0.208, 0.220, 0.183), reached=False
+    [Place State7] state_t=1.07, target_xy=(0.500, 0.150), approach_height=0.214, ee_pos=(0.209, 0.220, 0.182), reached=False
+    [Place State7] state_t=1.07, target_xy=(0.500, 0.150), approach_height=0.214, ee_pos=(0.209, 0.220, 0.180), reached=False
+    [Place State7] state_t=1.08, target_xy=(0.500, 0.150), approach_height=0.214, ee_pos=(0.210, 0.220, 0.179), reached=False
+    [Place State7] state_t=1.08, target_xy=(0.500, 0.150), approach_height=0.214, ee_pos=(0.210, 0.220, 0.178), reached=False
+    [Place State7] state_t=1.09, target_xy=(0.500, 0.150), approach_height=0.214, ee_pos=(0.210, 0.220, 0.177), reached=False
+    [Place State7] state_t=1.09, target_xy=(0.500, 0.150), approach_height=0.214, ee_pos=(0.211, 0.220, 0.176), reached=False
+    [Place State7] state_t=1.10, target_xy=(0.500, 0.150), approach_height=0.214, ee_pos=(0.211, 0.220, 0.175), reached=False
+    [Place State7] state_t=1.10, target_xy=(0.500, 0.150), approach_height=0.214, ee_pos=(0.212, 0.219, 0.174), reached=False
+    [Place State7] state_t=1.50, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.272, 0.223, 0.155), reached=False
+    [Place State7] state_t=1.51, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.273, 0.223, 0.155), reached=False
+    [Place State7] state_t=1.51, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.274, 0.223, 0.156), reached=False
+    [Place State7] state_t=1.52, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.275, 0.223, 0.156), reached=False
+    [Place State7] state_t=1.52, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.276, 0.223, 0.157), reached=False
+    [Place State7] state_t=1.52, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.277, 0.223, 0.157), reached=False
+    [Place State7] state_t=1.53, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.278, 0.223, 0.158), reached=False
+    [Place State7] state_t=1.53, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.279, 0.223, 0.158), reached=False
+    [Place State7] state_t=1.54, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.280, 0.223, 0.159), reached=False
+    [Place State7] state_t=1.54, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.281, 0.223, 0.159), reached=False
+    [Place State7] state_t=1.55, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.282, 0.223, 0.160), reached=False
+    [Place State7] state_t=1.55, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.283, 0.223, 0.160), reached=False
+    [Place State7] state_t=1.55, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.284, 0.223, 0.161), reached=False
+    [Place State7] state_t=1.56, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.285, 0.223, 0.161), reached=False
+    [Place State7] state_t=1.56, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.286, 0.223, 0.162), reached=False
+    [Place State7] state_t=1.57, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.287, 0.223, 0.162), reached=False
+    [Place State7] state_t=1.57, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.288, 0.223, 0.163), reached=False
+    [Place State7] state_t=1.57, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.289, 0.223, 0.163), reached=False
+    [Place State7] state_t=1.58, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.291, 0.223, 0.164), reached=False
+    [Place State7] state_t=1.58, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.292, 0.222, 0.164), reached=False
+    [Place State7] state_t=1.59, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.293, 0.222, 0.165), reached=False
+    [Place State7] state_t=1.59, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.294, 0.222, 0.165), reached=False
+    [Place State7] state_t=1.60, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.295, 0.222, 0.166), reached=False
+    [Place State7] state_t=1.60, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.296, 0.222, 0.166), reached=False
+    [Place State7] state_t=2.00, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.415, 0.186, 0.207), reached=False
+    [Place State7] state_t=2.01, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.416, 0.186, 0.207), reached=False
+    [Place State7] state_t=2.01, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.418, 0.185, 0.207), reached=False
+    [Place State7] state_t=2.02, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.419, 0.184, 0.207), reached=False
+    [Place State7] state_t=2.02, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.420, 0.183, 0.207), reached=False
+    [Place State7] state_t=2.02, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.422, 0.183, 0.207), reached=False
+    [Place State7] state_t=2.03, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.423, 0.182, 0.208), reached=False
+    [Place State7] state_t=2.03, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.424, 0.181, 0.208), reached=False
+    [Place State7] state_t=2.04, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.426, 0.180, 0.208), reached=False
+    [Place State7] state_t=2.04, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.427, 0.180, 0.208), reached=False
+    [Place State7] state_t=2.05, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.428, 0.179, 0.208), reached=False
+    [Place State7] state_t=2.05, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.429, 0.178, 0.208), reached=False
+    [Place State7] state_t=2.05, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.431, 0.177, 0.208), reached=False
+    [Place State7] state_t=2.06, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.432, 0.177, 0.208), reached=False
+    [Place State7] state_t=2.06, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.433, 0.176, 0.208), reached=False
+    [Place State7] state_t=2.07, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.435, 0.175, 0.208), reached=False
+    [Place State7] state_t=2.07, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.436, 0.174, 0.208), reached=False
+    [Place State7] state_t=2.07, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.437, 0.173, 0.208), reached=False
+    [Place State7] state_t=2.08, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.438, 0.173, 0.208), reached=False
+    [Place State7] state_t=2.08, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.440, 0.172, 0.208), reached=False
+    [Place State7] state_t=2.09, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.441, 0.171, 0.208), reached=False
+    [Place State7] state_t=2.09, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.442, 0.170, 0.208), reached=False
+    [Place State7] state_t=2.10, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.444, 0.169, 0.208), reached=False
+    [Place State7] state_t=2.10, target_xy=(0.500, 0.150), approach_height=0.211, ee_pos=(0.445, 0.168, 0.208), reached=False
+    [Place State7] 到达接近位置，进入下降状态
+释放检查未完全通过：直接执行松爪释放，避免夹爪持续抓住物块。
+物理释放：物块中心已对准堆叠点，解除夹爪约束并慢速张开夹爪。
+放置完成。
+执行动作: 抓取物块3, (0.2730, 0.2020, 0.0000), 抓取角度=-1.1750 rad, 夹爪宽度=0.0330m, 层=3, 槽位=center, 放置点=(0.5000, 0.1500, 0.0932)
+  [执行抓取] 目标位置: (0.2730, 0.2020, 0.0150), 末端执行器将达到: z=0.0620
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=True, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+    [Place State7] state_t=0.00, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.272, 0.199, 0.399), reached=False
+    [Place State7] state_t=0.01, target_xy=(0.500, 0.150), approach_height=0.240, ee_pos=(0.272, 0.199, 0.399), reached=False
+    [Place State7] state_t=0.01, target_xy=(0.500, 0.150), approach_height=0.240, ee_pos=(0.273, 0.200, 0.398), reached=False
+    [Place State7] state_t=0.02, target_xy=(0.500, 0.150), approach_height=0.240, ee_pos=(0.274, 0.200, 0.397), reached=False
+    [Place State7] state_t=0.02, target_xy=(0.500, 0.150), approach_height=0.240, ee_pos=(0.274, 0.200, 0.395), reached=False
+    [Place State7] state_t=0.02, target_xy=(0.500, 0.150), approach_height=0.240, ee_pos=(0.275, 0.201, 0.394), reached=False
+    [Place State7] state_t=0.03, target_xy=(0.500, 0.150), approach_height=0.240, ee_pos=(0.276, 0.201, 0.393), reached=False
+    [Place State7] state_t=0.03, target_xy=(0.500, 0.150), approach_height=0.240, ee_pos=(0.277, 0.202, 0.392), reached=False
+    [Place State7] state_t=0.04, target_xy=(0.500, 0.150), approach_height=0.240, ee_pos=(0.278, 0.202, 0.391), reached=False
+    [Place State7] state_t=0.04, target_xy=(0.500, 0.150), approach_height=0.240, ee_pos=(0.279, 0.203, 0.390), reached=False
+    [Place State7] state_t=0.05, target_xy=(0.500, 0.150), approach_height=0.240, ee_pos=(0.280, 0.203, 0.389), reached=False
+    [Place State7] state_t=0.05, target_xy=(0.500, 0.150), approach_height=0.240, ee_pos=(0.281, 0.203, 0.388), reached=False
+    [Place State7] state_t=0.05, target_xy=(0.500, 0.150), approach_height=0.240, ee_pos=(0.282, 0.204, 0.387), reached=False
+    [Place State7] state_t=0.06, target_xy=(0.500, 0.150), approach_height=0.240, ee_pos=(0.282, 0.204, 0.386), reached=False
+    [Place State7] state_t=0.06, target_xy=(0.500, 0.150), approach_height=0.240, ee_pos=(0.283, 0.205, 0.385), reached=False
+    [Place State7] state_t=0.07, target_xy=(0.500, 0.150), approach_height=0.240, ee_pos=(0.284, 0.205, 0.384), reached=False
+    [Place State7] state_t=0.07, target_xy=(0.500, 0.150), approach_height=0.240, ee_pos=(0.285, 0.205, 0.383), reached=False
+    [Place State7] state_t=0.07, target_xy=(0.500, 0.150), approach_height=0.240, ee_pos=(0.286, 0.206, 0.382), reached=False
+    [Place State7] state_t=0.08, target_xy=(0.500, 0.150), approach_height=0.240, ee_pos=(0.287, 0.206, 0.381), reached=False
+    [Place State7] state_t=0.08, target_xy=(0.500, 0.150), approach_height=0.240, ee_pos=(0.288, 0.207, 0.380), reached=False
+    [Place State7] state_t=0.09, target_xy=(0.500, 0.150), approach_height=0.240, ee_pos=(0.289, 0.207, 0.379), reached=False
+    [Place State7] state_t=0.09, target_xy=(0.500, 0.150), approach_height=0.240, ee_pos=(0.289, 0.207, 0.378), reached=False
+    [Place State7] state_t=0.10, target_xy=(0.500, 0.150), approach_height=0.240, ee_pos=(0.290, 0.208, 0.376), reached=False
+    [Place State7] state_t=0.10, target_xy=(0.500, 0.150), approach_height=0.240, ee_pos=(0.291, 0.208, 0.375), reached=False
+    [Place State7] state_t=0.50, target_xy=(0.500, 0.150), approach_height=0.241, ee_pos=(0.379, 0.203, 0.259), reached=False
+    [Place State7] state_t=0.51, target_xy=(0.500, 0.150), approach_height=0.241, ee_pos=(0.380, 0.202, 0.257), reached=False
+    [Place State7] state_t=0.51, target_xy=(0.500, 0.150), approach_height=0.241, ee_pos=(0.381, 0.202, 0.255), reached=False
+    [Place State7] state_t=0.52, target_xy=(0.500, 0.150), approach_height=0.241, ee_pos=(0.382, 0.201, 0.254), reached=False
+    [Place State7] state_t=0.52, target_xy=(0.500, 0.150), approach_height=0.241, ee_pos=(0.383, 0.200, 0.252), reached=False
+    [Place State7] state_t=0.52, target_xy=(0.500, 0.150), approach_height=0.241, ee_pos=(0.384, 0.199, 0.251), reached=False
+    [Place State7] state_t=0.53, target_xy=(0.500, 0.150), approach_height=0.241, ee_pos=(0.385, 0.199, 0.250), reached=False
+    [Place State7] state_t=0.53, target_xy=(0.500, 0.150), approach_height=0.241, ee_pos=(0.386, 0.198, 0.249), reached=False
+    [Place State7] state_t=0.54, target_xy=(0.500, 0.150), approach_height=0.240, ee_pos=(0.388, 0.197, 0.248), reached=False
+    [Place State7] state_t=0.54, target_xy=(0.500, 0.150), approach_height=0.240, ee_pos=(0.389, 0.196, 0.247), reached=False
+    [Place State7] state_t=0.55, target_xy=(0.500, 0.150), approach_height=0.240, ee_pos=(0.390, 0.196, 0.247), reached=False
+    [Place State7] state_t=0.55, target_xy=(0.500, 0.150), approach_height=0.240, ee_pos=(0.391, 0.195, 0.246), reached=False
+    [Place State7] state_t=0.55, target_xy=(0.500, 0.150), approach_height=0.240, ee_pos=(0.392, 0.194, 0.245), reached=False
+    [Place State7] state_t=0.56, target_xy=(0.500, 0.150), approach_height=0.240, ee_pos=(0.393, 0.194, 0.245), reached=False
+    [Place State7] state_t=0.56, target_xy=(0.500, 0.150), approach_height=0.240, ee_pos=(0.394, 0.193, 0.244), reached=False
+    [Place State7] state_t=0.57, target_xy=(0.500, 0.150), approach_height=0.240, ee_pos=(0.396, 0.192, 0.244), reached=False
+    [Place State7] state_t=0.57, target_xy=(0.500, 0.150), approach_height=0.240, ee_pos=(0.397, 0.191, 0.243), reached=False
+    [Place State7] state_t=0.57, target_xy=(0.500, 0.150), approach_height=0.240, ee_pos=(0.398, 0.191, 0.243), reached=False
+    [Place State7] state_t=0.58, target_xy=(0.500, 0.150), approach_height=0.240, ee_pos=(0.399, 0.190, 0.242), reached=False
+    [Place State7] state_t=0.58, target_xy=(0.500, 0.150), approach_height=0.240, ee_pos=(0.400, 0.189, 0.242), reached=False
+    [Place State7] state_t=0.59, target_xy=(0.500, 0.150), approach_height=0.240, ee_pos=(0.402, 0.188, 0.242), reached=False
+    [Place State7] state_t=0.59, target_xy=(0.500, 0.150), approach_height=0.240, ee_pos=(0.403, 0.188, 0.241), reached=False
+    [Place State7] state_t=0.60, target_xy=(0.500, 0.150), approach_height=0.240, ee_pos=(0.404, 0.187, 0.241), reached=False
+    [Place State7] state_t=0.60, target_xy=(0.500, 0.150), approach_height=0.240, ee_pos=(0.405, 0.186, 0.241), reached=False
+    [Place State7] state_t=1.00, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.500, 0.122, 0.238), reached=False
+    [Place State7] state_t=1.01, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.500, 0.122, 0.238), reached=False
+    [Place State7] state_t=1.01, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.501, 0.121, 0.238), reached=False
+    [Place State7] state_t=1.02, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.501, 0.121, 0.238), reached=False
+    [Place State7] state_t=1.02, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.501, 0.121, 0.238), reached=False
+    [Place State7] state_t=1.02, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.501, 0.121, 0.238), reached=False
+    [Place State7] state_t=1.03, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.501, 0.121, 0.238), reached=False
+    [Place State7] state_t=1.03, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.501, 0.121, 0.238), reached=False
+    [Place State7] state_t=1.04, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.501, 0.121, 0.238), reached=False
+    [Place State7] state_t=1.04, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.501, 0.121, 0.238), reached=False
+    [Place State7] state_t=1.05, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.501, 0.121, 0.238), reached=False
+    [Place State7] state_t=1.05, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.501, 0.121, 0.238), reached=False
+    [Place State7] state_t=1.05, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.501, 0.121, 0.238), reached=False
+    [Place State7] state_t=1.06, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.501, 0.121, 0.238), reached=False
+    [Place State7] state_t=1.06, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.501, 0.121, 0.238), reached=False
+    [Place State7] state_t=1.07, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.501, 0.121, 0.238), reached=False
+    [Place State7] state_t=1.07, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.502, 0.121, 0.238), reached=False
+    [Place State7] state_t=1.07, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.502, 0.121, 0.238), reached=False
+    [Place State7] state_t=1.08, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.502, 0.121, 0.238), reached=False
+    [Place State7] state_t=1.08, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.502, 0.121, 0.238), reached=False
+    [Place State7] state_t=1.09, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.502, 0.121, 0.238), reached=False
+    [Place State7] state_t=1.09, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.502, 0.121, 0.238), reached=False
+    [Place State7] state_t=1.10, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.502, 0.121, 0.238), reached=False
+    [Place State7] state_t=1.10, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.502, 0.121, 0.238), reached=False
+    [Place State7] state_t=1.50, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.500, 0.123, 0.236), reached=False
+    [Place State7] state_t=1.51, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.500, 0.123, 0.236), reached=False
+    [Place State7] state_t=1.51, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.500, 0.123, 0.236), reached=False
+    [Place State7] state_t=1.52, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.500, 0.123, 0.236), reached=False
+    [Place State7] state_t=1.52, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.500, 0.123, 0.236), reached=False
+    [Place State7] state_t=1.52, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.500, 0.123, 0.236), reached=False
+    [Place State7] state_t=1.53, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.500, 0.123, 0.236), reached=False
+    [Place State7] state_t=1.53, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.500, 0.124, 0.236), reached=False
+    [Place State7] state_t=1.54, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.500, 0.124, 0.236), reached=False
+    [Place State7] state_t=1.54, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.500, 0.124, 0.236), reached=False
+    [Place State7] state_t=1.55, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.500, 0.124, 0.236), reached=False
+    [Place State7] state_t=1.55, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.499, 0.124, 0.236), reached=False
+    [Place State7] state_t=1.55, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.499, 0.124, 0.236), reached=False
+    [Place State7] state_t=1.56, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.499, 0.124, 0.236), reached=False
+    [Place State7] state_t=1.56, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.499, 0.124, 0.236), reached=False
+    [Place State7] state_t=1.57, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.499, 0.124, 0.236), reached=False
+    [Place State7] state_t=1.57, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.499, 0.124, 0.236), reached=False
+    [Place State7] state_t=1.57, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.499, 0.124, 0.236), reached=False
+    [Place State7] state_t=1.58, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.499, 0.124, 0.236), reached=False
+    [Place State7] state_t=1.58, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.499, 0.124, 0.236), reached=False
+    [Place State7] state_t=1.59, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.499, 0.124, 0.236), reached=False
+    [Place State7] state_t=1.59, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.499, 0.125, 0.236), reached=False
+    [Place State7] state_t=1.60, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.498, 0.125, 0.236), reached=False
+    [Place State7] state_t=1.60, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.498, 0.125, 0.236), reached=False
+    [Place State7] state_t=2.00, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=2.01, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=2.01, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=2.02, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=2.02, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=2.02, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=2.03, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=2.03, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=2.04, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=2.04, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=2.05, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=2.05, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=2.05, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=2.06, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=2.06, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=2.07, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=2.07, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=2.07, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=2.08, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=2.08, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=2.09, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=2.09, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=2.10, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=2.10, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=2.50, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=2.50, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=2.51, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=2.51, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=2.52, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=2.52, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=2.53, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=2.53, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=2.53, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=2.54, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=2.54, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=2.55, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=2.55, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=2.55, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=2.56, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=2.56, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=2.57, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=2.57, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=2.58, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=2.58, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=2.58, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=2.59, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=2.59, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=2.60, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=3.00, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=3.00, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=3.01, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=3.01, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=3.02, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=3.02, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=3.03, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=3.03, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=3.03, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=3.04, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=3.04, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=3.05, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=3.05, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=3.05, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=3.06, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=3.06, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=3.07, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=3.07, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=3.08, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=3.08, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=3.08, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=3.09, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=3.09, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=3.10, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=3.50, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=3.50, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=3.51, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=3.51, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=3.52, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=3.52, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=3.53, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=3.53, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=3.53, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=3.54, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=3.54, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=3.55, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=3.55, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=3.55, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=3.56, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=3.56, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=3.57, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=3.57, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=3.58, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=3.58, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=3.58, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=3.59, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=3.59, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=3.60, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=4.00, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=4.00, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=4.01, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=4.01, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=4.02, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=4.02, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=4.03, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=4.03, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=4.03, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=4.04, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=4.04, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=4.05, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=4.05, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=4.05, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=4.06, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=4.06, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=4.07, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=4.07, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=4.08, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=4.08, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=4.08, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=4.09, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=4.09, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=4.10, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=4.50, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=4.50, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=4.51, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=4.51, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=4.52, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=4.52, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=4.53, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=4.53, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=4.53, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=4.54, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=4.54, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=4.55, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=4.55, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=4.55, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=4.56, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=4.56, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=4.57, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=4.57, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=4.58, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=4.58, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=4.58, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=4.59, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=4.59, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=4.60, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=5.00, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=5.00, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=5.01, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=5.01, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=5.02, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=5.02, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=5.03, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=5.03, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=5.03, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=5.04, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=5.04, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=5.05, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=5.05, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=5.05, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=5.06, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=5.06, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=5.07, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=5.07, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=5.08, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=5.08, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=5.08, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=5.09, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=5.09, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=5.10, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=5.50, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=5.50, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=5.51, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=5.51, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=5.52, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=5.52, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=5.53, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=5.53, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=5.53, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=5.54, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=5.54, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=5.55, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=5.55, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=5.55, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=5.56, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=5.56, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=5.57, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=5.57, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=5.58, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=5.58, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=5.58, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=5.59, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=5.59, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=5.60, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=6.00, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=6.01, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=6.01, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=6.02, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=6.02, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=6.02, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=6.03, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=6.03, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=6.04, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=6.04, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=6.05, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=6.05, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=6.05, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=6.06, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=6.06, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=6.07, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=6.07, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=6.07, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=6.08, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=6.08, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=6.09, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=6.09, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=6.10, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=6.10, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=6.50, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=6.51, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=6.51, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=6.52, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=6.52, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=6.52, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=6.53, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=6.53, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=6.54, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=6.54, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=6.55, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=6.55, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=6.55, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=6.56, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=6.56, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=6.57, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=6.57, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=6.57, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=6.58, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=6.58, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=6.59, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=6.59, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=6.60, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=6.60, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=7.00, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=7.01, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=7.01, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=7.02, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=7.02, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=7.02, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=7.03, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=7.03, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=7.04, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=7.04, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=7.05, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=7.05, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=7.05, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=7.06, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=7.06, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=7.07, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=7.07, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=7.07, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=7.08, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=7.08, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=7.09, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=7.09, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=7.10, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=7.10, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=7.50, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=7.51, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=7.51, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=7.52, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=7.52, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=7.52, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=7.53, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=7.53, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=7.54, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=7.54, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=7.55, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=7.55, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=7.55, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=7.56, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=7.56, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=7.57, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=7.57, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=7.57, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=7.58, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=7.58, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=7.59, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=7.59, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=7.60, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=7.60, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=8.00, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=8.01, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=8.01, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=8.02, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=8.02, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=8.02, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=8.03, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=8.03, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=8.04, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=8.04, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=8.05, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=8.05, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=8.05, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=8.06, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=8.06, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=8.07, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=8.07, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=8.07, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=8.08, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=8.08, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=8.09, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=8.09, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=8.10, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=8.10, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=8.50, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=8.51, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=8.51, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=8.52, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=8.52, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=8.52, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=8.53, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=8.53, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=8.54, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=8.54, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=8.55, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=8.55, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=8.55, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=8.56, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=8.56, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=8.57, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=8.57, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=8.57, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=8.58, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=8.58, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=8.59, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=8.59, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=8.60, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=8.60, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=9.00, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=9.01, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=9.01, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=9.02, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=9.02, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=9.02, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=9.03, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=9.03, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=9.04, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=9.04, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=9.05, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=9.05, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=9.05, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=9.06, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=9.06, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=9.07, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=9.07, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=9.07, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=9.08, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=9.08, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=9.09, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=9.09, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=9.10, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=9.10, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=9.50, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=9.51, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=9.51, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=9.52, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=9.52, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=9.52, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=9.53, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=9.53, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=9.54, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=9.54, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=9.55, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=9.55, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=9.55, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=9.56, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=9.56, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=9.57, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=9.57, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=9.57, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=9.58, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=9.58, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=9.59, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=9.59, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=9.60, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=9.60, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=10.00, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=10.01, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=10.01, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=10.02, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=10.02, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=10.02, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=10.03, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=10.03, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=10.04, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=10.04, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=10.05, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=10.05, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=10.05, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=10.06, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=10.06, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=10.07, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=10.07, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=10.07, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=10.08, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=10.08, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=10.09, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=10.09, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=10.10, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=10.10, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.487, 0.133, 0.236), reached=False
+    [Place State7] state_t=10.50, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=10.51, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=10.51, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=10.52, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=10.52, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=10.52, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=10.53, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=10.53, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=10.54, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=10.54, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=10.55, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=10.55, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=10.55, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=10.56, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=10.56, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=10.57, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=10.57, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=10.57, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=10.58, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=10.58, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=10.59, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=10.59, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=10.60, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=10.60, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=11.00, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=11.01, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=11.01, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=11.02, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=11.02, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=11.02, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=11.03, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=11.03, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=11.04, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=11.04, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=11.05, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=11.05, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=11.05, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=11.06, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=11.06, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=11.07, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=11.07, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=11.07, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=11.08, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=11.08, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=11.09, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=11.09, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=11.10, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=11.10, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=11.50, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=11.51, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=11.51, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=11.52, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=11.52, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=11.52, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=11.53, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=11.53, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=11.54, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=11.54, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=11.55, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=11.55, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=11.55, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=11.56, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=11.56, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=11.57, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=11.57, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=11.57, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=11.58, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=11.58, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=11.59, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=11.59, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=11.60, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=11.60, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=12.00, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=12.01, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=12.01, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=12.02, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=12.02, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=12.02, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=12.03, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=12.03, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=12.04, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=12.04, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=12.05, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=12.05, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=12.05, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=12.06, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=12.06, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=12.07, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=12.07, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=12.07, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=12.08, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=12.08, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=12.09, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=12.09, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=12.10, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+    [Place State7] state_t=12.10, target_xy=(0.500, 0.150), approach_height=0.239, ee_pos=(0.488, 0.133, 0.236), reached=False
+Traceback (most recent call last):
+  File "E:\pycharmprojects\panda_grasp_sim_2-main_v10\experiment_control_panel.py", line 190, in _worker_entry
+    run_experiment(config_path=config_path, control_state=self.control_state)
+  File "E:\pycharmprojects\panda_grasp_sim_2-main_v10\main_sim_grasp_urdf.py", line 887, in run
+    keys = p.getKeyboardEvents()
+pybullet.error: Not connected to physics server.

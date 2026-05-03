@@ -1,0 +1,24 @@
+当前配置文件：E:\pycharmprojects\panda_grasp_sim_2-main_v10\runs\control_panel_configs\panel_launch_20260503_210608_983531.json
+实验运行目录：E:\pycharmprojects\panda_grasp_sim_2-main_v10\runs\run_20260503_210611_192134_seed20260503
+已保留前面记录，并保留当前组前 0 次记录，将从 固定尺寸 - 第一组：5个正方体 第 1 次重新开始。
+
+============================================================
+开始实验：固定尺寸 - 第一组：5个正方体，第 1/10 次
+物块组合：['cube', 'cube', 'cube', 'cube', 'cube']
+尺寸模式：固定尺寸 / fixed
+本次实验随机种子：20260503
+============================================================
+self.urdfs_filename =  ['cube\\cube_0.urdf', 'cube\\cube_1.urdf', 'cube\\cube_2.urdf', 'cube\\cube_0.urdf', 'cube\\cube_1.urdf']
+随机缩放比例: [0.75, 0.85, 1.0, 1.15, 1.25]
+物块1 已加载: 位置=(0.097, 0.070, 0.017), 偏航角=-1.706 rad
+物块2 已加载: 位置=(0.197, 0.082, 0.019), 偏航角=-0.679 rad
+物块3 已加载: 位置=(0.022, 0.032, 0.022), 偏航角=0.411 rad
+物块4 已加载: 位置=(0.024, 0.113, 0.025), 偏航角=1.070 rad
+物块5 已加载: 位置=(0.200, 0.010, 0.027), 偏航角=0.733 rad
+Auto run enabled: experiment scheduler is active.
+Traceback (most recent call last):
+  File "E:\pycharmprojects\panda_grasp_sim_2-main_v10\experiment_control_panel.py", line 190, in _worker_entry
+    run_experiment(config_path=config_path, control_state=self.control_state)
+  File "E:\pycharmprojects\panda_grasp_sim_2-main_v10\main_sim_grasp_urdf.py", line 886, in run
+    keys = p.getKeyboardEvents()
+pybullet.error: Not connected to physics server.

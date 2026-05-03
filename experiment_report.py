@@ -88,7 +88,15 @@ def load_existing_report(markdown_path, group_defs, group_results, config=None):
     if not os.path.exists(markdown_path):
         return
 
-    group_by_name = {group["name"]: index for index, group in enumerate(group_defs)}
+    # 使用display_name作为主键，同时保留name作为备选
+    group_by_name = {}
+    for index, group in enumerate(group_defs):
+        # 优先使用display_name
+        display_name = group.get('display_name', group['name'])
+        group_by_name[display_name] = index
+        # 同时也用name建立映射（兼容旧版本）
+        group_by_name[group['name']] = index
+    
     parsed_records = {index: {} for index in range(len(group_defs))}
     current_group_index_for_parse = None
     fallback_group_index = -1

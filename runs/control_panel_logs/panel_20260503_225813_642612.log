@@ -1,0 +1,22 @@
+当前配置文件：E:\pycharmprojects\panda_grasp_sim_2-main_v10\runs\control_panel_configs\panel_launch_20260503_225813_640390.json
+实验运行目录：E:\pycharmprojects\panda_grasp_sim_2-main_v10\runs\run_20260503_225815_566776_seed20260503
+已保留前面记录，并保留当前组前 2 次记录，将从 随机尺寸 - 第一组：5个正方体 第 3 次重新开始。
+
+============================================================
+开始实验：随机尺寸 - 第一组：5个正方体，第 3/10 次
+物块组合：['cube', 'cube', 'cube', 'cube', 'cube']
+尺寸模式：随机尺寸 / random
+本次实验随机种子：20266505
+============================================================
+self.urdfs_filename =  ['cube\\cube_0.urdf', 'cube\\cube_1.urdf', 'cube\\cube_2.urdf', 'cube\\cube_0.urdf', 'cube\\cube_1.urdf']
+随机缩放比例: [0.7, 1.06, 0.68, 0.6, 0.95]
+Traceback (most recent call last):
+  File "E:\pycharmprojects\panda_grasp_sim_2-main_v10\experiment_control_panel.py", line 190, in _worker_entry
+    run_experiment(config_path=config_path, control_state=self.control_state)
+  File "E:\pycharmprojects\panda_grasp_sim_2-main_v10\main_sim_grasp_urdf.py", line 848, in run
+    start_current_trial()
+  File "E:\pycharmprojects\panda_grasp_sim_2-main_v10\main_sim_grasp_urdf.py", line 374, in start_current_trial
+    env.loadObjsInURDF(0, group_obj_count, shape_sequence=group['shapes'], scale_mode=group.get('size_mode', 'random'))
+  File "E:\pycharmprojects\panda_grasp_sim_2-main_v10\simEnv.py", line 355, in loadObjsInURDF
+    candidate_position = sample_spawn_candidate(filename)
+NameError: name 'sample_spawn_candidate' is not defined

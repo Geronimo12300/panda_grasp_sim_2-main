@@ -1,0 +1,148 @@
+{
+  "runtime": {
+    "auto_run": true,
+    "auto_place_char": "7",
+    "auto_capture_delay_steps": 240,
+    "trial_timeout_steps": 30000,
+    "grasp_action_timeout_steps": 2200,
+    "place_action_timeout_steps": 6000,
+    "connection_mode": "GUI",
+    "simulation_sleep_seconds": 0.004
+  },
+  "paths": {
+    "results_markdown_path": "E:\\pycharmprojects\\panda_grasp_sim_2-main_v10\\experiment_results.md",
+    "special_results_markdown_path": "E:\\pycharmprojects\\panda_grasp_sim_2-main_v10\\special_experiment_results.md",
+    "screenshot_dir": "E:\\pycharmprojects\\panda_grasp_sim_2-main_v10\\1",
+    "special_screenshot_dir": "E:\\pycharmprojects\\panda_grasp_sim_2-main_v10\\2",
+    "final_render_dir": "E:\\pycharmprojects\\panda_grasp_sim_2-main_v10\\img\\img_urdf"
+  },
+  "resume": {
+    "resume_from_group_index": 6,
+    "resume_from_trial_index": 2,
+    "restart_from_resume_group": true
+  },
+  "grasp": {
+    "grasp_gap": 0.005,
+    "grasp_depth": 0.005,
+    "grasp_width": 0.08
+  },
+  "scene": {
+    "settle_linear_vel": 0.015,
+    "settle_angular_vel": 0.08,
+    "settle_steps": 45
+  },
+  "planner": {
+    "pair_slot_offset": 0.032,
+    "long_bar_pair_slot_offset": 0.022,
+    "triangle_pair_slot_offset": 0.014,
+    "long_bar_front_back_offset": 0.02,
+    "long_bar_second_place_hold_width": 0.006
+  },
+  "reproducibility": {
+    "base_random_seed": 20260503,
+    "trial_seed_stride": 1000
+  },
+  "tracking": {
+    "run_root_dir": "E:\\pycharmprojects\\panda_grasp_sim_2-main_v10\\runs",
+    "write_config_snapshot": true,
+    "write_trial_jsonl": true,
+    "write_run_summary": true
+  },
+  "database_path": [
+    "cube",
+    "cylinder",
+    "cone_top",
+    "cuboid_bar"
+  ],
+  "experiments": {
+    "trials_per_group": 10,
+    "special_trials_per_group": 5,
+    "categories": [
+      {
+        "id": "fixed_size",
+        "name": "固定尺寸",
+        "size_mode": "fixed"
+      },
+      {
+        "id": "random_size",
+        "name": "随机尺寸",
+        "size_mode": "random"
+      }
+    ],
+    "standard_group_templates": [
+      {
+        "template_id": "standard_1",
+        "name": "第一组：5个正方体",
+        "shapes": [
+          "cube",
+          "cube",
+          "cube",
+          "cube",
+          "cube"
+        ],
+        "report_kind": "standard"
+      },
+      {
+        "template_id": "standard_2",
+        "name": "第二组：5个圆柱体",
+        "shapes": [
+          "cylinder",
+          "cylinder",
+          "cylinder",
+          "cylinder",
+          "cylinder"
+        ],
+        "report_kind": "standard"
+      },
+      {
+        "template_id": "standard_3",
+        "name": "第三组：3个正方体 + 2个圆柱体",
+        "shapes": [
+          "cube",
+          "cube",
+          "cube",
+          "cylinder",
+          "cylinder"
+        ],
+        "report_kind": "standard"
+      },
+      {
+        "template_id": "standard_4",
+        "name": "第四组：2个正方体 + 2个圆柱体 + 1个三角体",
+        "shapes": [
+          "cube",
+          "cube",
+          "cylinder",
+          "cylinder",
+          "cone_top"
+        ],
+        "report_kind": "standard"
+      }
+    ],
+    "special_group_templates": [
+      {
+        "template_id": "special_5",
+        "name": "第五组：1个正方体 + 2个细长长方体",
+        "shapes": [
+          "cube",
+          "cuboid_bar",
+          "cuboid_bar"
+        ],
+        "report_kind": "special",
+        "structure_mode": "long_bar_pair"
+      },
+      {
+        "template_id": "special_6",
+        "name": "第六组：1个正方体 + 2个三角体",
+        "shapes": [
+          "cube",
+          "cone_top",
+          "cone_top"
+        ],
+        "report_kind": "special",
+        "structure_mode": "triangle_pair_top"
+      }
+    ]
+  },
+  "_config_path": "E:\\pycharmprojects\\panda_grasp_sim_2-main_v10\\runs\\control_panel_configs\\panel_launch_20260503_223612_581522.json"
+}

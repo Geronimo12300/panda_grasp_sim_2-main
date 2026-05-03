@@ -1,0 +1,193 @@
+当前配置文件：E:\pycharmprojects\panda_grasp_sim_2-main_v10\runs\control_panel_configs\panel_launch_20260503_204659_900475.json
+实验运行目录：E:\pycharmprojects\panda_grasp_sim_2-main_v10\runs\run_20260503_204700_848997_seed20260503
+已保留前面记录，并保留当前组前 0 次记录，将从 随机尺寸 - 第三组：3个正方体 + 2个圆柱体 第 1 次重新开始。
+
+============================================================
+开始实验：随机尺寸 - 第三组：3个正方体 + 2个圆柱体，第 1/10 次
+物块组合：['cube', 'cube', 'cube', 'cylinder', 'cylinder']
+尺寸模式：随机尺寸 / random
+本次实验随机种子：20268503
+============================================================
+self.urdfs_filename =  ['cube\\cube_0.urdf', 'cube\\cube_1.urdf', 'cube\\cube_2.urdf', 'cylinder\\cylinder.urdf', 'cylinder\\cylinder.urdf']
+随机缩放比例: [0.87, 0.71, 1.0, 1.19, 0.94]
+物块1 已加载: 位置=(0.048, 0.014, 0.019), 偏航角=-0.415 rad
+物块2 已加载: 位置=(0.188, 0.057, 0.016), 偏航角=1.976 rad
+物块3 已加载: 位置=(0.073, 0.096, 0.022), 偏航角=-0.582 rad
+物块4 已加载: 位置=(0.069, -0.072, 0.026), 偏航角=-2.127 rad
+物块5 已加载: 位置=(-0.021, 0.105, 0.021), 偏航角=0.074 rad
+Auto run enabled: experiment scheduler is active.
+>> 渲染相机深度图...
+>> depth stats: min=0.010000, max=0.010000, unique~=1
+depth2Gray: flat depth image detected (min=max=0.010000), fallback to zeros.
+depth2Gray: flat depth image detected (min=max=0.000000), fallback to zeros.
+>> 侧视相机 left RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_left.png, success=True
+>> 侧视相机 right RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_right.png, success=True
+>> 渲染结束
+Mask 未检测到物块1，等待重新渲染。
+Mask 未检测到物块2，等待重新渲染。
+Mask 未检测到物块3，等待重新渲染。
+Mask 未检测到物块4，等待重新渲染。
+Mask 未检测到物块5，等待重新渲染。
+Mask 检测到的物块数量: 0/5
+Mask 未检测到全部物块，缺失物块编号: [1, 2, 3, 4, 5]，等待重新渲染。
+>> 渲染相机深度图...
+>> depth stats: min=0.010000, max=0.010000, unique~=1
+depth2Gray: flat depth image detected (min=max=0.010000), fallback to zeros.
+depth2Gray: flat depth image detected (min=max=0.000000), fallback to zeros.
+>> 侧视相机 left RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_left.png, success=True
+>> 侧视相机 right RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_right.png, success=True
+>> 渲染结束
+Mask 未检测到物块1，等待重新渲染。
+Mask 未检测到物块2，等待重新渲染。
+Mask 未检测到物块3，等待重新渲染。
+Mask 未检测到物块4，等待重新渲染。
+Mask 未检测到物块5，等待重新渲染。
+Mask 检测到的物块数量: 0/5
+Mask 未检测到全部物块，缺失物块编号: [1, 2, 3, 4, 5]，等待重新渲染。
+>> 渲染相机深度图...
+>> depth stats: min=0.010000, max=0.010000, unique~=1
+depth2Gray: flat depth image detected (min=max=0.010000), fallback to zeros.
+depth2Gray: flat depth image detected (min=max=0.000000), fallback to zeros.
+>> 侧视相机 left RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_left.png, success=True
+>> 侧视相机 right RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_right.png, success=True
+>> 渲染结束
+Mask 未检测到物块1，等待重新渲染。
+Mask 未检测到物块2，等待重新渲染。
+Mask 未检测到物块3，等待重新渲染。
+Mask 未检测到物块4，等待重新渲染。
+Mask 未检测到物块5，等待重新渲染。
+Mask 检测到的物块数量: 0/5
+Mask 未检测到全部物块，缺失物块编号: [1, 2, 3, 4, 5]，等待重新渲染。
+>> 渲染相机深度图...
+>> depth stats: min=0.010000, max=0.010000, unique~=1
+depth2Gray: flat depth image detected (min=max=0.010000), fallback to zeros.
+depth2Gray: flat depth image detected (min=max=0.000000), fallback to zeros.
+>> 侧视相机 left RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_left.png, success=True
+>> 侧视相机 right RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_right.png, success=True
+>> 渲染结束
+Mask 未检测到物块1，等待重新渲染。
+Mask 未检测到物块2，等待重新渲染。
+Mask 未检测到物块3，等待重新渲染。
+Mask 未检测到物块4，等待重新渲染。
+Mask 未检测到物块5，等待重新渲染。
+Mask 检测到的物块数量: 0/5
+Mask 未检测到全部物块，缺失物块编号: [1, 2, 3, 4, 5]，等待重新渲染。
+>> 渲染相机深度图...
+>> depth stats: min=0.010000, max=0.010000, unique~=1
+depth2Gray: flat depth image detected (min=max=0.010000), fallback to zeros.
+depth2Gray: flat depth image detected (min=max=0.000000), fallback to zeros.
+>> 侧视相机 left RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_left.png, success=True
+>> 侧视相机 right RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_right.png, success=True
+>> 渲染结束
+Mask 未检测到物块1，等待重新渲染。
+Mask 未检测到物块2，等待重新渲染。
+Mask 未检测到物块3，等待重新渲染。
+Mask 未检测到物块4，等待重新渲染。
+Mask 未检测到物块5，等待重新渲染。
+Mask 检测到的物块数量: 0/5
+Mask 未检测到全部物块，缺失物块编号: [1, 2, 3, 4, 5]，等待重新渲染。
+>> 渲染相机深度图...
+>> depth stats: min=0.010000, max=0.010000, unique~=1
+depth2Gray: flat depth image detected (min=max=0.010000), fallback to zeros.
+depth2Gray: flat depth image detected (min=max=0.000000), fallback to zeros.
+>> 侧视相机 left RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_left.png, success=True
+>> 侧视相机 right RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_right.png, success=True
+>> 渲染结束
+Mask 未检测到物块1，等待重新渲染。
+Mask 未检测到物块2，等待重新渲染。
+Mask 未检测到物块3，等待重新渲染。
+Mask 未检测到物块4，等待重新渲染。
+Mask 未检测到物块5，等待重新渲染。
+Mask 检测到的物块数量: 0/5
+Mask 未检测到全部物块，缺失物块编号: [1, 2, 3, 4, 5]，等待重新渲染。
+>> 渲染相机深度图...
+>> depth stats: min=0.010000, max=0.010000, unique~=1
+depth2Gray: flat depth image detected (min=max=0.010000), fallback to zeros.
+depth2Gray: flat depth image detected (min=max=0.000000), fallback to zeros.
+>> 侧视相机 left RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_left.png, success=True
+>> 侧视相机 right RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_right.png, success=True
+>> 渲染结束
+Mask 未检测到物块1，等待重新渲染。
+Mask 未检测到物块2，等待重新渲染。
+Mask 未检测到物块3，等待重新渲染。
+Mask 未检测到物块4，等待重新渲染。
+Mask 未检测到物块5，等待重新渲染。
+Mask 检测到的物块数量: 0/5
+Mask 未检测到全部物块，缺失物块编号: [1, 2, 3, 4, 5]，等待重新渲染。
+>> 渲染相机深度图...
+>> depth stats: min=0.010000, max=0.010000, unique~=1
+depth2Gray: flat depth image detected (min=max=0.010000), fallback to zeros.
+depth2Gray: flat depth image detected (min=max=0.000000), fallback to zeros.
+>> 侧视相机 left RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_left.png, success=True
+>> 侧视相机 right RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_right.png, success=True
+>> 渲染结束
+Mask 未检测到物块1，等待重新渲染。
+Mask 未检测到物块2，等待重新渲染。
+Mask 未检测到物块3，等待重新渲染。
+Mask 未检测到物块4，等待重新渲染。
+Mask 未检测到物块5，等待重新渲染。
+Mask 检测到的物块数量: 0/5
+Mask 未检测到全部物块，缺失物块编号: [1, 2, 3, 4, 5]，等待重新渲染。
+>> 渲染相机深度图...
+>> depth stats: min=0.010000, max=0.010000, unique~=1
+depth2Gray: flat depth image detected (min=max=0.010000), fallback to zeros.
+depth2Gray: flat depth image detected (min=max=0.000000), fallback to zeros.
+>> 侧视相机 left RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_left.png, success=True
+>> 侧视相机 right RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_right.png, success=True
+>> 渲染结束
+Mask 未检测到物块1，等待重新渲染。
+Mask 未检测到物块2，等待重新渲染。
+Mask 未检测到物块3，等待重新渲染。
+Mask 未检测到物块4，等待重新渲染。
+Mask 未检测到物块5，等待重新渲染。
+Mask 检测到的物块数量: 0/5
+Mask 未检测到全部物块，缺失物块编号: [1, 2, 3, 4, 5]，等待重新渲染。
+收到控制面板重置请求，切换到 随机尺寸 - 第三组：3个正方体 + 2个圆柱体 第 1 次。
+
+============================================================
+开始实验：随机尺寸 - 第三组：3个正方体 + 2个圆柱体，第 1/10 次
+物块组合：['cube', 'cube', 'cube', 'cylinder', 'cylinder']
+尺寸模式：随机尺寸 / random
+本次实验随机种子：20268503
+============================================================
+self.urdfs_filename =  ['cube\\cube_0.urdf', 'cube\\cube_1.urdf', 'cube\\cube_2.urdf', 'cylinder\\cylinder.urdf', 'cylinder\\cylinder.urdf']
+随机缩放比例: [0.87, 0.71, 1.0, 1.19, 0.94]
+物块1 已加载: 位置=(0.048, 0.014, 0.019), 偏航角=-0.415 rad
+物块2 已加载: 位置=(0.188, 0.057, 0.016), 偏航角=1.976 rad
+物块3 已加载: 位置=(0.073, 0.096, 0.022), 偏航角=-0.582 rad
+物块4 已加载: 位置=(0.069, -0.072, 0.026), 偏航角=-2.127 rad
+物块5 已加载: 位置=(-0.021, 0.105, 0.021), 偏航角=0.074 rad
+>> 渲染相机深度图...
+>> depth stats: min=0.010000, max=0.010000, unique~=1
+depth2Gray: flat depth image detected (min=max=0.010000), fallback to zeros.
+depth2Gray: flat depth image detected (min=max=0.000000), fallback to zeros.
+>> 侧视相机 left RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_left.png, success=True
+>> 侧视相机 right RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_right.png, success=True
+>> 渲染结束
+Mask 未检测到物块1，等待重新渲染。
+Mask 未检测到物块2，等待重新渲染。
+Mask 未检测到物块3，等待重新渲染。
+Mask 未检测到物块4，等待重新渲染。
+Mask 未检测到物块5，等待重新渲染。
+Mask 检测到的物块数量: 0/5
+Mask 未检测到全部物块，缺失物块编号: [1, 2, 3, 4, 5]，等待重新渲染。
+>> 渲染相机深度图...
+>> depth stats: min=0.010000, max=0.010000, unique~=1
+depth2Gray: flat depth image detected (min=max=0.010000), fallback to zeros.
+depth2Gray: flat depth image detected (min=max=0.000000), fallback to zeros.
+>> 侧视相机 left RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_left.png, success=True
+>> 侧视相机 right RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_right.png, success=True
+>> 渲染结束
+Mask 未检测到物块1，等待重新渲染。
+Mask 未检测到物块2，等待重新渲染。
+Mask 未检测到物块3，等待重新渲染。
+Mask 未检测到物块4，等待重新渲染。
+Mask 未检测到物块5，等待重新渲染。
+Mask 检测到的物块数量: 0/5
+Mask 未检测到全部物块，缺失物块编号: [1, 2, 3, 4, 5]，等待重新渲染。
+Traceback (most recent call last):
+  File "E:\pycharmprojects\panda_grasp_sim_2-main_v10\experiment_control_panel.py", line 190, in _worker_entry
+    run_experiment(config_path=config_path, control_state=self.control_state)
+  File "E:\pycharmprojects\panda_grasp_sim_2-main_v10\main_sim_grasp_urdf.py", line 880, in run
+    keys = p.getKeyboardEvents()
+pybullet.error: Not connected to physics server.

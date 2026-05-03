@@ -105,6 +105,7 @@ def run(config_path=None, control_state=None):
     trial_step_counter = 0
     grasp_action_step_counter = 0
     place_action_step_counter = 0
+    grasp_log_printed = False
     current_group_index = 0
     current_trial_index = 0
     batch_finished = False
@@ -346,6 +347,7 @@ def run(config_path=None, control_state=None):
         trial_step_counter = 0
         grasp_action_step_counter = 0
         place_action_step_counter = 0
+        grasp_log_printed = False
         latest_scene_snapshot = None
         queue_auto_capture()
 
@@ -449,6 +451,10 @@ def run(config_path=None, control_state=None):
             float(GRASP_MIN_WORLD_Z + grasp_depth),
         )
         pose['z'] = float(max(pose['z'], min_pose_z))
+        
+        print(f"  [抓取位姿] 物块{obj_idx+1}: 物体底部z={aabb_min[2]:.4f}, 物体高度={size_z:.4f}, "
+              f"抓取点z={pose['z']:.4f}, 末端执行器目标z={pose['z'] + 0.047:.4f}")
+        
         return pose
 
     def advance_to_next_trial():
@@ -765,7 +771,7 @@ def run(config_path=None, control_state=None):
         return len(planned_actions) > 0
 
     def begin_next_grasp():
-        nonlocal GRASP_STATE, grasp_action_step_counter
+        nonlocal GRASP_STATE, grasp_action_step_counter, grasp_log_printed
 
         if not planned_actions:
             print('未生成动作计划，请先完成场景规划。')
@@ -799,6 +805,7 @@ def run(config_path=None, control_state=None):
 
         GRASP_STATE = True
         grasp_action_step_counter = 0
+        grasp_log_printed = False
         return True
 
     def abort_current_grasp(reason):
@@ -901,8 +908,15 @@ def run(config_path=None, control_state=None):
             begin_next_grasp()
 
         if GRASP_STATE:
-            target_z = max(float(grasp_config["z"] - grasp_depth), GRASP_MIN_WORLD_Z)
+            # grasp_config['z'] 是物体抓取点的高度（物体中心偏下）
+            # grasp_step 会加上末端执行器偏移（0.047m），所以这里不需要额外调整
+            # 只需要确保不低于最小高度
+            target_z = max(float(grasp_config["z"]), GRASP_MIN_WORLD_Z)
             target_position = [grasp_config["x"], grasp_config["y"], target_z]
+            if not grasp_log_printed:
+                print(f"  [执行抓取] 目标位置: ({target_position[0]:.4f}, {target_position[1]:.4f}, {target_position[2]:.4f}), "
+                      f"末端执行器将达到: z={target_position[2] + 0.047:.4f}")
+                grasp_log_printed = True
             current_held_obj_id = None
             if grasp_obj_index < len(grasp_order_indices):
                 current_obj_idx = grasp_order_indices[grasp_obj_index]
