@@ -1,0 +1,214 @@
+{
+  "run_id": "run_20260503_145405_031905_seed20260503",
+  "config_path": "E:\\pycharmprojects\\panda_grasp_sim_2-main_v10\\runs\\control_panel_configs\\panel_launch_20260503_145403_462490.json",
+  "base_random_seed": 20260503,
+  "trial_seed_stride": 1000,
+  "started_at": "2026-05-03T14:54:05.031905+08:00",
+  "current_group_index": 9,
+  "current_trial_index": 6,
+  "batch_finished": false,
+  "standard_results": [
+    {
+      "name": "固定尺寸 - 第一组：5个正方体",
+      "records": []
+    },
+    {
+      "name": "固定尺寸 - 第二组：5个圆柱体",
+      "records": []
+    },
+    {
+      "name": "固定尺寸 - 第三组：3个正方体 + 2个圆柱体",
+      "records": []
+    },
+    {
+      "name": "固定尺寸 - 第四组：2个正方体 + 2个圆柱体 + 1个三角体",
+      "records": []
+    },
+    {
+      "name": "随机尺寸 - 第一组：5个正方体",
+      "records": []
+    },
+    {
+      "name": "随机尺寸 - 第二组：5个圆柱体",
+      "records": []
+    },
+    {
+      "name": "随机尺寸 - 第三组：3个正方体 + 2个圆柱体",
+      "records": [
+        {
+          "trial": 3,
+          "success": true,
+          "reason": "五个物块已形成明显的竖向堆叠，整体稳定",
+          "links": {
+            "top": "1/group9_trial03_top.png",
+            "left": "1/group9_trial03_left.png",
+            "right": "1/group9_trial03_right.png"
+          }
+        },
+        {
+          "trial": 4,
+          "success": true,
+          "reason": "物块已形成明显的竖向堆叠，整体稳定",
+          "links": {
+            "top": "1/group9_trial04_top.png",
+            "left": "1/group9_trial04_left.png",
+            "right": "1/group9_trial04_right.png"
+          }
+        },
+        {
+          "trial": 5,
+          "success": true,
+          "reason": "五个物块已形成明显的竖向堆叠，整体稳定",
+          "links": {
+            "top": "1/group9_trial05_top.png",
+            "left": "1/group9_trial05_left.png",
+            "right": "1/group9_trial05_right.png"
+          }
+        },
+        {
+          "trial": 6,
+          "success": false,
+          "reason": "物块散落在桌面，未形成明显堆叠",
+          "links": {
+            "top": "1/group9_trial06_top.png",
+            "left": "1/group9_trial06_left.png",
+            "right": "1/group9_trial06_right.png"
+          }
+        },
+        {
+          "trial": 7,
+          "success": false,
+          "reason": "物块散落在桌面，未形成堆叠",
+          "links": {
+            "top": "1/group9_trial07_top.png",
+            "left": "1/group9_trial07_left.png",
+            "right": "1/group9_trial07_right.png"
+          }
+        },
+        {
+          "trial": 8,
+          "success": false,
+          "reason": "物块未形成完整堆叠，部分散落",
+          "links": {
+            "top": "1/group9_trial08_top.png",
+            "left": "1/group9_trial08_left.png",
+            "right": "1/group9_trial08_right.png"
+          }
+        },
+        {
+          "trial": 9,
+          "success": false,
+          "reason": "物块散落在桌面，未形成堆叠",
+          "links": {
+            "top": "1/group9_trial09_top.png",
+            "left": "1/group9_trial09_left.png",
+            "right": "1/group9_trial09_right.png"
+          }
+        },
+        {
+          "trial": 10,
+          "success": false,
+          "reason": "物块散落在桌面，未形成明显堆叠",
+          "links": {
+            "top": "1/group9_trial10_top.png",
+            "left": "1/group9_trial10_left.png",
+            "right": "1/group9_trial10_right.png"
+          }
+        }
+      ]
+    },
+    {
+      "name": "随机尺寸 - 第四组：2个正方体 + 2个圆柱体 + 1个三角体",
+      "records": [
+        {
+          "trial": 1,
+          "success": true,
+          "reason": "五个物块已形成明显的竖向堆叠，整体稳定",
+          "links": {
+            "top": "1/group10_trial01_top.png",
+            "left": "1/group10_trial01_left.png",
+            "right": "1/group10_trial01_right.png"
+          }
+        },
+        {
+          "trial": 2,
+          "success": false,
+          "reason": "物块散落在桌面，未形成明显堆叠",
+          "links": {
+            "top": "1/group10_trial02_top.png",
+            "left": "1/group10_trial02_left.png",
+            "right": "1/group10_trial02_right.png"
+          }
+        },
+        {
+          "trial": 3,
+          "success": false,
+          "reason": "放置动作超时：已强制松爪，当前小次实验按失败记录并进入下一次。; 大模型判断：物块未完全堆叠，存在散落情况",
+          "links": {
+            "top": "1/group10_trial03_top.png",
+            "left": "1/group10_trial03_left.png",
+            "right": "1/group10_trial03_right.png"
+          }
+        },
+        {
+          "trial": 4,
+          "success": false,
+          "reason": "物块未完全堆叠，存在散落情况",
+          "links": {
+            "top": "1/group10_trial04_top.png",
+            "left": "1/group10_trial04_left.png",
+            "right": "1/group10_trial04_right.png"
+          }
+        },
+        {
+          "trial": 5,
+          "success": true,
+          "reason": "物块已形成明显的竖向堆叠，整体稳定",
+          "links": {
+            "top": "1/group10_trial05_top.png",
+            "left": "1/group10_trial05_left.png",
+            "right": "1/group10_trial05_right.png"
+          }
+        },
+        {
+          "trial": 6,
+          "success": true,
+          "reason": "物块已形成明显的竖向堆叠，整体稳定",
+          "links": {
+            "top": "1/group10_trial06_top.png",
+            "left": "1/group10_trial06_left.png",
+            "right": "1/group10_trial06_right.png"
+          }
+        },
+        {
+          "trial": 7,
+          "success": true,
+          "reason": "五个物块已形成明显的竖向堆叠，整体稳定",
+          "links": {
+            "top": "1/group10_trial07_top.png",
+            "left": "1/group10_trial07_left.png",
+            "right": "1/group10_trial07_right.png"
+          }
+        }
+      ]
+    }
+  ],
+  "special_results": [
+    {
+      "name": "固定尺寸 - 第五组：1个正方体 + 2个细长长方体",
+      "records": []
+    },
+    {
+      "name": "固定尺寸 - 第六组：1个正方体 + 2个三角体",
+      "records": []
+    },
+    {
+      "name": "随机尺寸 - 第五组：1个正方体 + 2个细长长方体",
+      "records": []
+    },
+    {
+      "name": "随机尺寸 - 第六组：1个正方体 + 2个三角体",
+      "records": []
+    }
+  ]
+}

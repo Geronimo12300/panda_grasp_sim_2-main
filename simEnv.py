@@ -213,7 +213,7 @@ class SimEnv(object):
     """
     原始加载函数
     """
-    def loadObjsInURDF(self, idx, num, shape_sequence=None):
+    def loadObjsInURDF(self, idx, num, shape_sequence=None, scale_mode="random"):
         """
         以URDF的格式加载多个obj物体
 
@@ -295,15 +295,60 @@ class SimEnv(object):
         self.urdfs_shapes = []
         
         spawn_region = {
-            "x_min": -0.18,
-            "x_max": 0.18,
-            "y_min": -0.14,
-            "y_max": 0.14,
+            "x_min": -0.08,
+            "x_max": 0.20,
+            "y_min": -0.10,
+            "y_max": 0.10,
             "z": 0.022
         }
-        min_spawn_distance = 0.09
+        if scale_mode == "random":
+            spawn_region = {
+                "x_min": 0.02,
+                "x_max": 0.24,
+                "y_min": -0.08,
+                "y_max": 0.10,
+                "z": 0.022
+            }
+        min_spawn_distance = 0.08
 
-        randomized_scales = [round(random.uniform(0.6, 1.2), 2) for _ in range(self.num_urdf)]
+        def is_valid_spawn_xy(x, y):
+            if scale_mode == "random":
+                return x >= spawn_region["x_min"]
+            return not (x < 0 and y < 0)
+
+        fixed_scale_palette = [0.75, 0.85, 1.0, 1.15, 1.25]
+        shared_shape_scales = {}
+        randomized_scales = []
+        special_three_block_mode = (
+            scale_mode == "fixed"
+            and self.num_urdf == 3
+            and len([name for name in self.urdfs_filename if os.path.basename(name).startswith('cube')]) == 1
+            and (
+                len([name for name in self.urdfs_filename if os.path.basename(name).startswith('cuboid_bar')]) == 2
+                or len([name for name in self.urdfs_filename if os.path.basename(name).startswith('cone_top')]) == 2
+            )
+        )
+        for i in range(self.num_urdf):
+            filename = os.path.basename(self.urdfs_filename[i]) if i < len(self.urdfs_filename) else ""
+            if scale_mode == "fixed":
+                if special_three_block_mode:
+                    if filename.startswith('cube'):
+                        scale_value = 0.8
+                    elif filename.startswith('cuboid_bar'):
+                        scale_value = shared_shape_scales.setdefault('cuboid_bar', 1.0)
+                    elif filename.startswith('cone_top'):
+                        scale_value = shared_shape_scales.setdefault('cone_top', 1.0)
+                    else:
+                        scale_value = 1.0
+                else:
+                    scale_value = fixed_scale_palette[i % len(fixed_scale_palette)]
+            elif filename.startswith('cuboid_bar'):
+                scale_value = shared_shape_scales.setdefault('cuboid_bar', round(random.uniform(0.9, 1.15), 2))
+            elif filename.startswith('cone_top'):
+                scale_value = shared_shape_scales.setdefault('cone_top', round(random.uniform(0.75, 1.1), 2))
+            else:
+                scale_value = round(random.uniform(0.6, 1.2), 2)
+            randomized_scales.append(scale_value)
         randomized_yaws = [random.uniform(-math.pi, math.pi) for _ in range(self.num_urdf)]
         cube_rgba_colors = [
             [0.85, 0.20, 0.20, 1.0],
@@ -324,7 +369,7 @@ class SimEnv(object):
                     random.uniform(spawn_region["y_min"], spawn_region["y_max"]),
                     spawn_region["z"]
                 ]
-                if all(
+                if is_valid_spawn_xy(candidate_position[0], candidate_position[1]) and all(
                     ((candidate_position[0] - pos[0]) ** 2 + (candidate_position[1] - pos[1]) ** 2) ** 0.5 >= min_spawn_distance
                     for pos in placed_positions
                 ):
@@ -335,6 +380,7 @@ class SimEnv(object):
                     [x, y, spawn_region["z"]]
                     for x in np.linspace(spawn_region["x_min"], spawn_region["x_max"], 4)
                     for y in np.linspace(spawn_region["y_min"], spawn_region["y_max"], 3)
+                    if is_valid_spawn_xy(x, y)
                 ]
                 basePosition = max(
                     grid_candidates,
@@ -351,9 +397,7 @@ class SimEnv(object):
             if i < len(randomized_scales):
                 scaling_factor = randomized_scales[i]
             else:
-                scaling_factor = round(random.uniform(0.6, 1.2), 2)
-            if filename.startswith('cuboid_bar'):
-                scaling_factor = round(random.uniform(0.9, 1.15), 2)
+                scaling_factor = 1.0 if scale_mode == "fixed" else round(random.uniform(0.6, 1.2), 2)
             if filename.startswith('cuboid_bar'):
                 basePosition[2] = 0.04 * scaling_factor + 0.002
             else:

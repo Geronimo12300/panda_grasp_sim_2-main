@@ -1,0 +1,48 @@
+{
+  "run_id": "run_20260503_034617_113972_seed20270503",
+  "config_path": "E:\\pycharmprojects\\panda_grasp_sim_2-main_v10\\runs\\direct_batch_fixed_size_20260503_034614_057885\\configs\\02_固定尺寸_-_第二组_5个圆柱体.json",
+  "base_random_seed": 20270503,
+  "trial_seed_stride": 1000,
+  "started_at": "2026-05-03T03:46:17.113972+08:00",
+  "current_group_index": 0,
+  "current_trial_index": 2,
+  "batch_finished": false,
+  "standard_results": [
+    {
+      "name": "固定尺寸 - 第二组：5个圆柱体",
+      "records": [
+        {
+          "trial": 1,
+          "success": false,
+          "reason": "物块散落在桌面，未形成明显竖向堆叠",
+          "links": {
+            "top": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/runs/direct_batch_fixed_size_20260503_034614_057885/02_固定尺寸_-_第二组_5个圆柱体/screens_standard/group1_trial01_top.png",
+            "left": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/runs/direct_batch_fixed_size_20260503_034614_057885/02_固定尺寸_-_第二组_5个圆柱体/screens_standard/group1_trial01_left.png",
+            "right": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/runs/direct_batch_fixed_size_20260503_034614_057885/02_固定尺寸_-_第二组_5个圆柱体/screens_standard/group1_trial01_right.png"
+          }
+        },
+        {
+          "trial": 2,
+          "success": false,
+          "reason": "物块散落在桌面，未形成明显竖向堆叠",
+          "links": {
+            "top": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/runs/direct_batch_fixed_size_20260503_034614_057885/02_固定尺寸_-_第二组_5个圆柱体/screens_standard/group1_trial02_top.png",
+            "left": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/runs/direct_batch_fixed_size_20260503_034614_057885/02_固定尺寸_-_第二组_5个圆柱体/screens_standard/group1_trial02_left.png",
+            "right": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/runs/direct_batch_fixed_size_20260503_034614_057885/02_固定尺寸_-_第二组_5个圆柱体/screens_standard/group1_trial02_right.png"
+          }
+        },
+        {
+          "trial": 3,
+          "success": false,
+          "reason": "物块散落在桌面，未形成明显竖向堆叠",
+          "links": {
+            "top": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/runs/direct_batch_fixed_size_20260503_034614_057885/02_固定尺寸_-_第二组_5个圆柱体/screens_standard/group1_trial03_top.png",
+            "left": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/runs/direct_batch_fixed_size_20260503_034614_057885/02_固定尺寸_-_第二组_5个圆柱体/screens_standard/group1_trial03_left.png",
+            "right": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/runs/direct_batch_fixed_size_20260503_034614_057885/02_固定尺寸_-_第二组_5个圆柱体/screens_standard/group1_trial03_right.png"
+          }
+        }
+      ]
+    }
+  ],
+  "special_results": []
+}

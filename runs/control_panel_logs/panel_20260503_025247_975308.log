@@ -1,0 +1,88 @@
+当前配置文件：E:\pycharmprojects\panda_grasp_sim_2-main_v10\runs\control_panel_configs\panel_launch_20260503_025247_972797.json
+实验运行目录：E:\pycharmprojects\panda_grasp_sim_2-main_v10\runs\run_20260503_025249_784801_seed20260503
+已保留前面记录，并保留当前组前 0 次记录，将从 固定尺寸 - 第六组：1个正方体 + 2个三角体 第 1 次重新开始。
+
+============================================================
+开始实验：固定尺寸 - 第六组：1个正方体 + 2个三角体，第 1/5 次
+物块组合：['cube', 'cone_top', 'cone_top']
+尺寸模式：固定尺寸 / fixed
+本次实验随机种子：20265503
+============================================================
+self.urdfs_filename =  ['cube\\cube_0.urdf', 'cone_top\\cone_top_block.urdf', 'cone_top\\cone_top_block.urdf']
+随机缩放比例: [0.8, 1.0, 1.0]
+物块1 已加载: 位置=(-0.113, 0.039, 0.018), 偏航角=-2.865 rad
+物块2 已加载: 位置=(0.047, -0.098, 0.022), 偏航角=0.697 rad
+物块3 已加载: 位置=(-0.074, -0.095, 0.022), 偏航角=0.001 rad
+Auto run enabled: experiment scheduler is active.
+>> 渲染相机深度图...
+>> depth stats: min=0.464410, max=0.500000, unique~=1499
+>> 侧视相机 left RGB 保存: img/img_urdf\camera_rgb_left.png, success=True
+>> 侧视相机 right RGB 保存: img/img_urdf\camera_rgb_right.png, success=True
+>> 渲染结束
+Mask 检测到的物块数量: 3/3
+
+==================================================
+【仿真环境中的物块信息】
+  物块1: 形状=正方体, 颜色=红色, 缩放比例=0.80, 边长=0.0395m, 体积=0.00006175m^3, 位置=(-0.113, 0.039)
+    -> Mask 抓取候选 (-0.123, 0.042)
+  物块2: 形状=三角体, 颜色=绿色, 缩放比例=1.00, 底面直径=0.0548m, 高度=0.0426m, 体积=0.00003347m^3, 位置=(0.047, -0.098)
+    -> Mask 抓取候选 (0.051, -0.105)
+  物块3: 形状=三角体, 颜色=蓝色, 缩放比例=1.00, 底面直径=0.0480m, 高度=0.0426m, 体积=0.00002573m^3, 位置=(-0.074, -0.095)
+    -> Mask 抓取候选 (-0.078, -0.102)
+==================================================
+
+正在询问阿里云百炼 / Qwen-VL 直接生成抓取放置动作...
+
+==================================================
+【阿里云百炼 / Qwen-VL 动作计划原始返回】
+{
+  "actions": [
+    {
+      "target_object": "物块1",
+      "grasp_pose": {"x": -0.113, "y": 0.039, "z": 0.012, "yaw": 0.277, "width": 0.042},
+      "layer_index": 0,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.000},
+      "reason": "红色正方体作为底层中心支撑"
+    },
+    {
+      "target_object": "物块2",
+      "grasp_pose": {"x": 0.047, "y": -0.098, "z": 0.018, "yaw": -0.874, "width": 0.062},
+      "layer_index": 1,
+      "slot": "right",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.0426},
+      "reason": "绿色三角体放置在上层右侧，与蓝色三角体并排"
+    },
+    {
+      "target_object": "物块3",
+      "grasp_pose": {"x": -0.074, "y": -0.095, "z": 0.018, "yaw": -1.570, "width": 0.038},
+      "layer_index": 1,
+      "slot": "left",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.0426},
+      "reason": "蓝色三角体放置在上层左侧，与绿色三角体对称并排"
+    }
+  ]
+}
+==================================================
+
+==================================================
+【最终动作计划】
+  Action 1: 物块1, grasp=(-0.113, 0.039, 0.012, yaw=0.277, width=0.042), layer=0, slot=center, place=(0.500, 0.000, 0.000), reason=默认普通物块：底层中心单柱堆叠
+  Action 2: 物块2, grasp=(0.047, -0.098, 0.018, yaw=-0.874, width=0.062), layer=1, slot=left, place=(0.482, 0.000, 0.040), reason=默认模板：两个三角体放在正方体上层左右并排
+  Action 3: 物块3, grasp=(-0.074, -0.095, 0.018, yaw=-1.570, width=0.038), layer=1, slot=right, place=(0.518, 0.000, 0.040), reason=默认模板：两个三角体放在正方体上层左右并排
+==================================================
+
+执行动作: 抓取物块1, (-0.1128, 0.0385, 0.0121), 抓取角度=0.2767 rad, 夹爪宽度=0.0420m, 层=0, 槽位=center, 放置点=(0.5000, 0.0000, 0.0000)
+抓取完成。
+物理释放：物块中心已对准堆叠点，解除夹爪约束并慢速张开夹爪。
+放置完成。
+执行动作: 抓取物块2, (0.0469, -0.0981, 0.0183), 抓取角度=-0.8742 rad, 夹爪宽度=0.0623m, 层=1, 槽位=left, 放置点=(0.4820, 0.0000, 0.0400)
+夹爪已包住目标物块，使用位姿兜底建立夹持。
+抓取完成。
+物理释放：物块中心已对准堆叠点，解除夹爪约束并慢速张开夹爪。
+Traceback (most recent call last):
+  File "E:\pycharmprojects\panda_grasp_sim_2-main_v10\experiment_control_panel.py", line 157, in _worker_entry
+    run_experiment(config_path=config_path, control_state=self.control_state)
+  File "E:\pycharmprojects\panda_grasp_sim_2-main_v10\main_sim_grasp_urdf.py", line 830, in run
+    keys = p.getKeyboardEvents()
+pybullet.error: Not connected to physics server.

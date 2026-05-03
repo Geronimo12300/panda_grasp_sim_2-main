@@ -1,0 +1,84 @@
+{
+  "runtime": {
+    "auto_run": true,
+    "auto_place_char": "7",
+    "auto_capture_delay_steps": 240,
+    "trial_timeout_steps": 30000,
+    "grasp_action_timeout_steps": 2200,
+    "place_action_timeout_steps": 6000,
+    "connection_mode": "DIRECT",
+    "simulation_sleep_seconds": 0.0
+  },
+  "paths": {
+    "results_markdown_path": "E:\\pycharmprojects\\panda_grasp_sim_2-main_v10\\runs\\direct_batch_fixed_size_20260503_034614_057885\\06_固定尺寸_-_第六组_1个正方体__2个三角体\\experiment_results.md",
+    "special_results_markdown_path": "E:\\pycharmprojects\\panda_grasp_sim_2-main_v10\\runs\\direct_batch_fixed_size_20260503_034614_057885\\06_固定尺寸_-_第六组_1个正方体__2个三角体\\special_experiment_results.md",
+    "screenshot_dir": "E:\\pycharmprojects\\panda_grasp_sim_2-main_v10\\runs\\direct_batch_fixed_size_20260503_034614_057885\\06_固定尺寸_-_第六组_1个正方体__2个三角体\\screens_standard",
+    "special_screenshot_dir": "E:\\pycharmprojects\\panda_grasp_sim_2-main_v10\\runs\\direct_batch_fixed_size_20260503_034614_057885\\06_固定尺寸_-_第六组_1个正方体__2个三角体\\screens_special",
+    "final_render_dir": "E:\\pycharmprojects\\panda_grasp_sim_2-main_v10\\runs\\direct_batch_fixed_size_20260503_034614_057885\\06_固定尺寸_-_第六组_1个正方体__2个三角体\\final_render"
+  },
+  "resume": {
+    "resume_from_group_index": 0,
+    "resume_from_trial_index": 0,
+    "restart_from_resume_group": true
+  },
+  "grasp": {
+    "grasp_gap": 0.005,
+    "grasp_depth": 0.005,
+    "grasp_width": 0.08
+  },
+  "scene": {
+    "settle_linear_vel": 0.015,
+    "settle_angular_vel": 0.08,
+    "settle_steps": 45
+  },
+  "planner": {
+    "pair_slot_offset": 0.032,
+    "long_bar_pair_slot_offset": 0.022,
+    "triangle_pair_slot_offset": 0.014,
+    "long_bar_front_back_offset": 0.02,
+    "long_bar_second_place_hold_width": 0.006
+  },
+  "reproducibility": {
+    "base_random_seed": 20310503,
+    "trial_seed_stride": 1000
+  },
+  "tracking": {
+    "run_root_dir": "E:\\pycharmprojects\\panda_grasp_sim_2-main_v10\\runs\\direct_batch_fixed_size_20260503_034614_057885\\06_固定尺寸_-_第六组_1个正方体__2个三角体\\runs",
+    "write_config_snapshot": true,
+    "write_trial_jsonl": true,
+    "write_run_summary": true
+  },
+  "database_path": [
+    "cube",
+    "cylinder",
+    "cone_top",
+    "cuboid_bar"
+  ],
+  "experiments": {
+    "trials_per_group": 10,
+    "special_trials_per_group": 5,
+    "categories": [
+      {
+        "id": "fixed_size",
+        "name": "固定尺寸",
+        "size_mode": "fixed"
+      }
+    ],
+    "standard_group_templates": [],
+    "special_group_templates": [
+      {
+        "template_id": "special_6",
+        "name": "第六组：1个正方体 + 2个三角体",
+        "shapes": [
+          "cube",
+          "cone_top",
+          "cone_top"
+        ],
+        "report_kind": "special",
+        "structure_mode": "triangle_pair_top",
+        "trials": 5
+      }
+    ]
+  },
+  "_config_path": "E:\\pycharmprojects\\panda_grasp_sim_2-main_v10\\config\\default.json"
+}

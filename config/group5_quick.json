@@ -1,0 +1,16 @@
+{
+  "resume": {
+    "resume_from_group_index": 4,
+    "resume_from_trial_index": 0,
+    "restart_from_resume_group": true
+  },
+  "runtime": {
+    "auto_run": true,
+    "trial_timeout_steps": 18000,
+    "grasp_action_timeout_steps": 1800,
+    "place_action_timeout_steps": 5000
+  },
+  "experiments": {
+    "special_trials_per_group": 1
+  }
+}

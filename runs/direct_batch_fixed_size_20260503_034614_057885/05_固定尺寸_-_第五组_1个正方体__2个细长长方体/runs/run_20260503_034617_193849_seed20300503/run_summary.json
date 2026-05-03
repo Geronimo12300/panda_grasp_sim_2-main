@@ -1,0 +1,78 @@
+{
+  "run_id": "run_20260503_034617_193849_seed20300503",
+  "config_path": "E:\\pycharmprojects\\panda_grasp_sim_2-main_v10\\runs\\direct_batch_fixed_size_20260503_034614_057885\\configs\\05_固定尺寸_-_第五组_1个正方体__2个细长长方体.json",
+  "base_random_seed": 20300503,
+  "trial_seed_stride": 1000,
+  "started_at": "2026-05-03T03:46:17.193849+08:00",
+  "current_group_index": 0,
+  "current_trial_index": 4,
+  "batch_finished": true,
+  "standard_results": [],
+  "special_results": [
+    {
+      "name": "固定尺寸 - 第五组：1个正方体 + 2个细长长方体",
+      "records": [
+        {
+          "trial": 1,
+          "success": false,
+          "reason": "物块散落在桌面，未形成明显竖向堆叠",
+          "links": {
+            "top": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/runs/direct_batch_fixed_size_20260503_034614_057885/05_固定尺寸_-_第五组_1个正方体__2个细长长方体/screens_special/group1_trial01_top.png",
+            "left": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/runs/direct_batch_fixed_size_20260503_034614_057885/05_固定尺寸_-_第五组_1个正方体__2个细长长方体/screens_special/group1_trial01_left.png",
+            "right": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/runs/direct_batch_fixed_size_20260503_034614_057885/05_固定尺寸_-_第五组_1个正方体__2个细长长方体/screens_special/group1_trial01_right.png"
+          },
+          "planning_success": false,
+          "planning_reason": "细长长方体抓取朝向不够平行（差值 0.799 rad）"
+        },
+        {
+          "trial": 2,
+          "success": false,
+          "reason": "物块散落在桌面，未形成明显竖向堆叠",
+          "links": {
+            "top": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/runs/direct_batch_fixed_size_20260503_034614_057885/05_固定尺寸_-_第五组_1个正方体__2个细长长方体/screens_special/group1_trial02_top.png",
+            "left": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/runs/direct_batch_fixed_size_20260503_034614_057885/05_固定尺寸_-_第五组_1个正方体__2个细长长方体/screens_special/group1_trial02_left.png",
+            "right": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/runs/direct_batch_fixed_size_20260503_034614_057885/05_固定尺寸_-_第五组_1个正方体__2个细长长方体/screens_special/group1_trial02_right.png"
+          },
+          "planning_success": false,
+          "planning_reason": "细长长方体抓取朝向不够平行（差值 1.104 rad）"
+        },
+        {
+          "trial": 3,
+          "success": false,
+          "reason": "物块散落在桌面，未形成明显竖向堆叠",
+          "links": {
+            "top": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/runs/direct_batch_fixed_size_20260503_034614_057885/05_固定尺寸_-_第五组_1个正方体__2个细长长方体/screens_special/group1_trial03_top.png",
+            "left": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/runs/direct_batch_fixed_size_20260503_034614_057885/05_固定尺寸_-_第五组_1个正方体__2个细长长方体/screens_special/group1_trial03_left.png",
+            "right": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/runs/direct_batch_fixed_size_20260503_034614_057885/05_固定尺寸_-_第五组_1个正方体__2个细长长方体/screens_special/group1_trial03_right.png"
+          },
+          "planning_success": false,
+          "planning_reason": "细长长方体抓取朝向不够平行（差值 1.158 rad）"
+        },
+        {
+          "trial": 4,
+          "success": false,
+          "reason": "物块散落在桌面，未形成明显竖向堆叠",
+          "links": {
+            "top": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/runs/direct_batch_fixed_size_20260503_034614_057885/05_固定尺寸_-_第五组_1个正方体__2个细长长方体/screens_special/group1_trial04_top.png",
+            "left": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/runs/direct_batch_fixed_size_20260503_034614_057885/05_固定尺寸_-_第五组_1个正方体__2个细长长方体/screens_special/group1_trial04_left.png",
+            "right": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/runs/direct_batch_fixed_size_20260503_034614_057885/05_固定尺寸_-_第五组_1个正方体__2个细长长方体/screens_special/group1_trial04_right.png"
+          },
+          "planning_success": false,
+          "planning_reason": "细长长方体抓取朝向不够平行（差值 0.602 rad）"
+        },
+        {
+          "trial": 5,
+          "success": false,
+          "reason": "实验超时，未在限定步数内完成堆叠; 大模型判断：物块散落在桌面，未形成明显竖向堆叠",
+          "links": {
+            "top": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/runs/direct_batch_fixed_size_20260503_034614_057885/05_固定尺寸_-_第五组_1个正方体__2个细长长方体/screens_special/group1_trial05_top.png",
+            "left": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/runs/direct_batch_fixed_size_20260503_034614_057885/05_固定尺寸_-_第五组_1个正方体__2个细长长方体/screens_special/group1_trial05_left.png",
+            "right": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/runs/direct_batch_fixed_size_20260503_034614_057885/05_固定尺寸_-_第五组_1个正方体__2个细长长方体/screens_special/group1_trial05_right.png"
+          },
+          "planning_success": false,
+          "planning_reason": "本轮未完成非常规结构规划"
+        }
+      ]
+    }
+  ]
+}

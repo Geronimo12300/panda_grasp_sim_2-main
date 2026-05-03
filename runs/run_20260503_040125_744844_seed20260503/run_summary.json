@@ -1,0 +1,552 @@
+{
+  "run_id": "run_20260503_040125_744844_seed20260503",
+  "config_path": "E:\\pycharmprojects\\panda_grasp_sim_2-main_v10\\runs\\control_panel_configs\\panel_launch_20260503_040124_244785.json",
+  "base_random_seed": 20260503,
+  "trial_seed_stride": 1000,
+  "started_at": "2026-05-03T04:01:25.744844+08:00",
+  "current_group_index": 5,
+  "current_trial_index": 1,
+  "batch_finished": false,
+  "standard_results": [
+    {
+      "name": "固定尺寸 - 第一组：5个正方体",
+      "records": [
+        {
+          "trial": 1,
+          "success": true,
+          "reason": "五个物块已形成明显的竖向堆叠，整体稳定",
+          "links": {
+            "top": "1/group1_trial01_top.png",
+            "left": "1/group1_trial01_left.png",
+            "right": "1/group1_trial01_right.png"
+          }
+        },
+        {
+          "trial": 2,
+          "success": false,
+          "reason": "物块散落在桌面，未形成明显竖向堆叠",
+          "links": {
+            "top": "1/group1_trial02_top.png",
+            "left": "1/group1_trial02_left.png",
+            "right": "1/group1_trial02_right.png"
+          }
+        },
+        {
+          "trial": 3,
+          "success": true,
+          "reason": "五个物块已形成明显的竖向堆叠，整体稳定",
+          "links": {
+            "top": "1/group1_trial03_top.png",
+            "left": "1/group1_trial03_left.png",
+            "right": "1/group1_trial03_right.png"
+          }
+        },
+        {
+          "trial": 4,
+          "success": true,
+          "reason": "五个物块已形成明显的竖向堆叠，整体稳定",
+          "links": {
+            "top": "1/group1_trial04_top.png",
+            "left": "1/group1_trial04_left.png",
+            "right": "1/group1_trial04_right.png"
+          }
+        },
+        {
+          "trial": 5,
+          "success": true,
+          "reason": "五个物块已形成明显的竖向堆叠，整体稳定",
+          "links": {
+            "top": "1/group1_trial05_top.png",
+            "left": "1/group1_trial05_left.png",
+            "right": "1/group1_trial05_right.png"
+          }
+        },
+        {
+          "trial": 6,
+          "success": false,
+          "reason": "物块散落在桌面，未形成明显竖向堆叠",
+          "links": {
+            "top": "1/group1_trial06_top.png",
+            "left": "1/group1_trial06_left.png",
+            "right": "1/group1_trial06_right.png"
+          }
+        },
+        {
+          "trial": 7,
+          "success": false,
+          "reason": "物块散落在桌面，未形成明显堆叠",
+          "links": {
+            "top": "1/group1_trial07_top.png",
+            "left": "1/group1_trial07_left.png",
+            "right": "1/group1_trial07_right.png"
+          }
+        },
+        {
+          "trial": 8,
+          "success": false,
+          "reason": "放置动作超时：已强制松爪，当前小次实验按失败记录并进入下一次。; 大模型判断：物块散落，未形成堆叠",
+          "links": {
+            "top": "1/group1_trial08_top.png",
+            "left": "1/group1_trial08_left.png",
+            "right": "1/group1_trial08_right.png"
+          }
+        },
+        {
+          "trial": 9,
+          "success": false,
+          "reason": "放置动作超时：已强制松爪，当前小次实验按失败记录并进入下一次。; 大模型判断：物块散落在桌面，未形成明显堆叠",
+          "links": {
+            "top": "1/group1_trial09_top.png",
+            "left": "1/group1_trial09_left.png",
+            "right": "1/group1_trial09_right.png"
+          }
+        },
+        {
+          "trial": 10,
+          "success": true,
+          "reason": "物块已形成竖向堆叠，整体稳定",
+          "links": {
+            "top": "1/group1_trial10_top.png",
+            "left": "1/group1_trial10_left.png",
+            "right": "1/group1_trial10_right.png"
+          }
+        }
+      ]
+    },
+    {
+      "name": "固定尺寸 - 第二组：5个圆柱体",
+      "records": [
+        {
+          "trial": 1,
+          "success": true,
+          "reason": "五个物块已形成明显的竖向堆叠，整体稳定",
+          "links": {
+            "top": "1/group2_trial01_top.png",
+            "left": "1/group2_trial01_left.png",
+            "right": "1/group2_trial01_right.png"
+          }
+        },
+        {
+          "trial": 2,
+          "success": true,
+          "reason": "五个物块已形成明显的竖向堆叠，整体稳定",
+          "links": {
+            "top": "1/group2_trial02_top.png",
+            "left": "1/group2_trial02_left.png",
+            "right": "1/group2_trial02_right.png"
+          }
+        },
+        {
+          "trial": 3,
+          "success": true,
+          "reason": "五个物块已形成明显的竖向堆叠，整体稳定",
+          "links": {
+            "top": "1/group2_trial03_top.png",
+            "left": "1/group2_trial03_left.png",
+            "right": "1/group2_trial03_right.png"
+          }
+        },
+        {
+          "trial": 4,
+          "success": true,
+          "reason": "五个物块已形成明显的竖向堆叠，整体稳定",
+          "links": {
+            "top": "1/group2_trial04_top.png",
+            "left": "1/group2_trial04_left.png",
+            "right": "1/group2_trial04_right.png"
+          }
+        },
+        {
+          "trial": 5,
+          "success": true,
+          "reason": "五个物块已形成明显的竖向堆叠，整体稳定",
+          "links": {
+            "top": "1/group2_trial05_top.png",
+            "left": "1/group2_trial05_left.png",
+            "right": "1/group2_trial05_right.png"
+          }
+        },
+        {
+          "trial": 6,
+          "success": true,
+          "reason": "五个物块已形成明显的竖向堆叠，整体稳定",
+          "links": {
+            "top": "1/group2_trial06_top.png",
+            "left": "1/group2_trial06_left.png",
+            "right": "1/group2_trial06_right.png"
+          }
+        },
+        {
+          "trial": 7,
+          "success": true,
+          "reason": "五个物块已形成明显的竖向堆叠，整体稳定",
+          "links": {
+            "top": "1/group2_trial07_top.png",
+            "left": "1/group2_trial07_left.png",
+            "right": "1/group2_trial07_right.png"
+          }
+        },
+        {
+          "trial": 8,
+          "success": true,
+          "reason": "五个物块已形成明显的竖向堆叠，整体稳定",
+          "links": {
+            "top": "1/group2_trial08_top.png",
+            "left": "1/group2_trial08_left.png",
+            "right": "1/group2_trial08_right.png"
+          }
+        },
+        {
+          "trial": 9,
+          "success": true,
+          "reason": "五个物块已形成明显的竖向堆叠，整体稳定",
+          "links": {
+            "top": "1/group2_trial09_top.png",
+            "left": "1/group2_trial09_left.png",
+            "right": "1/group2_trial09_right.png"
+          }
+        },
+        {
+          "trial": 10,
+          "success": true,
+          "reason": "五个物块已形成明显的竖向堆叠，整体稳定",
+          "links": {
+            "top": "1/group2_trial10_top.png",
+            "left": "1/group2_trial10_left.png",
+            "right": "1/group2_trial10_right.png"
+          }
+        }
+      ]
+    },
+    {
+      "name": "固定尺寸 - 第三组：3个正方体 + 2个圆柱体",
+      "records": [
+        {
+          "trial": 1,
+          "success": true,
+          "reason": "物块已形成明显的竖向堆叠，整体稳定",
+          "links": {
+            "top": "1/group3_trial01_top.png",
+            "left": "1/group3_trial01_left.png",
+            "right": "1/group3_trial01_right.png"
+          }
+        },
+        {
+          "trial": 2,
+          "success": true,
+          "reason": "物块已形成明显的竖向堆叠，整体稳定",
+          "links": {
+            "top": "1/group3_trial02_top.png",
+            "left": "1/group3_trial02_left.png",
+            "right": "1/group3_trial02_right.png"
+          }
+        },
+        {
+          "trial": 3,
+          "success": true,
+          "reason": "五个物块已形成稳定的竖向堆叠",
+          "links": {
+            "top": "1/group3_trial03_top.png",
+            "left": "1/group3_trial03_left.png",
+            "right": "1/group3_trial03_right.png"
+          }
+        },
+        {
+          "trial": 4,
+          "success": true,
+          "reason": "五个物块已形成稳定的竖向堆叠",
+          "links": {
+            "top": "1/group3_trial04_top.png",
+            "left": "1/group3_trial04_left.png",
+            "right": "1/group3_trial04_right.png"
+          }
+        },
+        {
+          "trial": 5,
+          "success": true,
+          "reason": "五个物块已形成明显的竖向堆叠，整体稳定",
+          "links": {
+            "top": "1/group3_trial05_top.png",
+            "left": "1/group3_trial05_left.png",
+            "right": "1/group3_trial05_right.png"
+          }
+        },
+        {
+          "trial": 6,
+          "success": true,
+          "reason": "五个物块已形成明显的竖向堆叠，整体稳定",
+          "links": {
+            "top": "1/group3_trial06_top.png",
+            "left": "1/group3_trial06_left.png",
+            "right": "1/group3_trial06_right.png"
+          }
+        },
+        {
+          "trial": 7,
+          "success": false,
+          "reason": "放置动作超时：已强制松爪，当前小次实验按失败记录并进入下一次。; 大模型判断：物块散落在桌面，未形成堆叠",
+          "links": {
+            "top": "1/group3_trial07_top.png",
+            "left": "1/group3_trial07_left.png",
+            "right": "1/group3_trial07_right.png"
+          }
+        },
+        {
+          "trial": 8,
+          "success": true,
+          "reason": "五个物块已形成明显的竖向堆叠，整体稳定",
+          "links": {
+            "top": "1/group3_trial08_top.png",
+            "left": "1/group3_trial08_left.png",
+            "right": "1/group3_trial08_right.png"
+          }
+        },
+        {
+          "trial": 9,
+          "success": true,
+          "reason": "五个物块已形成明显的竖向堆叠，整体稳定",
+          "links": {
+            "top": "1/group3_trial09_top.png",
+            "left": "1/group3_trial09_left.png",
+            "right": "1/group3_trial09_right.png"
+          }
+        },
+        {
+          "trial": 10,
+          "success": true,
+          "reason": "五个物块已形成明显的竖向堆叠，整体稳定",
+          "links": {
+            "top": "1/group3_trial10_top.png",
+            "left": "1/group3_trial10_left.png",
+            "right": "1/group3_trial10_right.png"
+          }
+        }
+      ]
+    },
+    {
+      "name": "固定尺寸 - 第四组：2个正方体 + 2个圆柱体 + 1个三角体",
+      "records": [
+        {
+          "trial": 1,
+          "success": true,
+          "reason": "五个物块已形成明显的竖向堆叠，整体稳定",
+          "links": {
+            "top": "1/group4_trial01_top.png",
+            "left": "1/group4_trial01_left.png",
+            "right": "1/group4_trial01_right.png"
+          }
+        },
+        {
+          "trial": 2,
+          "success": true,
+          "reason": "五个物块已形成明显的竖向堆叠，整体稳定",
+          "links": {
+            "top": "1/group4_trial02_top.png",
+            "left": "1/group4_trial02_left.png",
+            "right": "1/group4_trial02_right.png"
+          }
+        },
+        {
+          "trial": 3,
+          "success": true,
+          "reason": "五个物块已形成明显的竖向堆叠，整体稳定",
+          "links": {
+            "top": "1/group4_trial03_top.png",
+            "left": "1/group4_trial03_left.png",
+            "right": "1/group4_trial03_right.png"
+          }
+        },
+        {
+          "trial": 4,
+          "success": false,
+          "reason": "物块散落在桌面，未形成堆叠",
+          "links": {
+            "top": "1/group4_trial04_top.png",
+            "left": "1/group4_trial04_left.png",
+            "right": "1/group4_trial04_right.png"
+          }
+        },
+        {
+          "trial": 5,
+          "success": true,
+          "reason": "五个物块已形成明显的竖向堆叠，整体稳定",
+          "links": {
+            "top": "1/group4_trial05_top.png",
+            "left": "1/group4_trial05_left.png",
+            "right": "1/group4_trial05_right.png"
+          }
+        },
+        {
+          "trial": 6,
+          "success": false,
+          "reason": "物块散落在桌面，未形成明显竖向堆叠",
+          "links": {
+            "top": "1/group4_trial06_top.png",
+            "left": "1/group4_trial06_left.png",
+            "right": "1/group4_trial06_right.png"
+          }
+        },
+        {
+          "trial": 7,
+          "success": true,
+          "reason": "五个物块已形成明显的竖向堆叠，整体稳定",
+          "links": {
+            "top": "1/group4_trial07_top.png",
+            "left": "1/group4_trial07_left.png",
+            "right": "1/group4_trial07_right.png"
+          }
+        },
+        {
+          "trial": 8,
+          "success": true,
+          "reason": "五个物块已形成明显的竖向堆叠，整体稳定",
+          "links": {
+            "top": "1/group4_trial08_top.png",
+            "left": "1/group4_trial08_left.png",
+            "right": "1/group4_trial08_right.png"
+          }
+        },
+        {
+          "trial": 9,
+          "success": true,
+          "reason": "五个物块已形成明显的竖向堆叠，整体稳定",
+          "links": {
+            "top": "1/group4_trial09_top.png",
+            "left": "1/group4_trial09_left.png",
+            "right": "1/group4_trial09_right.png"
+          }
+        },
+        {
+          "trial": 10,
+          "success": false,
+          "reason": "实验超时，未在限定步数内完成堆叠; 大模型判断：物块散落在桌面，未形成堆叠",
+          "links": {
+            "top": "1/group4_trial10_top.png",
+            "left": "1/group4_trial10_left.png",
+            "right": "1/group4_trial10_right.png"
+          }
+        }
+      ]
+    },
+    {
+      "name": "随机尺寸 - 第一组：5个正方体",
+      "records": []
+    },
+    {
+      "name": "随机尺寸 - 第二组：5个圆柱体",
+      "records": []
+    },
+    {
+      "name": "随机尺寸 - 第三组：3个正方体 + 2个圆柱体",
+      "records": []
+    },
+    {
+      "name": "随机尺寸 - 第四组：2个正方体 + 2个圆柱体 + 1个三角体",
+      "records": []
+    }
+  ],
+  "special_results": [
+    {
+      "name": "固定尺寸 - 第五组：1个正方体 + 2个细长长方体",
+      "records": [
+        {
+          "trial": 1,
+          "success": false,
+          "reason": "放置动作超时：已强制松爪，当前小次实验按失败记录并进入下一次。; 大模型判断：物块散落在桌面，未形成堆叠",
+          "links": {
+            "top": "2/group5_trial01_top.png",
+            "left": "2/group5_trial01_left.png",
+            "right": "2/group5_trial01_right.png"
+          },
+          "planning_success": false,
+          "planning_reason": "细长长方体抓取朝向不够平行（差值 0.928 rad）"
+        },
+        {
+          "trial": 2,
+          "success": false,
+          "reason": "物块散落在桌面，未形成竖向堆叠",
+          "links": {
+            "top": "2/group5_trial02_top.png",
+            "left": "2/group5_trial02_left.png",
+            "right": "2/group5_trial02_right.png"
+          },
+          "planning_success": false,
+          "planning_reason": "细长长方体抓取朝向不够平行（差值 1.389 rad）"
+        },
+        {
+          "trial": 3,
+          "success": false,
+          "reason": "物块散落在桌面，未形成竖向堆叠",
+          "links": {
+            "top": "2/group5_trial03_top.png",
+            "left": "2/group5_trial03_left.png",
+            "right": "2/group5_trial03_right.png"
+          },
+          "planning_success": false,
+          "planning_reason": "细长长方体抓取朝向不够平行（差值 1.137 rad）"
+        },
+        {
+          "trial": 4,
+          "success": false,
+          "reason": "物块未形成明显堆叠，散落在桌面",
+          "links": {
+            "top": "2/group5_trial04_top.png",
+            "left": "2/group5_trial04_left.png",
+            "right": "2/group5_trial04_right.png"
+          },
+          "planning_success": true,
+          "planning_reason": "细长长方体满足同层并排规划要求"
+        },
+        {
+          "trial": 5,
+          "success": false,
+          "reason": "物块未形成明显堆叠，散落在桌面",
+          "links": {
+            "top": "2/group5_trial05_top.png",
+            "left": "2/group5_trial05_left.png",
+            "right": "2/group5_trial05_right.png"
+          },
+          "planning_success": false,
+          "planning_reason": "细长长方体抓取朝向不够平行（差值 0.832 rad）"
+        }
+      ]
+    },
+    {
+      "name": "固定尺寸 - 第六组：1个正方体 + 2个三角体",
+      "records": [
+        {
+          "trial": 1,
+          "success": false,
+          "reason": "物块散落在桌面，未形成明显堆叠",
+          "links": {
+            "top": "2/group6_trial01_top.png",
+            "left": "2/group6_trial01_left.png",
+            "right": "2/group6_trial01_right.png"
+          },
+          "planning_success": false,
+          "planning_reason": "三角体抓取朝向不够平行（差值 0.875 rad）"
+        },
+        {
+          "trial": 2,
+          "success": false,
+          "reason": "物块散落在桌面，未形成堆叠",
+          "links": {
+            "top": "2/group6_trial02_top.png",
+            "left": "2/group6_trial02_left.png",
+            "right": "2/group6_trial02_right.png"
+          },
+          "planning_success": false,
+          "planning_reason": "三角体抓取朝向不够平行（差值 0.381 rad）"
+        }
+      ]
+    },
+    {
+      "name": "随机尺寸 - 第五组：1个正方体 + 2个细长长方体",
+      "records": []
+    },
+    {
+      "name": "随机尺寸 - 第六组：1个正方体 + 2个三角体",
+      "records": []
+    }
+  ]
+}

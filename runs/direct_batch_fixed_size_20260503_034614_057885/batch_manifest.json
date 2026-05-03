@@ -1,0 +1,55 @@
+{
+  "batch_root": "E:\\pycharmprojects\\panda_grasp_sim_2-main_v10\\runs\\direct_batch_fixed_size_20260503_034614_057885",
+  "category_id": "fixed_size",
+  "started_at": "2026-05-03T03:46:14.061885+08:00",
+  "processes": [
+    {
+      "group_no": 1,
+      "group_name": "固定尺寸 - 第一组：5个正方体",
+      "pid": 8244,
+      "config_path": "E:\\pycharmprojects\\panda_grasp_sim_2-main_v10\\runs\\direct_batch_fixed_size_20260503_034614_057885\\configs\\01_固定尺寸_-_第一组_5个正方体.json",
+      "log_path": "E:\\pycharmprojects\\panda_grasp_sim_2-main_v10\\runs\\direct_batch_fixed_size_20260503_034614_057885\\logs\\01_固定尺寸_-_第一组_5个正方体.log",
+      "output_dir": "E:\\pycharmprojects\\panda_grasp_sim_2-main_v10\\runs\\direct_batch_fixed_size_20260503_034614_057885\\01_固定尺寸_-_第一组_5个正方体"
+    },
+    {
+      "group_no": 2,
+      "group_name": "固定尺寸 - 第二组：5个圆柱体",
+      "pid": 22736,
+      "config_path": "E:\\pycharmprojects\\panda_grasp_sim_2-main_v10\\runs\\direct_batch_fixed_size_20260503_034614_057885\\configs\\02_固定尺寸_-_第二组_5个圆柱体.json",
+      "log_path": "E:\\pycharmprojects\\panda_grasp_sim_2-main_v10\\runs\\direct_batch_fixed_size_20260503_034614_057885\\logs\\02_固定尺寸_-_第二组_5个圆柱体.log",
+      "output_dir": "E:\\pycharmprojects\\panda_grasp_sim_2-main_v10\\runs\\direct_batch_fixed_size_20260503_034614_057885\\02_固定尺寸_-_第二组_5个圆柱体"
+    },
+    {
+      "group_no": 3,
+      "group_name": "固定尺寸 - 第三组：3个正方体 + 2个圆柱体",
+      "pid": 31396,
+      "config_path": "E:\\pycharmprojects\\panda_grasp_sim_2-main_v10\\runs\\direct_batch_fixed_size_20260503_034614_057885\\configs\\03_固定尺寸_-_第三组_3个正方体__2个圆柱体.json",
+      "log_path": "E:\\pycharmprojects\\panda_grasp_sim_2-main_v10\\runs\\direct_batch_fixed_size_20260503_034614_057885\\logs\\03_固定尺寸_-_第三组_3个正方体__2个圆柱体.log",
+      "output_dir": "E:\\pycharmprojects\\panda_grasp_sim_2-main_v10\\runs\\direct_batch_fixed_size_20260503_034614_057885\\03_固定尺寸_-_第三组_3个正方体__2个圆柱体"
+    },
+    {
+      "group_no": 4,
+      "group_name": "固定尺寸 - 第四组：2个正方体 + 2个圆柱体 + 1个三角体",
+      "pid": 31256,
+      "config_path": "E:\\pycharmprojects\\panda_grasp_sim_2-main_v10\\runs\\direct_batch_fixed_size_20260503_034614_057885\\configs\\04_固定尺寸_-_第四组_2个正方体__2个圆柱体__1个三角体.json",
+      "log_path": "E:\\pycharmprojects\\panda_grasp_sim_2-main_v10\\runs\\direct_batch_fixed_size_20260503_034614_057885\\logs\\04_固定尺寸_-_第四组_2个正方体__2个圆柱体__1个三角体.log",
+      "output_dir": "E:\\pycharmprojects\\panda_grasp_sim_2-main_v10\\runs\\direct_batch_fixed_size_20260503_034614_057885\\04_固定尺寸_-_第四组_2个正方体__2个圆柱体__1个三角体"
+    },
+    {
+      "group_no": 5,
+      "group_name": "固定尺寸 - 第五组：1个正方体 + 2个细长长方体",
+      "pid": 16276,
+      "config_path": "E:\\pycharmprojects\\panda_grasp_sim_2-main_v10\\runs\\direct_batch_fixed_size_20260503_034614_057885\\configs\\05_固定尺寸_-_第五组_1个正方体__2个细长长方体.json",
+      "log_path": "E:\\pycharmprojects\\panda_grasp_sim_2-main_v10\\runs\\direct_batch_fixed_size_20260503_034614_057885\\logs\\05_固定尺寸_-_第五组_1个正方体__2个细长长方体.log",
+      "output_dir": "E:\\pycharmprojects\\panda_grasp_sim_2-main_v10\\runs\\direct_batch_fixed_size_20260503_034614_057885\\05_固定尺寸_-_第五组_1个正方体__2个细长长方体"
+    },
+    {
+      "group_no": 6,
+      "group_name": "固定尺寸 - 第六组：1个正方体 + 2个三角体",
+      "pid": 29564,
+      "config_path": "E:\\pycharmprojects\\panda_grasp_sim_2-main_v10\\runs\\direct_batch_fixed_size_20260503_034614_057885\\configs\\06_固定尺寸_-_第六组_1个正方体__2个三角体.json",
+      "log_path": "E:\\pycharmprojects\\panda_grasp_sim_2-main_v10\\runs\\direct_batch_fixed_size_20260503_034614_057885\\logs\\06_固定尺寸_-_第六组_1个正方体__2个三角体.log",
+      "output_dir": "E:\\pycharmprojects\\panda_grasp_sim_2-main_v10\\runs\\direct_batch_fixed_size_20260503_034614_057885\\06_固定尺寸_-_第六组_1个正方体__2个三角体"
+    }
+  ]
+}

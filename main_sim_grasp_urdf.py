@@ -1,623 +1,100 @@
+import argparse
+import json
+import os
+import random
+import time
+from datetime import datetime
+
+import numpy as np
 import pybullet as p
 import pybullet_data
-import time
-import numpy as np
-import os
-import cv2
-import base64
-import shutil
-import scipy.io as scio
+
+from action_planner import (
+    build_default_action_plan,
+    evaluate_structure_plan,
+    normalize_grasp_angle,
+    sanitize_action_plan,
+)
+from experiment_config import (
+    build_experiment_groups,
+    get_database_path,
+    get_default_config_path,
+    get_group_object_count,
+    get_group_trials,
+    get_grasp_setting,
+    get_path_setting,
+    get_reproducibility_setting,
+    get_resume_setting,
+    get_runtime_setting,
+    get_scene_setting,
+    get_tracking_setting,
+    load_project_config,
+)
+from experiment_report import (
+    copy_trial_screenshots as report_copy_trial_screenshots,
+    ensure_output_paths as report_ensure_output_paths,
+    load_existing_report,
+    write_report,
+)
+from llm_client import ask_bailian_for_pick_place_actions, ask_bailian_for_stack_success
 from simEnv import SimEnv
+from vision_detection import get_positions, infer_triangle_grasp_angle_from_side_views
 import panda_sim_grasp as panda_sim
-import requests
-import json
-import re
 
-BAILIAN_API_KEY = "sk-4ea064d0eb6b4c39b6ae8479e8975443"
-BAILIAN_API_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
-
-GRASP_GAP = 0.005
-GRASP_DEPTH = 0.005
-GRASP_WIDTH = 0.08
-SCENE_SETTLE_LINEAR_VEL = 0.015
-SCENE_SETTLE_ANGULAR_VEL = 0.08
-SCENE_SETTLE_STEPS = 45
-
-def encode_image_to_data_url(image_path):
-    if not image_path or not os.path.exists(image_path):
-        return None
-
-    suffix = os.path.splitext(image_path)[1].lower()
-    mime_type = "image/png" if suffix == ".png" else "image/jpeg"
-    with open(image_path, "rb") as image_file:
-        encoded = base64.b64encode(image_file.read()).decode("utf-8")
-    return f"data:{mime_type};base64,{encoded}"
-
-
-COLOR_BGR_MAP = {
-    "红色": np.array([51, 51, 217], dtype=np.uint8),
-    "绿色": np.array([64, 191, 64], dtype=np.uint8),
-    "蓝色": np.array([217, 89, 51], dtype=np.uint8),
-    "黄色": np.array([51, 204, 242], dtype=np.uint8),
-    "紫色": np.array([204, 76, 166], dtype=np.uint8),
-}
-
-
-def normalize_grasp_angle(angle):
-    while angle > np.pi / 2:
-        angle -= np.pi
-    while angle < -np.pi / 2:
-        angle += np.pi
-    return angle
-
-
-def analyze_colored_object_contour(image_path, target_color):
-    if not image_path or not os.path.exists(image_path):
-        return None
-
-    image = cv2.imread(image_path)
-    if image is None:
-        return None
-
-    target_bgr = COLOR_BGR_MAP.get(target_color)
-    if target_bgr is None:
-        return None
-
-    color_diff = np.linalg.norm(image.astype(np.int16) - target_bgr.reshape(1, 1, 3).astype(np.int16), axis=2)
-    mask = (color_diff < 95).astype(np.uint8) * 255
-    kernel = np.ones((5, 5), np.uint8)
-    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel, iterations=2)
-    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel, iterations=1)
-
-    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    if not contours:
-        return None
-
-    contour = max(contours, key=cv2.contourArea)
-    area = cv2.contourArea(contour)
-    if area < 80:
-        return None
-
-    x, y, w, h = cv2.boundingRect(contour)
-    rect_area = max(w * h, 1)
-    fill_ratio = area / rect_area
-    peri = cv2.arcLength(contour, True)
-    approx = cv2.approxPolyDP(contour, 0.04 * peri, True)
-
-    return {
-        "fill_ratio": fill_ratio,
-        "vertices": len(approx),
-        "bbox": (x, y, w, h),
-        "area": area,
-    }
-
-
-def infer_triangle_grasp_angle_from_side_views(image_dir, target_color, base_angle):
-    candidate_direct = normalize_grasp_angle(base_angle)
-    candidate_perpendicular = normalize_grasp_angle(base_angle + np.pi / 2)
-
-    analyses = []
-    for name in ["camera_rgb_left.png", "camera_rgb_right.png"]:
-        info = analyze_colored_object_contour(os.path.join(image_dir, name), target_color)
-        if info:
-            analyses.append((name, info))
-
-    if not analyses:
-        return candidate_perpendicular, "侧视图未识别到目标颜色，回退为夹取平整侧面的默认方向"
-
-    triangle_like_detected = any(
-        info["fill_ratio"] < 0.72 or info["vertices"] <= 4
-        for _, info in analyses
-    )
-
-    if triangle_like_detected:
-        reason = "侧视轮廓更接近三角面，采用垂直于三角面法向的夹取方向"
-        return candidate_perpendicular, reason
-
-    reason = "侧视轮廓更接近平整矩形侧面，保持当前方向抓取"
-    return candidate_direct, reason
-
-
-def ask_bailian_for_stacking_order(cubes_info, image_paths=None):
-    """
-    询问阿里云百炼 / Qwen-VL 模型最优的堆叠顺序
-    cubes_info: 物块信息列表，每个元素至少包含 {index, color}
-    返回: 抓取顺序的索引列表
-    """
-    cube_labels = []
-    for i, cube in enumerate(cubes_info):
-        color = cube.get('color', f'物块{i+1}')
-        cube_labels.append(f"物块{i+1}={color}")
-    
-    cube_count = len(cubes_info)
-    cube_indices_text = ", ".join([f"物块{i+1}" for i in range(cube_count)])
-    json_example = '{"order": [' + ", ".join([f"物块编号{i+1}" for i in range(cube_count)]) + ']}'
-
-    prompt = f"""你是一个机器人抓取规划专家。现在有{cube_count}个物块需要被抓取并堆叠在一起。
-
-物块编号与颜色对应关系:
-{", ".join(cube_labels)}
-
-我会提供三张场景截图，分别来自俯视相机和两个侧视相机。请你只根据这三张图片中各个物块的外观、形状、相对大小和顶部/底部特征，判断怎样堆叠最稳、最高。
-
-【重要规则】：
-1. 你只能根据三张图片进行判断，不要使用额外假设
-2. 你需要重点判断哪个物块更适合放在底层，哪个物块更适合放在上层
-3. 底部更宽、更稳、顶部更平整、承托能力更强的物块更适合放在下层
-4. 顶部尖、顶部斜、顶部不平整的物块不适合承托其他物体，应尽量放在上层
-5. 第一个抓取的物块会放在最下面，最后一个抓取的物块会放在最上面
-6. 返回顺序时，必须严格使用给定的物块编号，不要创造新的编号
-
-请直接返回一个JSON格式的抓取顺序，格式如下：
-{json_example}
-
-其中物块编号是指 {cube_indices_text}，请只返回JSON，不要有其他内容。"""
-
-    user_content = [{"type": "text", "text": prompt}]
-    for image_path in image_paths or []:
-        image_data_url = encode_image_to_data_url(image_path)
-        if image_data_url:
-            user_content.append({
-                "type": "image_url",
-                "image_url": {"url": image_data_url}
-            })
-
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {BAILIAN_API_KEY}"
-    }
-    
-    data = {
-        "model": "qwen-vl-max-latest",
-        "messages": [
-            {"role": "system", "content": "你是一个机器人抓取规划专家，请结合图像直接返回JSON格式的结果。"},
-            {"role": "user", "content": user_content}
-        ],
-        "temperature": 0.1,
-        "max_tokens": 160
-    }
-    
-    try:
-        response = requests.post(BAILIAN_API_URL, headers=headers, json=data, timeout=30)
-        response.raise_for_status()
-        result = response.json()
-        content = result["choices"][0]["message"]["content"]
-        
-        print("\n" + "="*50)
-        print("【阿里云百炼 / Qwen-VL 原始返回内容】")
-        print(content)
-        print("="*50)
-        
-        json_match = content
-        if "```json" in content:
-            json_match = content.split("```json")[1].split("```")[0]
-        elif "```" in content:
-            json_match = content.split("```")[1].split("```")[0]
-        
-        print(f"提取的JSON字符串: {json_match.strip()}")
-        
-        order_result = json.loads(json_match.strip())
-        order = order_result["order"]
-        
-        print(f"解析出的order字段: {order}")
-        
-        order_indices = []
-        for item in order:
-            if isinstance(item, int):
-                order_indices.append(item - 1)
-            elif isinstance(item, str):
-                num = int(''.join(filter(str.isdigit, item)))
-                order_indices.append(num - 1)
-        
-        order_indices = enforce_stacking_constraints(order_indices, cubes_info)
-        print(f"解析后的抓取顺序索引: {order_indices}")
-        
-        print("\n" + "="*50)
-        print("【阿里云百炼 / Qwen-VL 生成的抓取顺序】")
-        for i, idx in enumerate(order_indices):
-            if idx < len(cubes_info):
-                cube = cubes_info[idx]
-                color = cube.get('color', f'物块{idx+1}')
-                shape = cube.get('shape')
-                volume = cube.get('volume')
-
-                details = [color]
-                if shape:
-                    details.append(shape)
-                if volume is not None:
-                    details.append(f"体积={volume:.8f}m^3")
-
-                print(f"  第{i+1}个抓取: 物块{idx+1} ({', '.join(details)})")
-        print("="*50 + "\n")
-        
-        return order_indices
-        
-    except Exception as e:
-        print(f"调用阿里云百炼 / Qwen-VL API失败: {e}")
-        print("使用默认排序（按体积从大到小）")
-        default_order = sorted(
-            range(len(cubes_info)),
-            key=lambda i: (cubes_info[i].get('top_only', False), -cubes_info[i].get('volume', 0.0))
-        )
-        return enforce_stacking_constraints(default_order, cubes_info)
-
-
-def ask_bailian_for_stack_success(image_paths=None, expected_count=None):
-    count_text = f"{expected_count}个物块" if expected_count is not None else "这些物块"
-    prompt = f"""你是一个机器人堆叠结果验收助手。
-
-我会提供当前堆叠完成后的场景图片，请你判断 {count_text} 是否已经成功堆叠。
-
-判定标准：
-1. 主要关注目标物块是否形成了明显的竖向堆叠，而不是散落在桌面
-2. 如果大部分物块已经叠在一起且整体稳定，没有明显倒塌，判定为成功
-3. 如果物块散落、明显滑落、倒塌，或者没有形成堆叠，判定为失败
-4. 只根据图片判断，不要补充额外假设
-
-请只返回 JSON，格式如下：
-{{"success": true, "reason": "一句简短中文说明"}}
-"""
-
-    user_content = [{"type": "text", "text": prompt}]
-    for image_path in image_paths or []:
-        image_data_url = encode_image_to_data_url(image_path)
-        if image_data_url:
-            user_content.append({
-                "type": "image_url",
-                "image_url": {"url": image_data_url}
-            })
-
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {BAILIAN_API_KEY}"
-    }
-
-    data = {
-        "model": "qwen-vl-max-latest",
-        "messages": [
-            {"role": "system", "content": "你是一个机器人堆叠结果验收助手，请直接返回JSON格式结果。"},
-            {"role": "user", "content": user_content}
-        ],
-        "temperature": 0.1,
-        "max_tokens": 120
-    }
-
-    try:
-        response = requests.post(BAILIAN_API_URL, headers=headers, json=data, timeout=30)
-        response.raise_for_status()
-        result = response.json()
-        content = result["choices"][0]["message"]["content"]
-
-        print("\n" + "=" * 50)
-        print("【阿里云百炼 / Qwen-VL 堆叠验收原始返回】")
-        print(content)
-        print("=" * 50)
-
-        json_match = content
-        if "```json" in content:
-            json_match = content.split("```json")[1].split("```")[0]
-        elif "```" in content:
-            json_match = content.split("```")[1].split("```")[0]
-
-        verdict = json.loads(json_match.strip())
-        success = bool(verdict.get("success", False))
-        reason = verdict.get("reason", "未提供原因")
-        return success, reason
-    except Exception as e:
-        print(f"调用阿里云百炼 / Qwen-VL 堆叠验收失败: {e}")
-        return False, f"模型验收失败: {e}"
-
-
-def clamp_value(value, lower, upper):
-    return max(lower, min(upper, value))
-
-
-def parse_object_index(value, object_count):
-    if isinstance(value, int):
-        idx = value - 1
-    elif isinstance(value, str):
-        digits = ''.join(ch for ch in value if ch.isdigit())
-        if not digits:
-            return None
-        idx = int(digits) - 1
-    else:
-        return None
-
-    if 0 <= idx < object_count:
-        return idx
-    return None
-
-
-def ask_bailian_for_pick_place_actions(cubes_info, image_paths=None, stack_target=None, structure_mode='single_column'):
-    """
-    让大模型直接输出结构化抓取/放置动作。
-    返回原始动作列表；后续仍需做本地安全裁剪。
-    """
-    stack_target = stack_target or {"x": 0.5, "y": 0.0, "z": 0.0}
-    structure_mode = structure_mode or 'single_column'
-    object_lines = []
-    for cube in cubes_info:
-        grasp_pose = cube.get("default_grasp_pose", {})
-        object_lines.append(
-            f"物块{cube['index'] + 1}: "
-            f"颜色={cube.get('color', '未知')}, "
-            f"形状={cube.get('shape', '未知')}, "
-            f"位置=({cube['position'][0]:.3f}, {cube['position'][1]:.3f}), "
-            f"底面=({cube.get('footprint_x', 0.0):.4f}m x {cube.get('footprint_y', 0.0):.4f}m), "
-            f"底面积={cube.get('footprint_area', 0.0):.6f}m^2, "
-            f"高度={cube.get('height', 0.0):.4f}m, "
-            f"细长比={cube.get('slenderness_ratio', 0.0):.3f}, "
-            f"默认抓取候选=(x={grasp_pose.get('x', 0.0):.3f}, y={grasp_pose.get('y', 0.0):.3f}, "
-            f"z={grasp_pose.get('z', 0.0):.3f}, yaw={grasp_pose.get('yaw', 0.0):.3f}, "
-            f"width={grasp_pose.get('width', 0.05):.3f})"
-        )
-
-    structure_rules = {
-        'single_column': '这是常规单柱堆叠任务。优先围绕同一个堆叠中心逐层竖直堆叠。',
-        'long_bar_pair': '这是实验五。只有两个细长长方体需要并排放置：它们可以作为最底层并排支撑，应被规划到同一 layer_index，并且 slot 必须分别为 left 和 right，朝向保持平行。其余普通物块保持 center 的单柱堆叠即可。',
-        'triangle_pair_top': '这是实验六。只有两个三角体需要并排放置：它们应被规划到最高层的同一 layer_index，并且 slot 必须分别为 left 和 right，朝向保持平行。其余普通物块保持 center 的单柱堆叠即可。',
-    }
-    json_example = """{
-  "actions": [
-    {
-      "target_object": "物块1",
-      "grasp_pose": {"x": 0.10, "y": -0.02, "z": 0.03, "yaw": 0.0, "width": 0.05},
-      "layer_index": 0,
-      "slot": "center",
-      "place_pose": {"x": 0.50, "y": 0.00, "z": 0.00},
-      "reason": "适合做底层"
-    }
-  ]
-}"""
-
-    prompt = f"""你是一个机械臂抓取与堆叠规划专家。
-
-现在有 {len(cubes_info)} 个物块，你需要直接给出“抓谁、怎么抓、放到哪里”的动作计划。
-
-场景中物块信息如下：
-{os.linesep.join(object_lines)}
-
-我还会给你三张场景图：俯视图、左侧视图、右侧视图。
-
-堆叠目标点建议为：
-place_pose = (x={stack_target['x']:.3f}, y={stack_target['y']:.3f}, z={stack_target['z']:.3f})
-
-任务结构要求：
-{structure_rules.get(structure_mode, structure_rules['single_column'])}
-
-规则：
-1. 每个物块只能出现一次。
-2. 第一个 action 放在最底层，最后一个 action 放在最上层。
-3. 请优先使用我提供的默认抓取候选，只在必要时做小幅调整。
-4. 你输出的 grasp_pose 必须是机械臂可以执行的单次抓取位姿。
-5. 你必须为每个 action 输出 layer_index 和 slot。
-6. slot 只能是 center、left、right 之一。
-7. 当同一层需要并排放两个物块时，必须使用相同的 layer_index，并把两个 slot 分别写成 left 和 right。
-8. left/right 的物块要围绕同一个堆叠中心左右对称，且朝向保持平行。
-9. 只能使用给定的物块编号，不要创造新编号。
-
-请只返回 JSON，不要添加其他解释。格式如下：
-{json_example}
-"""
-
-    user_content = [{"type": "text", "text": prompt}]
-    for image_path in image_paths or []:
-        image_data_url = encode_image_to_data_url(image_path)
-        if image_data_url:
-            user_content.append({
-                "type": "image_url",
-                "image_url": {"url": image_data_url}
-            })
-
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {BAILIAN_API_KEY}"
-    }
-
-    data = {
-        "model": "qwen-vl-max-latest",
-        "messages": [
-            {"role": "system", "content": "你是机器人抓取规划专家，请直接返回结构化 JSON 动作计划。"},
-            {"role": "user", "content": user_content}
-        ],
-        "temperature": 0.1,
-        "max_tokens": 600
-    }
-
-    try:
-        response = requests.post(BAILIAN_API_URL, headers=headers, json=data, timeout=30)
-        response.raise_for_status()
-        result = response.json()
-        content = result["choices"][0]["message"]["content"]
-
-        print("\n" + "=" * 50)
-        print("【阿里云百炼 / Qwen-VL 动作计划原始返回】")
-        print(content)
-        print("=" * 50)
-
-        json_match = content
-        if "```json" in content:
-            json_match = content.split("```json")[1].split("```")[0]
-        elif "```" in content:
-            json_match = content.split("```")[1].split("```")[0]
-
-        plan = json.loads(json_match.strip())
-        actions = plan.get("actions", [])
-        if not isinstance(actions, list):
-            raise ValueError("actions 字段不是列表")
-        return actions
-    except Exception as e:
-        print(f"调用阿里云百炼 / Qwen-VL 动作规划失败: {e}")
-        return None
-
-def enforce_stacking_constraints(order_indices, cubes_info):
-    valid_indices = [idx for idx in order_indices if 0 <= idx < len(cubes_info)]
-    missing_indices = [i for i in range(len(cubes_info)) if i not in valid_indices]
-    merged_order = valid_indices + missing_indices
-
-    top_only_indices = [
-        idx for idx in merged_order
-        if cubes_info[idx].get('top_only', False) or cubes_info[idx].get('is_triangle', False)
-    ]
-    normal_indices = [
-        idx for idx in merged_order
-        if not (cubes_info[idx].get('top_only', False) or cubes_info[idx].get('is_triangle', False))
-    ]
-
-    normal_indices.sort(key=lambda idx: cubes_info[idx].get('volume', 0.0), reverse=True)
-    top_only_indices.sort(key=lambda idx: cubes_info[idx].get('volume', 0.0), reverse=True)
-
-    return normal_indices + top_only_indices
-
-
-def push_triangle_objects_to_end(order_indices, urdf_filenames):
-    normal_indices = []
-    triangle_indices = []
-
-    for idx in order_indices:
-        filename = os.path.basename(urdf_filenames[idx]) if 0 <= idx < len(urdf_filenames) else ""
-        if filename.startswith('cone_top'):
-            triangle_indices.append(idx)
-        else:
-            normal_indices.append(idx)
-
-    return normal_indices + triangle_indices
-
-def get_positions(path, object_ids=None):
-    """
-    从 PyBullet 原始 segmentation mask 中提取每个真实物块的抓取候选。
-    返回值为 {物块索引: (x, y, z, angle, width)}。
-    """
-    mask_file = os.path.join(path, 'camera_mask.mat')
-    if not os.path.exists(mask_file) or not object_ids:
-        return {}
-
-    mask_data = scio.loadmat(mask_file).get('A')
-    if mask_data is None:
-        return {}
-
-    raw_mask = np.asarray(mask_data, dtype=np.int64)
-    height, width = raw_mask.shape[:2]
-    scale_x = 0.4 / (width / 2)
-    scale_y = scale_x
-    object_uid_mask = np.bitwise_and(raw_mask, (1 << 24) - 1)
-
-    positions = {}
-    debug_mask = np.zeros((height, width), dtype=np.uint8)
-    kernel = np.ones((3, 3), np.uint8)
-    min_area = 80
-    max_area = height * width * 0.12
-
-    for obj_index, obj_id in enumerate(object_ids):
-        binary = ((raw_mask == obj_id) | (object_uid_mask == obj_id)).astype(np.uint8) * 255
-        binary = cv2.morphologyEx(binary, cv2.MORPH_OPEN, kernel, iterations=1)
-        binary = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kernel, iterations=2)
-        contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        if not contours:
-            print(f"Mask 未检测到物块{obj_index + 1}，等待重新渲染。")
-            continue
-
-        contour = max(contours, key=cv2.contourArea)
-        area = cv2.contourArea(contour)
-        if area < min_area or area > max_area:
-            print(f"Mask 过滤物块{obj_index + 1}: 轮廓面积异常 area={area:.1f}")
-            continue
-
-        rect = cv2.minAreaRect(contour)
-        (x_img, y_img), (w_px, h_px), angle_deg = rect
-        if w_px <= 1 or h_px <= 1:
-            print(f"Mask 过滤物块{obj_index + 1}: 外接矩形异常 w={w_px:.1f}, h={h_px:.1f}")
-            continue
-
-        x_sim = (x_img - width / 2) * scale_x
-        y_sim = (height / 2 - y_img) * scale_y
-        grasp_width = np.clip(max(w_px, h_px) * scale_x, 0.03, GRASP_WIDTH)
-        grasp_angle = np.deg2rad(angle_deg)
-        if w_px < h_px:
-            grasp_angle += np.pi / 2
-        grasp_angle = normalize_grasp_angle(grasp_angle)
-
-        positions[obj_index] = (x_sim, y_sim, 0.02, grasp_angle, grasp_width)
-        debug_mask[binary > 0] = min(255, 40 + obj_index * 40)
-
-    cv2.imwrite(os.path.join(path, 'camera_mask_objects.png'), debug_mask)
-    return positions
-
-def run():
-    AUTO_RUN = True
-    AUTO_PLACE_CHAR = '7'
-    AUTO_CAPTURE_DELAY_STEPS = 240
-    TRIAL_TIMEOUT_STEPS = 30000
-    GRASP_ACTION_TIMEOUT_STEPS = 2200
-    PLACE_ACTION_TIMEOUT_STEPS = 6000
-    RESULTS_MARKDOWN_PATH = 'experiment_results.md'
-    SPECIAL_RESULTS_MARKDOWN_PATH = 'special_experiment_results.md'
-    SCREENSHOT_DIR = '1'
-    SPECIAL_SCREENSHOT_DIR = '2'
-    FINAL_RENDER_DIR = 'img/img_urdf'
-    TRIALS_PER_GROUP = 10
-    SPECIAL_TRIALS_PER_GROUP = 5
-    RESUME_FROM_GROUP_INDEX = 4
-    RESUME_FROM_TRIAL_INDEX = 0
-    RESTART_FROM_RESUME_GROUP = True
-    PAIR_SLOT_OFFSET = 0.032
-    LONG_BAR_PAIR_SLOT_OFFSET = 0.022
-    LONG_BAR_SECOND_PLACE_HOLD_WIDTH = 0.006
-    STANDARD_EXPERIMENT_GROUPS = [
-        {'name': '第一组：5个正方体', 'shapes': ['cube'] * 5, 'trials': TRIALS_PER_GROUP, 'report_kind': 'standard'},
-        {'name': '第二组：5个圆柱体', 'shapes': ['cylinder'] * 5, 'trials': TRIALS_PER_GROUP, 'report_kind': 'standard'},
-        {'name': '第三组：3个正方体 + 2个圆柱体', 'shapes': ['cube', 'cube', 'cube', 'cylinder', 'cylinder'], 'trials': TRIALS_PER_GROUP, 'report_kind': 'standard'},
-        {'name': '第四组：2个正方体 + 2个圆柱体 + 1个三角体', 'shapes': ['cube', 'cube', 'cylinder', 'cylinder', 'cone_top'], 'trials': TRIALS_PER_GROUP, 'report_kind': 'standard'},
-    ]
-    SPECIAL_EXPERIMENT_GROUPS = [
-        {
-            'name': '第五组：3个正方体 + 2个细长长方体',
-            'shapes': ['cube', 'cube', 'cube', 'cuboid_bar', 'cuboid_bar'],
-            'trials': SPECIAL_TRIALS_PER_GROUP,
-            'report_kind': 'special',
-            'structure_mode': 'long_bar_pair',
-        },
-        {
-            'name': '第六组：3个正方体 + 2个三角体',
-            'shapes': ['cube', 'cube', 'cube', 'cone_top', 'cone_top'],
-            'trials': SPECIAL_TRIALS_PER_GROUP,
-            'report_kind': 'special',
-            'structure_mode': 'triangle_pair_top',
-        },
-    ]
-    ALL_EXPERIMENT_GROUPS = []
-    standard_result_index = 0
-    special_result_index = 0
-    for group_no, base_group in enumerate(STANDARD_EXPERIMENT_GROUPS + SPECIAL_EXPERIMENT_GROUPS, start=1):
-        group = dict(base_group)
-        group['group_no'] = group_no
-        if group['report_kind'] == 'special':
-            group['result_index'] = special_result_index
-            special_result_index += 1
-        else:
-            group['result_index'] = standard_result_index
-            standard_result_index += 1
-        base_group['group_no'] = group['group_no']
-        base_group['result_index'] = group['result_index']
-        ALL_EXPERIMENT_GROUPS.append(group)
-
-    database_path = ['cube', 'cylinder', 'cone_top', 'cuboid_bar']
-
-    p.connect(p.GUI)
+GRASP_MIN_WORLD_Z = 0.018
+GRASP_MIN_BOTTOM_CLEARANCE = 0.010
+
+def run(config_path=None, control_state=None):
+    project_config = load_project_config(config_path)
+    STANDARD_EXPERIMENT_GROUPS, SPECIAL_EXPERIMENT_GROUPS, ALL_EXPERIMENT_GROUPS = build_experiment_groups(project_config)
+    database_path = get_database_path(project_config)
+    auto_run = bool(get_runtime_setting(project_config, "auto_run"))
+    auto_place_char = str(get_runtime_setting(project_config, "auto_place_char"))
+    auto_capture_delay_steps = int(get_runtime_setting(project_config, "auto_capture_delay_steps"))
+    trial_timeout_steps = int(get_runtime_setting(project_config, "trial_timeout_steps"))
+    grasp_action_timeout_steps = int(get_runtime_setting(project_config, "grasp_action_timeout_steps"))
+    place_action_timeout_steps = int(get_runtime_setting(project_config, "place_action_timeout_steps"))
+    connection_mode_name = str(get_runtime_setting(project_config, "connection_mode")).upper()
+    simulation_sleep_seconds = float(get_runtime_setting(project_config, "simulation_sleep_seconds"))
+    results_markdown_path = get_path_setting(project_config, "results_markdown_path")
+    special_results_markdown_path = get_path_setting(project_config, "special_results_markdown_path")
+    screenshot_dir = get_path_setting(project_config, "screenshot_dir")
+    special_screenshot_dir = get_path_setting(project_config, "special_screenshot_dir")
+    img_path = get_path_setting(project_config, "final_render_dir")
+    resume_from_group_index = int(get_resume_setting(project_config, "resume_from_group_index"))
+    resume_from_trial_index = int(get_resume_setting(project_config, "resume_from_trial_index"))
+    restart_from_resume_group = bool(get_resume_setting(project_config, "restart_from_resume_group"))
+    grasp_gap = float(get_grasp_setting(project_config, "grasp_gap"))
+    grasp_depth = float(get_grasp_setting(project_config, "grasp_depth"))
+    grasp_width = float(get_grasp_setting(project_config, "grasp_width"))
+    scene_settle_linear_vel = float(get_scene_setting(project_config, "settle_linear_vel"))
+    scene_settle_angular_vel = float(get_scene_setting(project_config, "settle_angular_vel"))
+    scene_settle_steps = int(get_scene_setting(project_config, "settle_steps"))
+    base_random_seed = int(get_reproducibility_setting(project_config, "base_random_seed"))
+    trial_seed_stride = int(get_reproducibility_setting(project_config, "trial_seed_stride"))
+    run_root_dir = get_tracking_setting(project_config, "run_root_dir")
+    write_config_snapshot = bool(get_tracking_setting(project_config, "write_config_snapshot"))
+    write_trial_jsonl = bool(get_tracking_setting(project_config, "write_trial_jsonl"))
+    write_run_summary = bool(get_tracking_setting(project_config, "write_run_summary"))
+    planner_config = dict(project_config.get("planner", {}))
+    loaded_config_path = project_config.get("_config_path") or get_default_config_path()
+
+    print(f"当前配置文件：{loaded_config_path}")
+
+    connection_mode = p.DIRECT if connection_mode_name == "DIRECT" else p.GUI
+    p.connect(connection_mode)
     p.setAdditionalSearchPath(pybullet_data.getDataPath())
 
     env = SimEnv(p, database_path)
     panda = panda_sim.PandaSimAuto(p, [0, -0.5, 0])
 
     GRASP_STATE = False
-    grasp_config = {'x': 0, 'y': 0, 'z': 0.05, 'angle': 0, 'width': GRASP_WIDTH}
+    grasp_config = {"x": 0, "y": 0, "z": 0.05, "angle": 0, "width": grasp_width}
     PLACE_STATE = False
     IN_STATE = False
     pressed_char = None
-    auto_capture_pending = AUTO_RUN
-    auto_capture_countdown = AUTO_CAPTURE_DELAY_STEPS
-    img_path = FINAL_RENDER_DIR
-    obj_nums = 5
+    auto_capture_pending = auto_run
+    auto_capture_countdown = auto_capture_delay_steps
 
     ball_positions = []
     grasp_obj_index = 0
@@ -631,187 +108,185 @@ def run():
     current_group_index = 0
     current_trial_index = 0
     batch_finished = False
-    experiment_results = [{'name': group['name'], 'records': []} for group in STANDARD_EXPERIMENT_GROUPS]
-    special_experiment_results = [{'name': group['name'], 'records': []} for group in SPECIAL_EXPERIMENT_GROUPS]
+    experiment_results = [{'name': group.get('display_name', group['name']), 'records': []} for group in STANDARD_EXPERIMENT_GROUPS]
+    special_experiment_results = [{'name': group.get('display_name', group['name']), 'records': []} for group in SPECIAL_EXPERIMENT_GROUPS]
     current_plan_evaluation = None
+    current_trial_seed = None
+    run_started_at = datetime.now().astimezone()
+    run_id = f"run_{run_started_at.strftime('%Y%m%d_%H%M%S_%f')}_seed{base_random_seed}"
+    run_output_dir = os.path.abspath(os.path.join(run_root_dir, run_id))
+    run_config_snapshot_path = os.path.join(run_output_dir, "config_snapshot.json")
+    run_metadata_path = os.path.join(run_output_dir, "run_metadata.json")
+    run_summary_path = os.path.join(run_output_dir, "run_summary.json")
+    trial_jsonl_path = os.path.join(run_output_dir, "trial_records.jsonl")
+    latest_scene_snapshot = None
+    latest_plan_snapshot = None
 
     def queue_auto_capture():
         nonlocal auto_capture_pending, auto_capture_countdown
-        auto_capture_pending = AUTO_RUN
-        auto_capture_countdown = AUTO_CAPTURE_DELAY_STEPS
+        auto_capture_pending = auto_run
+        auto_capture_countdown = auto_capture_delay_steps
+
+    def make_json_safe(value):
+        if isinstance(value, dict):
+            return {str(key): make_json_safe(val) for key, val in value.items()}
+        if isinstance(value, (list, tuple)):
+            return [make_json_safe(item) for item in value]
+        if isinstance(value, np.ndarray):
+            return value.tolist()
+        if isinstance(value, (np.floating, np.integer)):
+            return value.item()
+        return value
+
+    def compute_trial_seed(group_index, trial_index):
+        return int(base_random_seed + group_index * trial_seed_stride + trial_index)
+
+    def set_current_trial_seed(group_index, trial_index):
+        nonlocal current_trial_seed
+        current_trial_seed = compute_trial_seed(group_index, trial_index)
+        random.seed(current_trial_seed)
+        np.random.seed(current_trial_seed)
+        return current_trial_seed
+
+    def summarize_actions_for_log(actions):
+        summary = []
+        for action in actions:
+            grasp_pose = action.get("grasp_pose", {})
+            place_pose = action.get("place_pose", {})
+            summary.append(
+                {
+                    "target_index": int(action.get("target_index", -1)),
+                    "layer_index": int(action.get("layer_index", 0)),
+                    "slot": action.get("slot", "center"),
+                    "reason": action.get("reason", ""),
+                    "grasp_pose": {
+                        "x": float(grasp_pose.get("x", 0.0)),
+                        "y": float(grasp_pose.get("y", 0.0)),
+                        "z": float(grasp_pose.get("z", 0.0)),
+                        "yaw": float(grasp_pose.get("yaw", 0.0)),
+                        "width": float(grasp_pose.get("width", 0.0)),
+                    },
+                    "place_pose": {
+                        "x": float(place_pose.get("x", 0.0)),
+                        "y": float(place_pose.get("y", 0.0)),
+                        "z": float(place_pose.get("z", 0.0)),
+                        "place_hold_width": (
+                            None
+                            if place_pose.get("place_hold_width") is None
+                            else float(place_pose.get("place_hold_width"))
+                        ),
+                    },
+                }
+            )
+        return summary
+
+    def capture_scene_snapshot():
+        snapshot = []
+        for idx, obj_id in enumerate(getattr(env, "urdfs_id", [])):
+            position, orientation = p.getBasePositionAndOrientation(obj_id)
+            linear_velocity, angular_velocity = p.getBaseVelocity(obj_id)
+            snapshot.append(
+                {
+                    "index": idx,
+                    "object_id": int(obj_id),
+                    "filename": env.urdfs_filename[idx] if idx < len(env.urdfs_filename) else "",
+                    "shape": env.urdfs_shapes[idx] if idx < len(env.urdfs_shapes) else "",
+                    "color": env.urdfs_colors[idx] if idx < len(env.urdfs_colors) else "",
+                    "scale": float(env.urdfs_scale[idx]) if idx < len(env.urdfs_scale) else 1.0,
+                    "position": [float(position[0]), float(position[1]), float(position[2])],
+                    "orientation_quat": [float(orientation[0]), float(orientation[1]), float(orientation[2]), float(orientation[3])],
+                    "linear_velocity": [float(linear_velocity[0]), float(linear_velocity[1]), float(linear_velocity[2])],
+                    "angular_velocity": [float(angular_velocity[0]), float(angular_velocity[1]), float(angular_velocity[2])],
+                }
+            )
+        return snapshot
+
+    def write_json_file(path, payload):
+        with open(path, "w", encoding="utf-8") as file_obj:
+            json.dump(make_json_safe(payload), file_obj, ensure_ascii=False, indent=2)
+
+    def append_trial_record(record):
+        if not write_trial_jsonl:
+            return
+        with open(trial_jsonl_path, "a", encoding="utf-8") as file_obj:
+            file_obj.write(json.dumps(make_json_safe(record), ensure_ascii=False) + "\n")
+
+    def write_run_summary_file():
+        if not write_run_summary:
+            return
+        summary_payload = {
+            "run_id": run_id,
+            "config_path": loaded_config_path,
+            "base_random_seed": base_random_seed,
+            "trial_seed_stride": trial_seed_stride,
+            "started_at": run_started_at.isoformat(),
+            "current_group_index": current_group_index,
+            "current_trial_index": current_trial_index,
+            "batch_finished": batch_finished,
+            "standard_results": experiment_results,
+            "special_results": special_experiment_results,
+        }
+        write_json_file(run_summary_path, summary_payload)
+
+    def initialize_run_tracking():
+        os.makedirs(run_output_dir, exist_ok=True)
+        metadata = {
+            "run_id": run_id,
+            "started_at": run_started_at.isoformat(),
+            "config_path": loaded_config_path,
+            "base_random_seed": base_random_seed,
+            "trial_seed_stride": trial_seed_stride,
+            "run_output_dir": run_output_dir,
+        }
+        write_json_file(run_metadata_path, metadata)
+        if write_config_snapshot:
+            write_json_file(run_config_snapshot_path, project_config)
+        if write_trial_jsonl and not os.path.exists(trial_jsonl_path):
+            with open(trial_jsonl_path, "w", encoding="utf-8") as _:
+                pass
+        print(f"实验运行目录：{run_output_dir}")
 
     def ensure_output_paths():
-        os.makedirs(SCREENSHOT_DIR, exist_ok=True)
-        os.makedirs(SPECIAL_SCREENSHOT_DIR, exist_ok=True)
-        os.makedirs(img_path, exist_ok=True)
-
-    def render_group_links(records):
-        if not records:
-            return ['- 暂无截图']
-
-        lines = []
-        for record in records:
-            links = record['links']
-            lines.append(
-                f"- 第{record['trial']}次："
-                f"[顶视图]({links['top']}) / "
-                f"[左视图]({links['left']}) / "
-                f"[右视图]({links['right']})"
-            )
-        return lines
-
-    def get_group_trials(group):
-        return int(group.get('trials', TRIALS_PER_GROUP))
+        report_ensure_output_paths(screenshot_dir, special_screenshot_dir, img_path)
 
     def get_group_result_entry(group):
         if group['report_kind'] == 'special':
             return special_experiment_results[group['result_index']]
         return experiment_results[group['result_index']]
 
-    def get_group_screenshot_dir(group):
-        return SPECIAL_SCREENSHOT_DIR if group['report_kind'] == 'special' else SCREENSHOT_DIR
-
-    def get_group_report_path(group):
-        return SPECIAL_RESULTS_MARKDOWN_PATH if group['report_kind'] == 'special' else RESULTS_MARKDOWN_PATH
-
-    def write_report(markdown_path, group_defs, group_results, title):
-        lines = [
-            f'# {title}',
-            '',
-            f'- 物块总数：{obj_nums}',
-            '',
-        ]
-
-        for group_def, group_result in zip(group_defs, group_results):
-            records = group_result['records']
-            success_count = sum(1 for record in records if record['success'])
-            lines.append(f"## {group_result['name']}")
-            lines.append('')
-            lines.append(f"- 实验次数：{get_group_trials(group_def)}")
-            if records:
-                if group_def['report_kind'] == 'special':
-                    lines.append('| 次数 | 规划判定 | 规划摘要 | 最终验收 | 原因 |')
-                    lines.append('| --- | --- | --- | --- | --- |')
-                    for record in records:
-                        verdict = '成功' if record['success'] else '失败'
-                        planning_success = '符合' if record.get('planning_success') else '不符合'
-                        planning_reason = str(record.get('planning_reason', '')).replace('\n', ' ').strip()
-                        reason = str(record['reason']).replace('\n', ' ').strip()
-                        lines.append(f"| {record['trial']} | {planning_success} | {planning_reason} | {verdict} | {reason} |")
-                else:
-                    lines.append('| 次数 | 大模型判定 | 原因 |')
-                    lines.append('| --- | --- | --- |')
-                    for record in records:
-                        verdict = '成功' if record['success'] else '失败'
-                        reason = str(record['reason']).replace('\n', ' ').strip()
-                        lines.append(f"| {record['trial']} | {verdict} | {reason} |")
-                lines.append('')
-                lines.append(f'成功次数：{success_count}/{len(records)}')
-            else:
-                lines.append('当前组还没有完成的实验结果。')
-            lines.append('')
-            lines.append('截图链接：')
-            lines.extend(render_group_links(records))
-            lines.append('')
-
-        with open(markdown_path, 'w', encoding='utf-8') as markdown_file:
-            markdown_file.write('\n'.join(lines))
-
     def write_markdown_report():
-        write_report(RESULTS_MARKDOWN_PATH, STANDARD_EXPERIMENT_GROUPS, experiment_results, '自动化堆叠实验结果')
+        write_report(results_markdown_path, STANDARD_EXPERIMENT_GROUPS, experiment_results, "自动化堆叠实验结果")
 
     def write_special_markdown_report():
-        write_report(SPECIAL_RESULTS_MARKDOWN_PATH, SPECIAL_EXPERIMENT_GROUPS, special_experiment_results, '非常规结构实验结果')
-
-    def default_trial_links(group, trial_number):
-        screenshot_dir = get_group_screenshot_dir(group)
-        return {
-            'top': f"{screenshot_dir}/group{group['group_no']}_trial{trial_number:02d}_top.png",
-            'left': f"{screenshot_dir}/group{group['group_no']}_trial{trial_number:02d}_left.png",
-            'right': f"{screenshot_dir}/group{group['group_no']}_trial{trial_number:02d}_right.png",
-        }
-
-    def load_existing_report(markdown_path, group_defs, group_results):
-        if not os.path.exists(markdown_path):
-            return
-
-        group_by_name = {group['name']: index for index, group in enumerate(group_defs)}
-        parsed_records = {index: {} for index in range(len(group_defs))}
-        current_group_index_for_parse = None
-
-        with open(markdown_path, 'r', encoding='utf-8') as markdown_file:
-            for raw_line in markdown_file:
-                line = raw_line.strip()
-                if line.startswith('## '):
-                    group_name = line[3:].strip()
-                    current_group_index_for_parse = group_by_name.get(group_name)
-                    continue
-
-                if current_group_index_for_parse is None:
-                    continue
-
-                if line.startswith('|') and not line.startswith('| ---') and '次数' not in line:
-                    cells = [cell.strip() for cell in line.strip('|').split('|')]
-                    if not cells or not cells[0].isdigit():
-                        continue
-                    trial_number = int(cells[0])
-                    record = {
-                        'trial': trial_number,
-                        'success': False,
-                        'reason': '',
-                        'links': default_trial_links(group_defs[current_group_index_for_parse], trial_number),
-                    }
-                    if len(cells) >= 5:
-                        record['planning_success'] = cells[1] == '符合'
-                        record['planning_reason'] = cells[2]
-                        record['success'] = cells[3] == '成功'
-                        record['reason'] = cells[4]
-                    elif len(cells) >= 3:
-                        record['success'] = cells[1] == '成功'
-                        record['reason'] = cells[2]
-                    parsed_records[current_group_index_for_parse][trial_number] = record
-                    continue
-
-                link_match = re.match(
-                    r'- 第(\d+)次：\[顶视图\]\(([^)]+)\) / \[左视图\]\(([^)]+)\) / \[右视图\]\(([^)]+)\)',
-                    line,
-                )
-                if link_match:
-                    trial_number = int(link_match.group(1))
-                    record = parsed_records[current_group_index_for_parse].setdefault(
-                        trial_number,
-                        {
-                            'trial': trial_number,
-                            'success': False,
-                            'reason': '从已有报告恢复，未解析到判定原因',
-                            'links': default_trial_links(group_defs[current_group_index_for_parse], trial_number),
-                        },
-                    )
-                    record['links'] = {
-                        'top': link_match.group(2),
-                        'left': link_match.group(3),
-                        'right': link_match.group(4),
-                    }
-
-        for group_index, records_by_trial in parsed_records.items():
-            group_results[group_index]['records'] = [
-                records_by_trial[trial_number]
-                for trial_number in sorted(records_by_trial)
-                if 1 <= trial_number <= get_group_trials(group_defs[group_index])
-            ]
+        write_report(
+            special_results_markdown_path,
+            SPECIAL_EXPERIMENT_GROUPS,
+            special_experiment_results,
+            "非常规结构实验结果",
+        )
 
     def load_existing_markdown_report():
-        load_existing_report(RESULTS_MARKDOWN_PATH, STANDARD_EXPERIMENT_GROUPS, experiment_results)
+        load_existing_report(
+            results_markdown_path,
+            STANDARD_EXPERIMENT_GROUPS,
+            experiment_results,
+            config=project_config,
+        )
 
     def load_existing_special_report():
-        load_existing_report(SPECIAL_RESULTS_MARKDOWN_PATH, SPECIAL_EXPERIMENT_GROUPS, special_experiment_results)
+        load_existing_report(
+            special_results_markdown_path,
+            SPECIAL_EXPERIMENT_GROUPS,
+            special_experiment_results,
+            config=project_config,
+        )
 
     def prepare_resume_state():
         nonlocal current_group_index, current_trial_index, batch_finished
 
-        resume_group_index = max(0, min(RESUME_FROM_GROUP_INDEX, len(ALL_EXPERIMENT_GROUPS) - 1))
-        resume_trial_index = max(0, min(RESUME_FROM_TRIAL_INDEX, get_group_trials(ALL_EXPERIMENT_GROUPS[resume_group_index]) - 1))
-        if RESTART_FROM_RESUME_GROUP:
+        resume_group_index = max(0, min(resume_from_group_index, len(ALL_EXPERIMENT_GROUPS) - 1))
+        resume_trial_index = max(0, min(resume_from_trial_index, get_group_trials(ALL_EXPERIMENT_GROUPS[resume_group_index]) - 1))
+        if restart_from_resume_group:
             resume_group = ALL_EXPERIMENT_GROUPS[resume_group_index]
             get_group_result_entry(resume_group)['records'] = [
                 record
@@ -824,7 +299,7 @@ def run():
             current_trial_index = resume_trial_index
             print(
                 f"已保留前面记录，并保留当前组前 {resume_trial_index} 次记录，将从 "
-                f"{ALL_EXPERIMENT_GROUPS[current_group_index]['name']} 第 {current_trial_index + 1} 次重新开始。"
+                f"{ALL_EXPERIMENT_GROUPS[current_group_index].get('display_name', ALL_EXPERIMENT_GROUPS[current_group_index]['name'])} 第 {current_trial_index + 1} 次重新开始。"
             )
             return
 
@@ -836,7 +311,7 @@ def run():
                     current_group_index = group_index
                     current_trial_index = trial_index
                     print(
-                        f"已加载已有记录，将从 {ALL_EXPERIMENT_GROUPS[current_group_index]['name']} "
+                        f"已加载已有记录，将从 {ALL_EXPERIMENT_GROUPS[current_group_index].get('display_name', ALL_EXPERIMENT_GROUPS[current_group_index]['name'])} "
                         f"第 {current_trial_index + 1} 次继续。"
                     )
                     return
@@ -845,26 +320,14 @@ def run():
         print('所有实验记录已经全部完成。')
 
     def copy_trial_screenshots(group, trial_number):
-        screenshot_dir = get_group_screenshot_dir(group)
-        screenshot_targets = {
-            'top': ('camera_rgb.png', f"group{group['group_no']}_trial{trial_number:02d}_top.png"),
-            'left': ('camera_rgb_left.png', f"group{group['group_no']}_trial{trial_number:02d}_left.png"),
-            'right': ('camera_rgb_right.png', f"group{group['group_no']}_trial{trial_number:02d}_right.png"),
-        }
-        copied_links = {}
-        for view_name, (source_name, target_name) in screenshot_targets.items():
-            source_path = os.path.join(img_path, source_name)
-            target_path = os.path.join(screenshot_dir, target_name)
-            if os.path.exists(source_path):
-                shutil.copy2(source_path, target_path)
-            copied_links[view_name] = os.path.join(screenshot_dir, target_name).replace('\\', '/')
-        return copied_links
+        return report_copy_trial_screenshots(group, trial_number, img_path, config=project_config)
 
     def reset_robot_and_runtime():
         nonlocal GRASP_STATE, PLACE_STATE, IN_STATE, pressed_char
         nonlocal ball_positions, grasp_obj_index, grasp_order_indices, planned_actions
         nonlocal stack_evaluation_done, auto_scene_settle_counter, trial_step_counter
         nonlocal grasp_action_step_counter, place_action_step_counter, current_plan_evaluation
+        nonlocal latest_scene_snapshot, latest_plan_snapshot
 
         panda.reset_to_initial_pose(settle_steps=40)
         GRASP_STATE = False
@@ -877,10 +340,12 @@ def run():
         planned_actions = []
         stack_evaluation_done = False
         current_plan_evaluation = None
+        latest_plan_snapshot = None
         auto_scene_settle_counter = 0
         trial_step_counter = 0
         grasp_action_step_counter = 0
         place_action_step_counter = 0
+        latest_scene_snapshot = None
         queue_auto_capture()
 
     def clear_world_before_trial():
@@ -892,17 +357,24 @@ def run():
         panda.reset_to_initial_pose(settle_steps=20)
 
     def start_current_trial():
+        nonlocal latest_scene_snapshot
         group = ALL_EXPERIMENT_GROUPS[current_group_index]
+        group_obj_count = get_group_object_count(group)
+        seed = set_current_trial_seed(current_group_index, current_trial_index)
         print('\n' + '=' * 60)
-        print(f"开始实验：{group['name']}，第 {current_trial_index + 1}/{get_group_trials(group)} 次")
+        print(f"开始实验：{group.get('display_name', group['name'])}，第 {current_trial_index + 1}/{get_group_trials(group)} 次")
         print(f"物块组合：{group['shapes']}")
+        print(f"尺寸模式：{group.get('category_name', '未分类')} / {group.get('size_mode', 'random')}")
+        print(f"本次实验随机种子：{seed}")
         print('=' * 60)
         clear_world_before_trial()
-        env.loadObjsInURDF(0, obj_nums, shape_sequence=group['shapes'])
+        env.loadObjsInURDF(0, group_obj_count, shape_sequence=group['shapes'], scale_mode=group.get('size_mode', 'random'))
         reset_robot_and_runtime()
+        latest_scene_snapshot = capture_scene_snapshot()
 
     def build_default_grasp_pose(obj_idx, detected_pos):
         detected_x, detected_y, detected_z, detected_angle, detected_width = detected_pos
+        current_group = ALL_EXPERIMENT_GROUPS[current_group_index]
         pose = {
             'x': float(detected_x),
             'y': float(detected_y),
@@ -934,231 +406,39 @@ def run():
         target_filename = os.path.basename(env.urdfs_filename[obj_idx]) if obj_idx < len(env.urdfs_filename) else ''
         if target_filename.startswith('cube'):
             cube_edge = size_z
-            pose['width'] = float(np.clip(cube_edge + 2 * GRASP_GAP, 0.025, GRASP_WIDTH))
+            pose["width"] = float(np.clip(cube_edge + 2 * grasp_gap, 0.025, grasp_width))
             pose['z'] = float(aabb_min[2] + 0.38 * size_z)
         elif target_filename.startswith('cuboid_bar'):
             grasp_span = max(size_x, size_y)
-            pose['width'] = float(np.clip(grasp_span + 2 * GRASP_GAP, 0.022, 0.055))
+            pose["width"] = float(np.clip(grasp_span + 2 * grasp_gap, 0.022, 0.055))
             pose['z'] = float(aabb_min[2] + 0.45 * size_z)
         elif target_filename.startswith('cylinder'):
             cylinder_diameter = max(size_x, size_y)
-            pose['width'] = float(np.clip(cylinder_diameter + 0.025, 0.045, GRASP_WIDTH))
+            pose["width"] = float(np.clip(cylinder_diameter + 0.025, 0.045, grasp_width))
             pose['z'] = float(aabb_min[2] + 0.42 * size_z)
             pose['yaw'] = 0.0
         elif target_filename.startswith('cone_top'):
             flat_face_span = min(size_x, size_y)
-            pose['width'] = float(np.clip(flat_face_span + 2 * GRASP_GAP, 0.02, GRASP_WIDTH))
+            pose["width"] = float(np.clip(flat_face_span + 2 * grasp_gap, 0.02, grasp_width))
             target_color = env.urdfs_colors[obj_idx] if obj_idx < len(env.urdfs_colors) else None
             adjusted_angle, _ = infer_triangle_grasp_angle_from_side_views(img_path, target_color, pose['yaw'])
-            pose['yaw'] = float(adjusted_angle)
-        return pose
+            fallback_angle = normalize_grasp_angle(float(adjusted_angle) + np.pi / 2)
+            if (
+                current_group.get("size_mode") == "fixed"
+                and current_group.get("template_id") == "standard_4"
+            ):
+                pose['yaw'] = float(fallback_angle)
+                pose['_triangle_backup_yaw'] = float(adjusted_angle)
+            else:
+                pose['yaw'] = float(adjusted_angle)
+                pose['_triangle_backup_yaw'] = float(fallback_angle)
 
-    def build_place_pose(stack_target_xy, layer_index, slot, structure_mode='single_column'):
-        place_x = float(stack_target_xy[0])
-        place_y = float(stack_target_xy[1])
-        slot_offset = LONG_BAR_PAIR_SLOT_OFFSET if structure_mode == 'long_bar_pair' else PAIR_SLOT_OFFSET
-        if slot == 'left':
-            place_x -= slot_offset
-        elif slot == 'right':
-            place_x += slot_offset
-        return {
-            'x': place_x,
-            'y': place_y,
-            'z': float(max(0, layer_index) * 0.04),
-            'layer_index': int(layer_index),
-            'slot': slot,
-        }
-
-    def sort_actions_for_execution(actions):
-        slot_order = {'center': 0, 'left': 1, 'right': 2}
-        return sorted(
-            actions,
-            key=lambda action: (
-                int(action.get('layer_index', 0)),
-                slot_order.get(action.get('slot', 'center'), 9),
-                action['target_index'],
-            ),
+        min_pose_z = max(
+            float(aabb_min[2] + grasp_depth + GRASP_MIN_BOTTOM_CLEARANCE),
+            float(GRASP_MIN_WORLD_Z + grasp_depth),
         )
-
-    def build_single_column_action_plan(cubes_info, stack_target_xy=(0.5, 0.0)):
-        ordered_indices = enforce_stacking_constraints(list(range(len(cubes_info))), cubes_info)
-        actions = []
-        for order_rank, obj_idx in enumerate(ordered_indices):
-            default_grasp_pose = cubes_info[obj_idx]['default_grasp_pose']
-            actions.append({
-                'target_index': obj_idx,
-                'grasp_pose': dict(default_grasp_pose),
-                'layer_index': order_rank,
-                'slot': 'center',
-                'place_pose': build_place_pose(stack_target_xy, order_rank, 'center', structure_mode='single_column'),
-                'reason': '默认规则规划：按稳定性与形状约束单柱堆叠',
-            })
-        return actions
-
-    def build_special_pair_action_plan(cubes_info, stack_target_xy=(0.5, 0.0), structure_mode='single_column'):
-        if structure_mode == 'long_bar_pair':
-            pair_indices = [cube['index'] for cube in cubes_info if cube.get('is_long_bar')]
-            pair_reason = '默认模板：两个细长长方体放在同一层左右并排更稳'
-        else:
-            pair_indices = [cube['index'] for cube in cubes_info if cube.get('is_triangle')]
-            pair_reason = '默认模板：两个三角体放在最高层左右并排'
-        normal_indices = [
-            cube['index']
-            for cube in sorted(cubes_info, key=lambda item: item.get('volume', 0.0), reverse=True)
-            if cube['index'] not in pair_indices
-        ]
-        if len(normal_indices) < 3 or len(pair_indices) != 2:
-            return build_single_column_action_plan(cubes_info, stack_target_xy=stack_target_xy)
-
-        if structure_mode == 'long_bar_pair':
-            layout = [
-                (pair_indices[0], 0, 'left', '默认模板：细长长方体作为最底层左侧支撑'),
-                (pair_indices[1], 0, 'right', '默认模板：细长长方体作为最底层右侧支撑'),
-                (normal_indices[0], 1, 'center', '默认普通物块：第二层中心单柱堆叠'),
-                (normal_indices[1], 2, 'center', '默认普通物块：第三层中心单柱堆叠'),
-                (normal_indices[2], 3, 'center', '默认普通物块：第四层中心单柱堆叠'),
-            ]
-        else:
-            pair_layer_index = min(3, len(normal_indices))
-            layout = [
-                (normal_indices[0], 0, 'center', '默认普通物块：底层中心单柱堆叠'),
-                (normal_indices[1], 1, 'center', '默认普通物块：中层中心单柱堆叠'),
-                (normal_indices[2], 2, 'center', '默认普通物块：上层中心单柱堆叠'),
-                (pair_indices[0], pair_layer_index, 'left', pair_reason),
-                (pair_indices[1], pair_layer_index, 'right', pair_reason),
-            ]
-        actions = []
-        for obj_idx, layer_index, slot, reason in layout:
-            place_pose = build_place_pose(stack_target_xy, layer_index, slot, structure_mode=structure_mode)
-            if structure_mode == 'long_bar_pair' and slot == 'right':
-                place_pose['place_hold_width'] = LONG_BAR_SECOND_PLACE_HOLD_WIDTH
-            actions.append({
-                'target_index': obj_idx,
-                'grasp_pose': dict(cubes_info[obj_idx]['default_grasp_pose']),
-                'layer_index': layer_index,
-                'slot': slot,
-                'place_pose': place_pose,
-                'reason': reason,
-            })
-        return sort_actions_for_execution(actions)
-
-    def build_default_action_plan(cubes_info, detected_positions, stack_target_xy=(0.5, 0.0), structure_mode='single_column'):
-        if structure_mode in {'long_bar_pair', 'triangle_pair_top'}:
-            return build_special_pair_action_plan(cubes_info, stack_target_xy=stack_target_xy, structure_mode=structure_mode)
-        return build_single_column_action_plan(cubes_info, stack_target_xy=stack_target_xy)
-
-    def evaluate_structure_plan(actions, cubes_info, structure_mode='single_column'):
-        if structure_mode == 'single_column':
-            return True, '常规单柱实验'
-
-        if structure_mode == 'long_bar_pair':
-            pair_actions = [action for action in actions if cubes_info[action['target_index']].get('is_long_bar')]
-            target_name = '细长长方体'
-        else:
-            pair_actions = [action for action in actions if cubes_info[action['target_index']].get('is_triangle')]
-            target_name = '三角体'
-
-        if len(pair_actions) != 2:
-            return False, f'未能识别出 2 个{target_name}动作'
-
-        pair_layers = {int(action.get('layer_index', -1)) for action in pair_actions}
-        pair_slots = {action.get('slot', '') for action in pair_actions}
-        yaw_values = [float(action['grasp_pose'].get('yaw', 0.0)) for action in pair_actions]
-        yaw_delta = abs(normalize_grasp_angle(yaw_values[0] - yaw_values[1]))
-        if len(pair_layers) != 1:
-            return False, f'{target_name}没有被规划到同一层'
-        if pair_slots != {'left', 'right'}:
-            return False, f'{target_name}没有形成 left/right 成对布局'
-        if yaw_delta > 0.35:
-            return False, f'{target_name}抓取朝向不够平行（差值 {yaw_delta:.3f} rad）'
-        if structure_mode == 'triangle_pair_top':
-            highest_layer = max(int(action.get('layer_index', 0)) for action in actions)
-            if next(iter(pair_layers)) != highest_layer:
-                return False, '两个三角体没有被规划到最高层'
-        return True, f'{target_name}满足同层并排规划要求'
-
-    def sanitize_action_plan(raw_actions, default_actions, object_count, stack_target_xy=(0.5, 0.0), structure_mode='single_column'):
-        if not raw_actions:
-            return list(default_actions)
-
-        def get_float(source, key, fallback):
-            try:
-                return float(source.get(key, fallback))
-            except (TypeError, ValueError, AttributeError):
-                return float(fallback)
-
-        default_by_index = {action['target_index']: action for action in default_actions}
-        valid_slots = {'center', 'left', 'right'}
-        planned = []
-        used_indices = set()
-
-        for raw_action in raw_actions:
-            if not isinstance(raw_action, dict):
-                continue
-            obj_idx = parse_object_index(raw_action.get('target_object'), object_count)
-            if obj_idx is None or obj_idx in used_indices or obj_idx not in default_by_index:
-                continue
-
-            default_action = default_by_index[obj_idx]
-            default_grasp = default_action['grasp_pose']
-            raw_grasp = raw_action.get('grasp_pose', {}) or {}
-            raw_place = raw_action.get('place_pose', {}) or {}
-            try:
-                layer_index = int(raw_action.get('layer_index', default_action.get('layer_index', 0)))
-            except (TypeError, ValueError):
-                layer_index = int(default_action.get('layer_index', 0))
-            slot = str(raw_action.get('slot', default_action.get('slot', 'center'))).strip().lower()
-            if slot not in valid_slots:
-                slot = default_action.get('slot', 'center')
-
-            grasp_pose = {
-                'x': clamp_value(get_float(raw_grasp, 'x', default_grasp['x']), default_grasp['x'] - 0.05, default_grasp['x'] + 0.05),
-                'y': clamp_value(get_float(raw_grasp, 'y', default_grasp['y']), default_grasp['y'] - 0.05, default_grasp['y'] + 0.05),
-                'z': clamp_value(get_float(raw_grasp, 'z', default_grasp['z']), max(0.0, default_grasp['z'] - 0.02), default_grasp['z'] + 0.03),
-                'yaw': float(normalize_grasp_angle(get_float(raw_grasp, 'yaw', default_grasp['yaw']))),
-                'width': clamp_value(get_float(raw_grasp, 'width', default_grasp['width']), 0.02, GRASP_WIDTH),
-            }
-            place_pose = build_place_pose(stack_target_xy, layer_index, slot, structure_mode=structure_mode)
-            place_pose['z'] = clamp_value(get_float(raw_place, 'z', place_pose['z']), 0.0, 0.25)
-            if 'place_hold_width' in default_action.get('place_pose', {}):
-                place_pose['place_hold_width'] = float(default_action['place_pose']['place_hold_width'])
-
-            planned.append({
-                'target_index': obj_idx,
-                'grasp_pose': grasp_pose,
-                'layer_index': layer_index,
-                'slot': slot,
-                'place_pose': place_pose,
-                'reason': str(raw_action.get('reason', '大模型动作规划')).strip() or '大模型动作规划',
-            })
-            used_indices.add(obj_idx)
-
-        for default_action in default_actions:
-            if default_action['target_index'] not in used_indices:
-                planned.append(default_action)
-
-        if structure_mode in {'long_bar_pair', 'triangle_pair_top'}:
-            allowed_pair_indices = {
-                action['target_index']
-                for action in default_actions
-                if action.get('slot') in {'left', 'right'}
-            }
-            normalized_planned = []
-            for action in planned:
-                if action['target_index'] not in allowed_pair_indices:
-                    default_action = default_by_index[action['target_index']]
-                    action = {
-                        'target_index': action['target_index'],
-                        'grasp_pose': action['grasp_pose'],
-                        'layer_index': default_action['layer_index'],
-                        'slot': default_action['slot'],
-                        'place_pose': dict(default_action['place_pose']),
-                        'reason': action['reason'],
-                    }
-                normalized_planned.append(action)
-            planned = normalized_planned
-
-        return sort_actions_for_execution(planned)
+        pose['z'] = float(max(pose['z'], min_pose_z))
+        return pose
 
     def advance_to_next_trial():
         nonlocal current_group_index, current_trial_index, batch_finished
@@ -1176,20 +456,23 @@ def run():
             return
 
         batch_finished = True
+        print(f"结构化运行记录目录：{run_output_dir}")
+        write_run_summary_file()
         print('\n所有自动化实验均已完成。')
-        print(f"标准实验结果已写入：{os.path.abspath(RESULTS_MARKDOWN_PATH)}")
-        print(f"标准实验截图目录：{os.path.abspath(SCREENSHOT_DIR)}")
-        print(f"非常规实验结果已写入：{os.path.abspath(SPECIAL_RESULTS_MARKDOWN_PATH)}")
-        print(f"非常规实验截图目录：{os.path.abspath(SPECIAL_SCREENSHOT_DIR)}")
+        print(f"标准实验结果已写入：{os.path.abspath(results_markdown_path)}")
+        print(f"标准实验截图目录：{os.path.abspath(screenshot_dir)}")
+        print(f"非常规实验结果已写入：{os.path.abspath(special_results_markdown_path)}")
+        print(f"非常规实验截图目录：{os.path.abspath(special_screenshot_dir)}")
 
     def finalize_current_trial(forced_failure_reason=None):
-        nonlocal stack_evaluation_done, current_plan_evaluation
+        nonlocal stack_evaluation_done, current_plan_evaluation, latest_scene_snapshot, latest_plan_snapshot
 
         if stack_evaluation_done:
             return
 
         stack_evaluation_done = True
         current_group = ALL_EXPERIMENT_GROUPS[current_group_index]
+        group_obj_count = get_group_object_count(current_group)
         env.renderURDFImage(save_path=img_path)
         evaluation_images = [
             os.path.join(img_path, 'camera_rgb.png'),
@@ -1198,7 +481,7 @@ def run():
         ]
         model_success, model_reason = ask_bailian_for_stack_success(
             image_paths=evaluation_images,
-            expected_count=obj_nums
+            expected_count=group_obj_count
         )
         success = model_success if forced_failure_reason is None else False
         reason = model_reason if forced_failure_reason is None else f"{forced_failure_reason}; 大模型判断：{model_reason}"
@@ -1220,12 +503,35 @@ def run():
             record['planning_success'] = bool(plan_evaluation.get('success'))
             record['planning_reason'] = str(plan_evaluation.get('reason', '')).strip()
         get_group_result_entry(current_group)['records'].append(record)
+        append_trial_record(
+            {
+                'run_id': run_id,
+                'group_index': current_group_index,
+                'group_name': current_group.get('display_name', current_group['name']),
+                'category_name': current_group.get('category_name'),
+                'size_mode': current_group.get('size_mode'),
+                'report_kind': current_group['report_kind'],
+                'trial_index': current_trial_index,
+                'trial_number': current_trial_index + 1,
+                'seed': current_trial_seed,
+                'shapes': list(current_group.get('shapes', [])),
+                'structure_mode': current_group.get('structure_mode', 'single_column'),
+                'success': bool(success),
+                'reason': reason,
+                'planning_success': bool(plan_evaluation.get('success')),
+                'planning_reason': str(plan_evaluation.get('reason', '')).strip(),
+                'links': links,
+                'scene_snapshot': latest_scene_snapshot,
+                'plan_snapshot': latest_plan_snapshot,
+            }
+        )
         write_markdown_report()
         write_special_markdown_report()
+        write_run_summary_file()
 
         print('\n' + '=' * 50)
         print('【堆叠验收结果】')
-        print(f"实验组别: {current_group['name']}")
+        print(f"实验组别: {current_group.get('display_name', current_group['name'])}")
         print(f"实验次数: 第 {current_trial_index + 1} 次")
         if current_group['report_kind'] == 'special':
             print(f"规划判定: {'符合' if plan_evaluation.get('success') else '不符合'}")
@@ -1234,6 +540,7 @@ def run():
         print(f"原因: {reason}")
         print('=' * 50 + '\n')
         current_plan_evaluation = None
+        latest_plan_snapshot = None
 
         advance_to_next_trial()
 
@@ -1243,18 +550,18 @@ def run():
 
         for obj_id in env.urdfs_id:
             linear_vel, angular_vel = p.getBaseVelocity(obj_id)
-            if np.linalg.norm(linear_vel) > SCENE_SETTLE_LINEAR_VEL:
+            if np.linalg.norm(linear_vel) > scene_settle_linear_vel:
                 return False
-            if np.linalg.norm(angular_vel) > SCENE_SETTLE_ANGULAR_VEL:
+            if np.linalg.norm(angular_vel) > scene_settle_angular_vel:
                 return False
         return True
 
     def plan_scene():
         nonlocal ball_positions, grasp_order_indices, grasp_obj_index, planned_actions, stack_evaluation_done
-        nonlocal current_plan_evaluation
+        nonlocal current_plan_evaluation, latest_scene_snapshot, latest_plan_snapshot
 
         env.renderURDFImage(save_path=img_path)
-        detected_positions = get_positions(img_path, env.urdfs_id)
+        detected_positions = get_positions(img_path, env.urdfs_id, max_grasp_width=grasp_width)
         print(f"Mask 检测到的物块数量: {len(detected_positions)}/{len(env.urdfs_id)}")
 
         ball_positions = []
@@ -1263,6 +570,8 @@ def run():
         grasp_obj_index = 0
         stack_evaluation_done = False
         current_plan_evaluation = None
+        latest_plan_snapshot = None
+        latest_scene_snapshot = capture_scene_snapshot()
         if len(detected_positions) != len(env.urdfs_id):
             missing = [i + 1 for i in range(len(env.urdfs_id)) if i not in detected_positions]
             print(f"Mask 未检测到全部物块，缺失物块编号: {missing}，等待重新渲染。")
@@ -1368,19 +677,22 @@ def run():
             detected_positions,
             stack_target_xy=stack_target_xy,
             structure_mode=structure_mode,
+            planner_config=planner_config,
         )
         raw_actions = ask_bailian_for_pick_place_actions(
             cubes_info,
             image_paths=scene_image_paths,
             stack_target={'x': stack_target_xy[0], 'y': stack_target_xy[1], 'z': 0.0},
             structure_mode=structure_mode,
-        )
+        ) or []
         candidate_actions = sanitize_action_plan(
             raw_actions,
             default_actions,
             len(cubes_info),
             stack_target_xy=stack_target_xy,
             structure_mode=structure_mode,
+            planner_config=planner_config,
+            max_grasp_width=grasp_width,
         )
         planning_success, planning_reason = evaluate_structure_plan(candidate_actions, cubes_info, structure_mode=structure_mode)
         if structure_mode != 'single_column' and not raw_actions:
@@ -1391,6 +703,18 @@ def run():
             'reason': planning_reason,
         }
         planned_actions = candidate_actions if planning_success or structure_mode == 'single_column' else list(default_actions)
+        latest_plan_snapshot = {
+            'structure_mode': structure_mode,
+            'stack_target_xy': [float(stack_target_xy[0]), float(stack_target_xy[1])],
+            'planning_success': bool(planning_success),
+            'planning_reason': planning_reason,
+            'raw_action_count': len(raw_actions),
+            'default_actions': summarize_actions_for_log(default_actions),
+            'candidate_actions': summarize_actions_for_log(candidate_actions),
+            'final_actions': summarize_actions_for_log(planned_actions),
+            'cubes_info': make_json_safe(cubes_info),
+            'detected_positions': make_json_safe(detected_positions),
+        }
         grasp_order_indices = [action['target_index'] for action in planned_actions]
         ball_positions = [
             (
@@ -1465,7 +789,7 @@ def run():
         panda.reset()
         GRASP_STATE = False
         grasp_action_step_counter = 0
-        if AUTO_RUN:
+        if auto_run:
             ball_positions = []
             grasp_order_indices = []
             planned_actions = []
@@ -1481,27 +805,51 @@ def run():
             p.stepSimulation()
         PLACE_STATE = False
         place_action_step_counter = 0
-        if AUTO_RUN:
+        if auto_run:
             finalize_current_trial(forced_failure_reason=reason)
 
     ensure_output_paths()
+    initialize_run_tracking()
     load_existing_markdown_report()
     load_existing_special_report()
     prepare_resume_state()
     write_markdown_report()
     write_special_markdown_report()
+    write_run_summary_file()
     if not batch_finished:
         start_current_trial()
 
-    if AUTO_RUN:
+    if auto_run:
         print('Auto run enabled: experiment scheduler is active.')
 
     while True:
         if batch_finished:
             break
 
+        if control_state is not None:
+            reset_requested, requested_group_index, requested_trial_index = control_state.consume_reset_request()
+            if reset_requested:
+                if requested_group_index is not None and 0 <= requested_group_index < len(ALL_EXPERIMENT_GROUPS):
+                    current_group_index = requested_group_index
+                    max_trials = get_group_trials(ALL_EXPERIMENT_GROUPS[current_group_index])
+                    requested_trial_index = 0 if requested_trial_index is None else requested_trial_index
+                    current_trial_index = max(0, min(requested_trial_index, max_trials - 1))
+                    batch_finished = False
+                    print(
+                        f"收到控制面板重置请求，切换到 "
+                        f"{ALL_EXPERIMENT_GROUPS[current_group_index].get('display_name', ALL_EXPERIMENT_GROUPS[current_group_index]['name'])} 第 {current_trial_index + 1} 次。"
+                    )
+                else:
+                    print("收到控制面板重置请求，正在重置当前实验。")
+                start_current_trial()
+                continue
+            if control_state.is_paused():
+                time.sleep(0.1)
+                continue
+
         p.stepSimulation()
-        time.sleep(1. / 250.)
+        if simulation_sleep_seconds > 0:
+            time.sleep(simulation_sleep_seconds)
         trial_step_counter += 1
 
         keys = p.getKeyboardEvents()
@@ -1511,28 +859,29 @@ def run():
         else:
             auto_scene_settle_counter = 0
 
-        if AUTO_RUN and auto_capture_pending and not GRASP_STATE and not PLACE_STATE and not IN_STATE:
+        if auto_run and auto_capture_pending and not GRASP_STATE and not PLACE_STATE and not IN_STATE:
             auto_capture_countdown -= 1
-            if auto_capture_countdown <= 0 and auto_scene_settle_counter >= SCENE_SETTLE_STEPS:
+            if auto_capture_countdown <= 0 and auto_scene_settle_counter >= scene_settle_steps:
                 if plan_scene():
                     auto_capture_pending = False
                     auto_scene_settle_counter = 0
                 else:
-                    auto_capture_countdown = AUTO_CAPTURE_DELAY_STEPS
+                    auto_capture_countdown = auto_capture_delay_steps
 
-        if not AUTO_RUN and ord('1') in keys and keys[ord('1')] & p.KEY_WAS_TRIGGERED:
+        if not auto_run and ord('1') in keys and keys[ord('1')] & p.KEY_WAS_TRIGGERED:
             plan_scene()
 
-        if AUTO_RUN and not auto_capture_pending and not GRASP_STATE and not PLACE_STATE and not IN_STATE:
-            if planned_actions and grasp_obj_index < len(planned_actions) and auto_scene_settle_counter >= SCENE_SETTLE_STEPS:
+        if auto_run and not auto_capture_pending and not GRASP_STATE and not PLACE_STATE and not IN_STATE:
+            if planned_actions and grasp_obj_index < len(planned_actions) and auto_scene_settle_counter >= scene_settle_steps:
                 begin_next_grasp()
                 auto_scene_settle_counter = 0
 
-        if not AUTO_RUN and ord('2') in keys and keys[ord('2')] & p.KEY_WAS_TRIGGERED:
+        if not auto_run and ord('2') in keys and keys[ord('2')] & p.KEY_WAS_TRIGGERED:
             begin_next_grasp()
 
         if GRASP_STATE:
-            target_position = [grasp_config['x'], grasp_config['y'], grasp_config['z'] - GRASP_DEPTH]
+            target_z = max(float(grasp_config["z"] - grasp_depth), GRASP_MIN_WORLD_Z)
+            target_position = [grasp_config["x"], grasp_config["y"], target_z]
             current_held_obj_id = None
             if grasp_obj_index < len(grasp_order_indices):
                 current_obj_idx = grasp_order_indices[grasp_obj_index]
@@ -1542,9 +891,33 @@ def run():
             if panda.grasp_step(target_position, grasp_config['angle'], grasp_config['width'], current_held_obj_id):
                 GRASP_STATE = False
                 if panda.held_object_id is None:
+                    current_action = planned_actions[grasp_obj_index] if grasp_obj_index < len(planned_actions) else None
+                    current_obj_idx = grasp_order_indices[grasp_obj_index] if grasp_obj_index < len(grasp_order_indices) else None
+                    source_filename = ""
+                    if current_obj_idx is not None and current_obj_idx < len(env.urdfs_filename):
+                        source_filename = os.path.basename(env.urdfs_filename[current_obj_idx])
+                    if (
+                        current_action is not None
+                        and source_filename.startswith("cone_top")
+                        and not current_action.get("_triangle_retry_used", False)
+                    ):
+                        current_action["_triangle_retry_used"] = True
+                        backup_yaw = current_action["grasp_pose"].get("_triangle_backup_yaw")
+                        if backup_yaw is None:
+                            backup_yaw = normalize_grasp_angle(
+                                float(current_action["grasp_pose"].get("yaw", 0.0)) + np.pi / 2
+                            )
+                        current_action["grasp_pose"]["yaw"] = float(backup_yaw)
+                        panda.reset()
+                        print("三角体首次抓取失败，切换备用抓取方向后重试当前物块。")
+                        if auto_run:
+                            auto_scene_settle_counter = scene_settle_steps
+                        else:
+                            begin_next_grasp()
+                        continue
                     panda.reset()
                     print('抓取失败：未抓稳目标物块，重新规划当前场景。')
-                    if AUTO_RUN:
+                    if auto_run:
                         ball_positions = []
                         grasp_order_indices = []
                         auto_scene_settle_counter = 0
@@ -1552,8 +925,8 @@ def run():
                     else:
                         IN_STATE = False
                 else:
-                    if AUTO_RUN:
-                        pressed_char = AUTO_PLACE_CHAR
+                    if auto_run:
+                        pressed_char = auto_place_char
                         panda.set_place_target_override(planned_actions[grasp_obj_index]['place_pose'])
                         panda.start_place()
                         place_action_step_counter = 0
@@ -1584,22 +957,22 @@ def run():
                 place_action_step_counter = 0
                 grasp_obj_index += 1
                 print('放置完成。')
-                if AUTO_RUN and grasp_obj_index >= len(grasp_order_indices):
+                if auto_run and grasp_obj_index >= len(grasp_order_indices):
                     print('Auto run finished: all objects processed.')
                 if grasp_obj_index >= len(grasp_order_indices):
                     finalize_current_trial()
 
         if GRASP_STATE:
             grasp_action_step_counter += 1
-            if grasp_action_step_counter > GRASP_ACTION_TIMEOUT_STEPS:
+            if grasp_action_step_counter > grasp_action_timeout_steps:
                 abort_current_grasp('抓取动作超时：已强制释放并重新规划当前场景。')
 
         if PLACE_STATE:
             place_action_step_counter += 1
-            if place_action_step_counter > PLACE_ACTION_TIMEOUT_STEPS:
+            if place_action_step_counter > place_action_timeout_steps:
                 abort_current_place('放置动作超时：已强制松爪，当前小次实验按失败记录并进入下一次。')
 
-        if AUTO_RUN and trial_step_counter > TRIAL_TIMEOUT_STEPS:
+        if auto_run and trial_step_counter > trial_timeout_steps:
             print('当前实验超过时长上限，按失败记录并自动进入下一次。')
             finalize_current_trial(forced_failure_reason='实验超时，未在限定步数内完成堆叠')
 
@@ -1610,4 +983,11 @@ def run():
     p.disconnect()
 
 if __name__ == "__main__":
-    run()
+    parser = argparse.ArgumentParser(description="Panda 抓取堆叠仿真入口")
+    parser.add_argument(
+        "--config",
+        default=get_default_config_path(),
+        help="JSON 配置文件路径",
+    )
+    args = parser.parse_args()
+    run(config_path=args.config)
