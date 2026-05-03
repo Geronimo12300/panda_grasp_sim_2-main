@@ -298,23 +298,39 @@ class SimEnv(object):
             "x_min": -0.08,
             "x_max": 0.20,
             "y_min": -0.10,
-            "y_max": 0.10,
+            "y_max": 0.12,
             "z": 0.022
         }
         if scale_mode == "random":
             spawn_region = {
-                "x_min": 0.02,
+                "x_min": -0.06,
                 "x_max": 0.24,
                 "y_min": -0.08,
-                "y_max": 0.10,
+                "y_max": 0.12,
                 "z": 0.022
             }
         min_spawn_distance = 0.08
 
-        def is_valid_spawn_xy(x, y):
-            if scale_mode == "random":
-                return x >= spawn_region["x_min"]
-            return not (x < 0 and y < 0)
+        def is_valid_spawn_xy(x, y, filename=""):
+            if x < 0 and y < 0:
+                return False
+            if filename.startswith('cube') and (x <= 0 or y <= 0):
+                return False
+            return True
+
+        def sample_spawn_candidate(filename=""):
+            prefer_first_quadrant = random.random() < 0.72
+            if prefer_first_quadrant:
+                return [
+                    random.uniform(max(0.02, spawn_region["x_min"]), spawn_region["x_max"]),
+                    random.uniform(0.01, spawn_region["y_max"]),
+                    spawn_region["z"]
+                ]
+            return [
+                random.uniform(spawn_region["x_min"], spawn_region["x_max"]),
+                random.uniform(spawn_region["y_min"], spawn_region["y_max"]),
+                spawn_region["z"]
+            ]
 
         fixed_scale_palette = [0.75, 0.85, 1.0, 1.15, 1.25]
         shared_shape_scales = {}
@@ -363,13 +379,10 @@ class SimEnv(object):
         placed_positions = []
 
         for i in range(self.num_urdf):
+            filename = os.path.basename(self.urdfs_filename[i]) if i < len(self.urdfs_filename) else ""
             for _ in range(220):
-                candidate_position = [
-                    random.uniform(spawn_region["x_min"], spawn_region["x_max"]),
-                    random.uniform(spawn_region["y_min"], spawn_region["y_max"]),
-                    spawn_region["z"]
-                ]
-                if is_valid_spawn_xy(candidate_position[0], candidate_position[1]) and all(
+                candidate_position = sample_spawn_candidate(filename)
+                if is_valid_spawn_xy(candidate_position[0], candidate_position[1], filename) and all(
                     ((candidate_position[0] - pos[0]) ** 2 + (candidate_position[1] - pos[1]) ** 2) ** 0.5 >= min_spawn_distance
                     for pos in placed_positions
                 ):
@@ -380,19 +393,21 @@ class SimEnv(object):
                     [x, y, spawn_region["z"]]
                     for x in np.linspace(spawn_region["x_min"], spawn_region["x_max"], 4)
                     for y in np.linspace(spawn_region["y_min"], spawn_region["y_max"], 3)
-                    if is_valid_spawn_xy(x, y)
+                    if is_valid_spawn_xy(x, y, filename)
                 ]
                 basePosition = max(
                     grid_candidates,
-                    key=lambda candidate: min(
-                        [((candidate[0] - pos[0]) ** 2 + (candidate[1] - pos[1]) ** 2) ** 0.5 for pos in placed_positions]
-                        or [float("inf")]
+                    key=lambda candidate: (
+                        1 if (candidate[0] >= 0 and candidate[1] >= 0) else 0,
+                        min(
+                            [((candidate[0] - pos[0]) ** 2 + (candidate[1] - pos[1]) ** 2) ** 0.5 for pos in placed_positions]
+                            or [float("inf")]
+                        )
                     )
                 )
 
             yaw = randomized_yaws[i] if i < len(randomized_yaws) else random.uniform(-math.pi, math.pi)
             baseOrientation = self.p.getQuaternionFromEuler([0, 0, yaw])
-            filename = os.path.basename(self.urdfs_filename[i])
 
             if i < len(randomized_scales):
                 scaling_factor = randomized_scales[i]

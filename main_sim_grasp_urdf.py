@@ -41,8 +41,8 @@ from simEnv import SimEnv
 from vision_detection import get_positions, infer_triangle_grasp_angle_from_side_views
 import panda_sim_grasp as panda_sim
 
-GRASP_MIN_WORLD_Z = 0.018
-GRASP_MIN_BOTTOM_CLEARANCE = 0.010
+GRASP_MIN_WORLD_Z = 0.015
+GRASP_MIN_BOTTOM_CLEARANCE = 0.007
 
 def run(config_path=None, control_state=None):
     project_config = load_project_config(config_path)
@@ -265,6 +265,7 @@ def run(config_path=None, control_state=None):
             "非常规结构实验结果",
         )
 
+
     def load_existing_markdown_report():
         load_existing_report(
             results_markdown_path,
@@ -375,6 +376,8 @@ def run(config_path=None, control_state=None):
     def build_default_grasp_pose(obj_idx, detected_pos):
         detected_x, detected_y, detected_z, detected_angle, detected_width = detected_pos
         current_group = ALL_EXPERIMENT_GROUPS[current_group_index]
+        small_cube_edge_threshold = 0.034
+        small_cylinder_diameter_threshold = 0.040
         pose = {
             'x': float(detected_x),
             'y': float(detected_y),
@@ -406,16 +409,24 @@ def run(config_path=None, control_state=None):
         target_filename = os.path.basename(env.urdfs_filename[obj_idx]) if obj_idx < len(env.urdfs_filename) else ''
         if target_filename.startswith('cube'):
             cube_edge = size_z
-            pose["width"] = float(np.clip(cube_edge + 2 * grasp_gap, 0.025, grasp_width))
-            pose['z'] = float(aabb_min[2] + 0.38 * size_z)
+            if cube_edge <= small_cube_edge_threshold:
+                pose["width"] = float(np.clip(cube_edge + 1.2 * grasp_gap, 0.020, 0.034))
+                pose['z'] = float(aabb_min[2] + 0.46 * size_z)
+            else:
+                pose["width"] = float(np.clip(cube_edge + 2 * grasp_gap, 0.025, grasp_width))
+                pose['z'] = float(aabb_min[2] + 0.38 * size_z)
         elif target_filename.startswith('cuboid_bar'):
             grasp_span = max(size_x, size_y)
             pose["width"] = float(np.clip(grasp_span + 2 * grasp_gap, 0.022, 0.055))
             pose['z'] = float(aabb_min[2] + 0.45 * size_z)
         elif target_filename.startswith('cylinder'):
             cylinder_diameter = max(size_x, size_y)
-            pose["width"] = float(np.clip(cylinder_diameter + 0.025, 0.045, grasp_width))
-            pose['z'] = float(aabb_min[2] + 0.42 * size_z)
+            if cylinder_diameter <= small_cylinder_diameter_threshold:
+                pose["width"] = float(np.clip(cylinder_diameter + 0.012, 0.028, 0.038))
+                pose['z'] = float(aabb_min[2] + 0.48 * size_z)
+            else:
+                pose["width"] = float(np.clip(cylinder_diameter + 0.025, 0.045, grasp_width))
+                pose['z'] = float(aabb_min[2] + 0.42 * size_z)
             pose['yaw'] = 0.0
         elif target_filename.startswith('cone_top'):
             flat_face_span = min(size_x, size_y)
@@ -665,7 +676,11 @@ def run(config_path=None, control_state=None):
             return False
 
         current_group = ALL_EXPERIMENT_GROUPS[current_group_index]
-        structure_mode = current_group.get('structure_mode', 'single_column')
+        structure_mode = (
+            current_group.get('structure_mode', 'single_column')
+            if current_group.get('report_kind') == 'special'
+            else 'single_column'
+        )
         stack_target_xy = (0.5, 0.0)
         scene_image_paths = [
             os.path.join(img_path, 'camera_rgb.png'),
@@ -679,6 +694,11 @@ def run(config_path=None, control_state=None):
             structure_mode=structure_mode,
             planner_config=planner_config,
         )
+        forced_default_slot_indices = set()
+        if structure_mode == 'single_column':
+            triangle_indices = [cube['index'] for cube in cubes_info if cube.get('is_triangle')]
+            if len(triangle_indices) == 1:
+                forced_default_slot_indices.add(triangle_indices[0])
         raw_actions = ask_bailian_for_pick_place_actions(
             cubes_info,
             image_paths=scene_image_paths,
@@ -693,6 +713,7 @@ def run(config_path=None, control_state=None):
             structure_mode=structure_mode,
             planner_config=planner_config,
             max_grasp_width=grasp_width,
+            forced_default_slot_indices=forced_default_slot_indices,
         )
         planning_success, planning_reason = evaluate_structure_plan(candidate_actions, cubes_info, structure_mode=structure_mode)
         if structure_mode != 'single_column' and not raw_actions:
@@ -927,7 +948,13 @@ def run(config_path=None, control_state=None):
                 else:
                     if auto_run:
                         pressed_char = auto_place_char
-                        panda.set_place_target_override(planned_actions[grasp_obj_index]['place_pose'])
+                        current_group = ALL_EXPERIMENT_GROUPS[current_group_index]
+                        place_pose = dict(planned_actions[grasp_obj_index]['place_pose'])
+                        if current_group.get('report_kind') != 'special':
+                            place_pose.setdefault('approach_clearance', 0.06)
+                            place_pose.setdefault('retreat_lift_delta', 0.05)
+                            place_pose.setdefault('retreat_height', 0.0)
+                        panda.set_place_target_override(place_pose)
                         panda.start_place()
                         place_action_step_counter = 0
                         PLACE_STATE = True

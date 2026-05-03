@@ -2,6 +2,9 @@ import copy
 import json
 import os
 
+
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+
 AUTO_RUN = True
 AUTO_PLACE_CHAR = "7"
 AUTO_CAPTURE_DELAY_STEPS = 240
@@ -168,6 +171,14 @@ def _deep_update(base, updates):
     return base
 
 
+def _resolve_project_path(path_value):
+    if not path_value:
+        return path_value
+    if os.path.isabs(path_value):
+        return path_value
+    return os.path.abspath(os.path.join(PROJECT_ROOT, path_value))
+
+
 def load_project_config(config_path=None):
     config = copy.deepcopy(DEFAULT_CONFIG)
     if config_path:
@@ -177,11 +188,22 @@ def load_project_config(config_path=None):
         config["_config_path"] = os.path.abspath(config_path)
     else:
         config["_config_path"] = None
+
+    for key in (
+        "results_markdown_path",
+        "special_results_markdown_path",
+        "screenshot_dir",
+        "special_screenshot_dir",
+        "final_render_dir",
+    ):
+        config["paths"][key] = _resolve_project_path(config["paths"][key])
+
+    config["tracking"]["run_root_dir"] = _resolve_project_path(config["tracking"]["run_root_dir"])
     return config
 
 
 def get_default_config_path(root_dir=None):
-    base_dir = root_dir or os.path.dirname(os.path.abspath(__file__))
+    base_dir = root_dir or PROJECT_ROOT
     return os.path.join(base_dir, "config", "default.json")
 
 

@@ -1,4 +1,4 @@
-import numpy as np
+﻿import numpy as np
 import math
 import pybullet as p
 
@@ -35,6 +35,10 @@ GRIPPER_RESET_FORCE = 120
 ARM_MOTOR_FORCE = 4 * 240.0
 ARM_MAX_VELOCITY = 0.8
 ARM_CARRY_MAX_VELOCITY = 0.55
+ARM_GRASP_APPROACH_MAX_VELOCITY = 0.50
+ARM_GRASP_DESCEND_MAX_VELOCITY = 0.15
+ARM_SMALL_GRASP_APPROACH_MAX_VELOCITY = 0.42
+ARM_SMALL_GRASP_DESCEND_MAX_VELOCITY = 0.12
 ARM_DESCEND_MAX_VELOCITY = 0.38
 DETERMINISTIC_OBJECT_TRANSPORT = False
 FREEZE_PLACED_OBJECTS = False
@@ -42,8 +46,9 @@ EE_XY_TOLERANCE = 0.003
 EE_Z_TOLERANCE = 0.005
 PLACE_XY_TOLERANCE = 0.008
 PLACE_Z_TOLERANCE = 0.012
-PLACE_OBJECT_XY_TOLERANCE = 0.012
-PLACE_GRIPPER_OBJECT_MAX_OFFSET = 0.12
+PLACE_OBJECT_XY_TOLERANCE = 0.008
+PLACE_GRIPPER_OBJECT_MAX_OFFSET = 0.08
+PLACE_OFFSET_COMPENSATION_LIMIT = 0.045
 PLACE_REGRIP_XY_OFFSET = 0.018
 PLACE_SUPPORT_XY_MARGIN = 0.026
 GRASP_CENTER_OBJECT_ON_ATTACH = True
@@ -59,6 +64,10 @@ GRASP_CONSTRAINT_FORCE = 520
 GRASP_ATTACH_DELAY = 0.12
 GRASP_CONTACT_TIMEOUT = 0.45
 GRASP_RETRY_LOWERING = 0.006
+SMALL_OBJECT_GRASP_WIDTH_THRESHOLD = 0.038
+SMALL_OBJECT_GRASP_RETRY_LOWERING = 0.003
+GRASP_CLOSE_MAX_VELOCITY = 0.08
+SMALL_OBJECT_GRASP_CLOSE_MAX_VELOCITY = 0.06
 GRASP_CONTACT_XY_TOLERANCE = 0.025
 GRASP_CONTACT_Z_TOLERANCE = 0.06
 GRASP_POSE_ATTACH_XY_TOLERANCE = 0.04
@@ -72,7 +81,8 @@ PLACE_DESCENT_TIMEOUT = 1.4
 PLACE_RELEASE_TIMEOUT = 1.0
 PLACE_HARD_RELEASE_TIMEOUT = 3.0
 PLACE_SLOW_RELEASE_DURATION = 1.2
-FIRST_PLACE_EXTRA_CLEARANCE = 0.018
+FIRST_PLACE_EXTRA_CLEARANCE = 0.012
+GRIPPER_RELEASE_START_WIDTH = 0.007
 PLACE_OBJECT_MOVE_DURATION = 0.9
 PLACE_DETERMINISTIC_APPROACH_DURATION = 0.35
 PLACE_DETERMINISTIC_DESCENT_DURATION = 0.35
@@ -82,8 +92,10 @@ PLACE_LOOSE_XY_TOLERANCE = 0.045
 SAFE_CARRY_X_MIN = 0.22
 GRIPPER_GRASP_LATERAL_FRICTION = 4.0
 GRIPPER_GRASP_SPINNING_FRICTION = 0.08
-GRIPPER_RELEASE_LATERAL_FRICTION = 1.2
-GRIPPER_RELEASE_SPINNING_FRICTION = 0.015
+GRIPPER_RELEASE_LATERAL_FRICTION = 0.9
+GRIPPER_RELEASE_SPINNING_FRICTION = 0.01
+GRIPPER_RIGHT_RELEASE_LATERAL_FRICTION = 0.45
+GRIPPER_RIGHT_RELEASE_SPINNING_FRICTION = 0.005
 PLACE_TARGETS = {
     "7": [0.5, 0.0, 0.4],
     "8": [0.0, 0.5, 0.4],
@@ -189,13 +201,18 @@ class PandaSim(object):
             return
 
         if mode == "grasp":
-            lateral_friction = GRIPPER_GRASP_LATERAL_FRICTION
-            spinning_friction = GRIPPER_GRASP_SPINNING_FRICTION
+            friction_by_link = {
+                9: (GRIPPER_GRASP_LATERAL_FRICTION, GRIPPER_GRASP_SPINNING_FRICTION),
+                10: (GRIPPER_GRASP_LATERAL_FRICTION, GRIPPER_GRASP_SPINNING_FRICTION),
+            }
         else:
-            lateral_friction = GRIPPER_RELEASE_LATERAL_FRICTION
-            spinning_friction = GRIPPER_RELEASE_SPINNING_FRICTION
+            friction_by_link = {
+                9: (GRIPPER_RELEASE_LATERAL_FRICTION, GRIPPER_RELEASE_SPINNING_FRICTION),
+                10: (GRIPPER_RIGHT_RELEASE_LATERAL_FRICTION, GRIPPER_RIGHT_RELEASE_SPINNING_FRICTION),
+            }
 
         for i in [9, 10]:
+            lateral_friction, spinning_friction = friction_by_link[i]
             self.p.changeDynamics(
                 self.panda,
                 i,
@@ -295,6 +312,10 @@ class PandaSim(object):
             "layer_index": int(place_pose.get("layer_index", 0)),
             "slot": str(place_pose.get("slot", "center")),
             "place_hold_width": float(place_pose.get("place_hold_width", GRIPPER_CLOSED_WIDTH)),
+            "approach_height": float(place_pose.get("approach_height", 0.4)),
+            "approach_clearance": float(place_pose.get("approach_clearance", 0.08)),
+            "retreat_height": float(place_pose.get("retreat_height", 0.4)),
+            "retreat_lift_delta": float(place_pose.get("retreat_lift_delta", 0.0)),
         }
 
     def reset_motion_watchdog(self):
@@ -428,7 +449,7 @@ class PandaSim(object):
         )
 
     def get_held_object_release_height(self, held_object_id, support_top_z):
-        base_clearance = 0.012
+        base_clearance = 0.008
         if support_top_z <= 1e-6:
             base_clearance += FIRST_PLACE_EXTRA_CLEARANCE
         if held_object_id is None:
@@ -443,15 +464,15 @@ class PandaSim(object):
         if visual_shape_data:
             geom_type = visual_shape_data[0][2]
             if geom_type == self.p.GEOM_CYLINDER:
-                extra_clearance = 0.008
+                extra_clearance = 0.005
             elif geom_type == self.p.GEOM_MESH:
                 mesh_name = visual_shape_data[0][4]
                 if isinstance(mesh_name, bytes):
                     mesh_name = mesh_name.decode("utf-8", errors="ignore")
                 if mesh_name and "cone_top" in mesh_name:
-                    extra_clearance = 0.012
+                    extra_clearance = 0.008
 
-        min_release_offset = 0.06
+        min_release_offset = 0.05
         release_offset = max(ee_to_object_bottom, min_release_offset)
         return support_top_z + release_offset + base_clearance + extra_clearance
 
@@ -479,6 +500,10 @@ class PandaSim(object):
         if np.linalg.norm(offset[:2]) > PLACE_GRIPPER_OBJECT_MAX_OFFSET:
             # If the object is this far from the gripper, it is probably lost; do not chase it.
             offset[:2] = 0.0
+        elif np.linalg.norm(offset[:2]) > PLACE_OFFSET_COMPENSATION_LIMIT:
+            xy_norm = np.linalg.norm(offset[:2])
+            if xy_norm > 1e-6:
+                offset[:2] = offset[:2] / xy_norm * PLACE_OFFSET_COMPENSATION_LIMIT
 
         return [
             float(target_xy[0] - offset[0]),
@@ -504,11 +529,11 @@ class PandaSim(object):
         return np.linalg.norm(np.array(obj_pos[:2], dtype=float) - np.array(target_xy, dtype=float)) <= xy_tolerance
 
     def placement_pose_is_ready(self, ee_target, held_object_id, target_xy):
-        return (
-            self.has_reached_position(ee_target, PLACE_XY_TOLERANCE, PLACE_Z_TOLERANCE)
-            and self.held_object_is_near_gripper(held_object_id)
-            and self.held_object_is_over_stack(held_object_id, target_xy)
-        )
+        if not self.has_reached_position(ee_target, PLACE_XY_TOLERANCE, PLACE_Z_TOLERANCE):
+            return False
+        if held_object_id is None:
+            return True
+        return self.held_object_is_near_gripper(held_object_id)
 
     def get_place_hold_width(self):
         requested_width = GRIPPER_PLACE_HOLD_WIDTH
@@ -605,6 +630,9 @@ class PandaSim(object):
                 maxVelocity=max_velocity,
             )
 
+    def is_small_grasp_target(self, gripper_w):
+        return gripper_w <= SMALL_OBJECT_GRASP_WIDTH_THRESHOLD
+
     def grasp_step(self, pos, angle, gripper_w, held_object_id=None):
         self.update_state()
         target_pos = list(pos)
@@ -637,18 +665,8 @@ class PandaSim(object):
                 squeeze_pos[2] -= GRASP_RETRY_LOWERING
             self.setArm(self.calcJointLocation(squeeze_pos, orn))
             self.set_gripper_contact_mode("grasp")
-            self.setGripper(0, force=GRIPPER_GRASP_FORCE)
-            can_attach_by_contact = self.can_attach_grasp_target(held_object_id)
-            can_attach_by_pose = (
-                self.can_attach_grasp_target_by_pose(held_object_id, target_pos)
-                and self.object_is_in_gripper_capture_zone(held_object_id)
-            )
-            can_attach_deterministically = False
-            if self.state_t >= GRASP_ATTACH_DELAY and (can_attach_by_contact or can_attach_by_pose):
-                if can_attach_by_pose and not can_attach_by_contact:
-                    print("夹爪已包住目标物块，使用位姿兜底建立夹持。")
-                if can_attach_deterministically and not (can_attach_by_contact or can_attach_by_pose):
-                    print("启用确定性搬运：不等待接触点，直接挂接目标物块。")
+            self.setGripper(0)
+            if self.state_t >= GRASP_ATTACH_DELAY and self.can_attach_grasp_target(held_object_id):
                 self.attach_held_object(held_object_id)
                 self.advance_state()
             elif self.state_t > self.state_durations[self.cur_state] + GRASP_CONTACT_TIMEOUT:
@@ -657,10 +675,8 @@ class PandaSim(object):
             return False
 
         if self.state == 4:
-            self.recenter_held_object_in_gripper(held_object_id, reason="抓取抬升前检测到偏心")
             lift_pos = [target_pos[0], target_pos[1], target_pos[2] + 0.05]
-            carry_orn = self.p.getQuaternionFromEuler([math.pi, 0.0, math.pi / 2])
-            self.setArm(self.calcJointLocation(lift_pos, carry_orn))
+            self.setArm(self.calcJointLocation(lift_pos, orn))
             self.set_gripper_contact_mode("grasp")
             self.setGripper(GRIPPER_CLOSED_WIDTH, force=GRIPPER_GRASP_FORCE)
             if self.has_reached_position(lift_pos) or self.state_t > self.state_durations[self.cur_state] + 0.8:
@@ -668,10 +684,8 @@ class PandaSim(object):
             return False
 
         if self.state == 5:
-            self.recenter_held_object_in_gripper(held_object_id, reason="抓取搬运前检测到偏心")
-            retreat_pos = [max(target_pos[0], SAFE_CARRY_X_MIN), target_pos[1], 0.4]
-            carry_orn = self.p.getQuaternionFromEuler([math.pi, 0.0, math.pi / 2])
-            self.setArm(self.calcJointLocation(retreat_pos, carry_orn), max_velocity=ARM_CARRY_MAX_VELOCITY)
+            retreat_pos = [target_pos[0], target_pos[1], 0.4]
+            self.setArm(self.calcJointLocation(retreat_pos, orn))
             self.set_gripper_contact_mode("grasp")
             self.setGripper(GRIPPER_CLOSED_WIDTH, force=GRIPPER_GRASP_FORCE)
             if self.has_reached_position(retreat_pos) or self.state_t > self.state_durations[self.cur_state] + 0.8:
@@ -683,7 +697,7 @@ class PandaSim(object):
     def place_step(self, char, held_object_id=None):
         self.update_state()
         if self.state == 7:
-            self.recenter_held_object_in_gripper(held_object_id, reason="放置上方移动前检测到偏心")
+            self.recenter_held_object_in_gripper(held_object_id, reason="鏀剧疆涓婃柟绉诲姩鍓嶆娴嬪埌鍋忓績")
             if char not in PLACE_TARGETS:
                 return False
 
@@ -696,7 +710,21 @@ class PandaSim(object):
             self.place_position = [place_x, place_y, place_z]
             self.place_target_snapshot = [place_x, place_y, place_z]
             target_xy = [self.place_position[0], self.place_position[1]]
-            approach_pos = self.get_object_centered_ee_target(target_xy, pos[2], held_object_id)
+            if held_object_id is not None:
+                support_top_z = self.get_stack_support_top_z(target_xy=target_xy, exclude_object_id=held_object_id)
+                release_height = self.get_held_object_release_height(held_object_id, support_top_z)
+            else:
+                release_height = pos[2] - 0.08
+
+            approach_height = pos[2]
+            if self.place_target_override:
+                configured_approach_height = float(self.place_target_override.get("approach_height", pos[2]))
+                configured_approach_clearance = float(self.place_target_override.get("approach_clearance", 0.08))
+                if "approach_height" in self.place_target_override and abs(configured_approach_height - 0.4) > 1e-6:
+                    approach_height = configured_approach_height
+                else:
+                    approach_height = max(release_height + configured_approach_clearance, 0.18)
+            approach_pos = self.get_object_centered_ee_target(target_xy, approach_height, held_object_id)
             orn = self.p.getQuaternionFromEuler([math.pi, 0.0, math.pi / 2])
             self.setArm(self.calcJointLocation(approach_pos, orn), max_velocity=ARM_CARRY_MAX_VELOCITY)
             self.set_gripper_contact_mode("grasp")
@@ -711,7 +739,7 @@ class PandaSim(object):
             return False
 
         if self.state == 8 and self.place_position:
-            self.recenter_held_object_in_gripper(held_object_id, reason="放置下降前检测到偏心")
+            self.recenter_held_object_in_gripper(held_object_id, reason="鏀剧疆涓嬮檷鍓嶆娴嬪埌鍋忓績")
             support_top_z = self.get_stack_support_top_z(target_xy=self.place_position[:2], exclude_object_id=held_object_id)
             if self.place_target_snapshot is not None:
                 self.stack_center = [self.place_target_snapshot[0], self.place_target_snapshot[1]]
@@ -738,7 +766,7 @@ class PandaSim(object):
             return False
 
         if self.state == 9:
-            self.recenter_held_object_in_gripper(held_object_id, reason="释放前检测到偏心")
+            self.recenter_held_object_in_gripper(held_object_id, reason="閲婃斁鍓嶆娴嬪埌鍋忓績")
             support_top_z = self.get_stack_support_top_z(target_xy=self.place_position[:2], exclude_object_id=held_object_id)
 
             release_height = self.get_held_object_release_height(held_object_id, support_top_z)
@@ -758,7 +786,7 @@ class PandaSim(object):
             return False
 
         if self.state == 10:
-            release_start_width = self.get_place_hold_width()
+            release_start_width = max(self.get_place_hold_width(), GRIPPER_RELEASE_START_WIDTH)
             if not self.release_snapped:
                 self.set_gripper_contact_mode("release")
                 self.setGripper(release_start_width, force=GRIPPER_GRASP_FORCE)
@@ -772,15 +800,9 @@ class PandaSim(object):
                     if not (
                         self.held_object_is_near_gripper(held_object_id)
                         and self.held_object_is_over_stack(held_object_id, target_xy)
-                    ):
-                        self.recenter_held_object_in_gripper(held_object_id, reason="释放检查失败")
-                        if not self.release_wait_warned:
-                            print("释放检查未通过：物块尚未对准堆叠点，退回放置上方重新对位。")
-                            self.release_wait_warned = True
-                        self.state = 7
-                        self.cur_state = 7
-                        self.state_t = 0
-                        return False
+                    ) and not self.release_wait_warned:
+                        print("释放检查未完全通过：直接执行松爪释放，避免夹爪持续抓住物块。")
+                        self.release_wait_warned = True
                     self.p.resetBaseVelocity(held_object_id, [0, 0, 0], [0, 0, 0])
                     self.detach_held_object()
                     print("物理释放：物块中心已对准堆叠点，解除夹爪约束并慢速张开夹爪。")
@@ -789,7 +811,7 @@ class PandaSim(object):
 
             release_elapsed = max(0.0, self.state_t - (self.release_open_start_t or self.state_t))
             self.open_gripper_for_release(slow=True, elapsed=release_elapsed, start_width=release_start_width)
-            _, _, contact_count = self.get_target_contact_summary(held_object_id)
+            left_contact, right_contact, contact_count = self.get_target_contact_summary(held_object_id)
             contacts_released = (
                 contact_count == 0
                 and release_elapsed > PLACE_SLOW_RELEASE_DURATION
@@ -798,12 +820,21 @@ class PandaSim(object):
             if contacts_released or release_timed_out:
                 self.held_object_id = None
                 if release_timed_out and contact_count > 0:
-                    print("夹爪释放后仍检测到接触，继续抬升以脱离物块。")
+                    print("夹爪释放后仍检测到接触，继续等待脱离。")
                 self.advance_state()
             return False
 
         if self.state == 11:
-            retreat_pos = [self.place_position[0], self.place_position[1], 0.4]
+            retreat_height = 0.4
+            if self.place_target_override:
+                configured_retreat_height = float(self.place_target_override.get("retreat_height", 0.4))
+                retreat_lift_delta = float(self.place_target_override.get("retreat_lift_delta", 0.0))
+                if retreat_lift_delta > 0.0:
+                    current_ee = self.get_end_effector_position()
+                    retreat_height = max(float(current_ee[2]) + retreat_lift_delta, 0.18)
+                else:
+                    retreat_height = configured_retreat_height
+            retreat_pos = [self.place_position[0], self.place_position[1], retreat_height]
             orn = self.p.getQuaternionFromEuler([math.pi, 0.0, math.pi / 2])
             self.setArm(self.calcJointLocation(retreat_pos, orn), max_velocity=ARM_CARRY_MAX_VELOCITY)
             self.open_gripper_for_release()

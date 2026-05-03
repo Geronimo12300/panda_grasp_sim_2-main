@@ -245,6 +245,7 @@ def ask_bailian_for_stack_success(image_paths=None, expected_count=None):
 def ask_bailian_for_pick_place_actions(cubes_info, image_paths=None, stack_target=None, structure_mode="single_column"):
     stack_target = stack_target or {"x": 0.5, "y": 0.0, "z": 0.0}
     structure_mode = structure_mode or "single_column"
+    triangle_count = sum(1 for cube in cubes_info if cube.get("is_triangle"))
     object_lines = []
     for cube in cubes_info:
         grasp_pose = cube.get("default_grasp_pose", {})
@@ -267,6 +268,14 @@ def ask_bailian_for_pick_place_actions(cubes_info, image_paths=None, stack_targe
         "long_bar_pair": "这是实验五。场景中只有两个细长长方体和一个正方体。两个细长长方体应放在下层，位于正方体堆叠点的前后两侧，并使用相同的 layer_index；剩下的一个正方体放在上层 center 位置。",
         "triangle_pair_top": "这是实验六。只有两个三角体需要并排放置：它们应被规划到最高层的同一 layer_index，并且 slot 必须分别为 left 和 right，朝向保持平行。其余普通物块保持 center 的单柱堆叠即可。",
     }
+    extra_structure_rule = ""
+    if structure_mode == "single_column" and triangle_count == 1:
+        extra_structure_rule = (
+            "特别注意：当前是常规三角体实验，场景中只有一个三角体。"
+            "这个三角体必须独自固定放在整个堆叠结构的最顶层，"
+            "它的 layer_index 必须是所有物块里最大的，slot 必须写 center，"
+            "不能与任何其他物块同层，也不能放在中间层或底层。"
+        )
     json_example = """{
   "actions": [
     {
@@ -294,6 +303,7 @@ place_pose = (x={stack_target['x']:.3f}, y={stack_target['y']:.3f}, z={stack_tar
 
 任务结构要求：
 {structure_rules.get(structure_mode, structure_rules['single_column'])}
+{extra_structure_rule}
 
 规则：
 1. 每个物块只能出现一次。

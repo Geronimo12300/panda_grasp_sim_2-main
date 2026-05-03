@@ -1,9 +1,8 @@
 # 自动化堆叠实验结果
 
-- 每组实验次数：10
-- 物块总数：5
+- 物块总数：按各实验组配置动态确定
 
-## 第一组：5个正方体
+## 固定尺寸 - 第一组：5个正方体
 
 | 次数 | 大模型判定 | 原因 |
 | --- | --- | --- |
@@ -32,7 +31,7 @@
 - 第9次：[顶视图](1/group1_trial09_top.png) / [左视图](1/group1_trial09_left.png) / [右视图](1/group1_trial09_right.png)
 - 第10次：[顶视图](1/group1_trial10_top.png) / [左视图](1/group1_trial10_left.png) / [右视图](1/group1_trial10_right.png)
 
-## 第二组：5个圆柱体
+## 固定尺寸 - 第二组：5个圆柱体
 
 | 次数 | 大模型判定 | 原因 |
 | --- | --- | --- |
@@ -61,7 +60,7 @@
 - 第9次：[顶视图](1/group2_trial09_top.png) / [左视图](1/group2_trial09_left.png) / [右视图](1/group2_trial09_right.png)
 - 第10次：[顶视图](1/group2_trial10_top.png) / [左视图](1/group2_trial10_left.png) / [右视图](1/group2_trial10_right.png)
 
-## 第三组：3个正方体 + 2个圆柱体
+## 固定尺寸 - 第三组：3个正方体 + 2个圆柱体
 
 | 次数 | 大模型判定 | 原因 |
 | --- | --- | --- |
@@ -90,7 +89,7 @@
 - 第9次：[顶视图](1/group3_trial09_top.png) / [左视图](1/group3_trial09_left.png) / [右视图](1/group3_trial09_right.png)
 - 第10次：[顶视图](1/group3_trial10_top.png) / [左视图](1/group3_trial10_left.png) / [右视图](1/group3_trial10_right.png)
 
-## 第四组：2个正方体 + 2个圆柱体 + 1个三角体
+## 固定尺寸 - 第四组：2个正方体 + 2个圆柱体 + 1个三角体
 
 | 次数 | 大模型判定 | 原因 |
 | --- | --- | --- |
@@ -118,3 +117,39 @@
 - 第8次：[顶视图](1/group4_trial08_top.png) / [左视图](1/group4_trial08_left.png) / [右视图](1/group4_trial08_right.png)
 - 第9次：[顶视图](1/group4_trial09_top.png) / [左视图](1/group4_trial09_left.png) / [右视图](1/group4_trial09_right.png)
 - 第10次：[顶视图](1/group4_trial10_top.png) / [左视图](1/group4_trial10_left.png) / [右视图](1/group4_trial10_right.png)
+
+## 随机尺寸 - 第一组：5个正方体
+
+- 实验次数：10
+当前组还没有完成的实验结果。
+
+截图链接：
+- 暂无截图
+
+## 随机尺寸 - 第二组：5个圆柱体
+
+- 实验次数：10
+当前组还没有完成的实验结果。
+
+截图链接：
+- 暂无截图
+
+## 随机尺寸 - 第三组：3个正方体 + 2个圆柱体
+
+- 实验次数：10
+| 次数 | 大模型判定 | 原因 |
+| --- | --- | --- |
+| 1 | 成功 | 五个物块已形成明显的竖向堆叠，整体稳定 |
+
+成功次数：1/1
+
+截图链接：
+- 第1次：[顶视图](1/group9_trial01_top.png) / [左视图](1/group9_trial01_left.png) / [右视图](1/group9_trial01_right.png)
+
+## 随机尺寸 - 第四组：2个正方体 + 2个圆柱体 + 1个三角体
+
+- 实验次数：10
+当前组还没有完成的实验结果。
+
+截图链接：
+- 暂无截图

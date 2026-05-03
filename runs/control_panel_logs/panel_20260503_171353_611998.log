@@ -1,0 +1,11 @@
+当前配置文件：E:\pycharmprojects\panda_grasp_sim_2-main_v10\runs\control_panel_configs\panel_launch_20260503_171353_609066.json
+Traceback (most recent call last):
+  File "E:\pycharmprojects\panda_grasp_sim_2-main_v10\experiment_control_panel.py", line 190, in _worker_entry
+    run_experiment(config_path=config_path, control_state=self.control_state)
+  File "E:\pycharmprojects\panda_grasp_sim_2-main_v10\main_sim_grasp_urdf.py", line 89, in run
+    panda = panda_sim.PandaSimAuto(p, [0, -0.5, 0])
+  File "E:\pycharmprojects\panda_grasp_sim_2-main_v10\panda_sim_grasp.py", line 920, in __init__
+    PandaSim.__init__(self, bullet_client, offset)
+  File "E:\pycharmprojects\panda_grasp_sim_2-main_v10\panda_sim_grasp.py", line 124, in __init__
+    self.p.changeDynamics(self.panda, i, mass=0.2)
+pybullet.error: Not connected to physics server.

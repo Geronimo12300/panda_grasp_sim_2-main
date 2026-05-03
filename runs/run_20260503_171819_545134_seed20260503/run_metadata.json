@@ -1,0 +1,8 @@
+{
+  "run_id": "run_20260503_171819_545134_seed20260503",
+  "started_at": "2026-05-03T17:18:19.545134+08:00",
+  "config_path": "E:\\pycharmprojects\\panda_grasp_sim_2-main_v10\\runs\\control_panel_configs\\panel_launch_20260503_171818_668105.json",
+  "base_random_seed": 20260503,
+  "trial_seed_stride": 1000,
+  "run_output_dir": "E:\\pycharmprojects\\panda_grasp_sim_2-main_v10\\runs\\run_20260503_171819_545134_seed20260503"
+}

@@ -43,20 +43,26 @@ def enforce_stacking_constraints(order_indices, cubes_info):
     missing_indices = [i for i in range(len(cubes_info)) if i not in valid_indices]
     merged_order = valid_indices + missing_indices
 
+    triangle_indices = [
+        idx
+        for idx in merged_order
+        if cubes_info[idx].get("is_triangle", False)
+    ]
     top_only_indices = [
         idx
         for idx in merged_order
-        if cubes_info[idx].get("top_only", False) or cubes_info[idx].get("is_triangle", False)
+        if cubes_info[idx].get("top_only", False) and idx not in triangle_indices
     ]
     normal_indices = [
         idx
         for idx in merged_order
-        if not (cubes_info[idx].get("top_only", False) or cubes_info[idx].get("is_triangle", False))
+        if idx not in top_only_indices and idx not in triangle_indices
     ]
 
     normal_indices.sort(key=lambda idx: cubes_info[idx].get("volume", 0.0), reverse=True)
     top_only_indices.sort(key=lambda idx: cubes_info[idx].get("volume", 0.0), reverse=True)
-    return normal_indices + top_only_indices
+    triangle_indices.sort(key=lambda idx: cubes_info[idx].get("volume", 0.0), reverse=True)
+    return normal_indices + top_only_indices + triangle_indices
 
 
 def get_planner_config_value(planner_config, key, default):
@@ -269,6 +275,7 @@ def sanitize_action_plan(
     structure_mode="single_column",
     planner_config=None,
     max_grasp_width=GRASP_WIDTH,
+    forced_default_slot_indices=None,
 ):
     if not raw_actions:
         return list(default_actions)
@@ -346,6 +353,21 @@ def sanitize_action_plan(
         normalized_planned = []
         for action in planned:
             if action["target_index"] not in allowed_pair_indices:
+                default_action = default_by_index[action["target_index"]]
+                action = {
+                    "target_index": action["target_index"],
+                    "grasp_pose": action["grasp_pose"],
+                    "layer_index": default_action["layer_index"],
+                    "slot": default_action["slot"],
+                    "place_pose": dict(default_action["place_pose"]),
+                    "reason": action["reason"],
+                }
+            normalized_planned.append(action)
+        planned = normalized_planned
+    elif forced_default_slot_indices:
+        normalized_planned = []
+        for action in planned:
+            if action["target_index"] in forced_default_slot_indices:
                 default_action = default_by_index[action["target_index"]]
                 action = {
                     "target_index": action["target_index"],
