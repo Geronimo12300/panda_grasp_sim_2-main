@@ -1,0 +1,123 @@
+{
+  "run_id": "run_20260504_152931_637921_seed20260503",
+  "config_path": "E:\\pycharmprojects\\panda_grasp_sim_2-main_v10\\runs\\control_panel_configs\\panel_launch_20260504_152930_822309.json",
+  "base_random_seed": 20260503,
+  "trial_seed_stride": 1000,
+  "started_at": "2026-05-04T15:29:31.637921+08:00",
+  "current_group_index": 8,
+  "current_trial_index": 5,
+  "batch_finished": false,
+  "standard_results": [
+    {
+      "name": "固定尺寸 - 第一组：5个正方体",
+      "records": []
+    },
+    {
+      "name": "固定尺寸 - 第二组：5个圆柱体",
+      "records": []
+    },
+    {
+      "name": "固定尺寸 - 第三组：3个正方体 + 2个圆柱体",
+      "records": []
+    },
+    {
+      "name": "固定尺寸 - 第四组：2个正方体 + 2个圆柱体 + 1个三角体",
+      "records": []
+    },
+    {
+      "name": "随机尺寸 - 第一组：5个正方体",
+      "records": []
+    },
+    {
+      "name": "随机尺寸 - 第二组：5个圆柱体",
+      "records": []
+    },
+    {
+      "name": "随机尺寸 - 第三组：3个正方体 + 2个圆柱体",
+      "records": [
+        {
+          "trial": 1,
+          "success": true,
+          "reason": "物块已形成明显的竖向堆叠，整体稳定",
+          "links": {
+            "top": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/1/group9_trial01_top.png",
+            "left": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/1/group9_trial01_left.png",
+            "right": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/1/group9_trial01_right.png"
+          }
+        },
+        {
+          "trial": 2,
+          "success": false,
+          "reason": "放置动作超时：已强制松爪，当前小次实验按失败记录并进入下一次。; 大模型判断：物块散落在桌面，未形成明显堆叠",
+          "links": {
+            "top": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/1/group9_trial02_top.png",
+            "left": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/1/group9_trial02_left.png",
+            "right": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/1/group9_trial02_right.png"
+          }
+        },
+        {
+          "trial": 3,
+          "success": true,
+          "reason": "物块已形成明显的竖向堆叠，整体稳定",
+          "links": {
+            "top": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/1/group9_trial03_top.png",
+            "left": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/1/group9_trial03_left.png",
+            "right": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/1/group9_trial03_right.png"
+          }
+        },
+        {
+          "trial": 4,
+          "success": true,
+          "reason": "五个物块已形成明显的竖向堆叠，整体稳定",
+          "links": {
+            "top": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/1/group9_trial04_top.png",
+            "left": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/1/group9_trial04_left.png",
+            "right": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/1/group9_trial04_right.png"
+          }
+        },
+        {
+          "trial": 5,
+          "success": false,
+          "reason": "放置动作超时：已强制松爪，当前小次实验按失败记录并进入下一次。; 大模型判断：物块散落在桌面不同位置，未形成竖向堆叠结构。",
+          "links": {
+            "top": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/1/group9_trial05_top.png",
+            "left": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/1/group9_trial05_left.png",
+            "right": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/1/group9_trial05_right.png"
+          }
+        },
+        {
+          "trial": 6,
+          "success": false,
+          "reason": "放置动作超时：已强制松爪，当前小次实验按失败记录并进入下一次。; 大模型判断：5个物块未形成竖向堆叠，仅有3个物块叠在一起，另外2个散落在桌面，不满足堆叠要求。",
+          "links": {
+            "top": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/1/group9_trial06_top.png",
+            "left": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/1/group9_trial06_left.png",
+            "right": "E:/pycharmprojects/panda_grasp_sim_2-main_v10/1/group9_trial06_right.png"
+          }
+        }
+      ]
+    },
+    {
+      "name": "随机尺寸 - 第四组：2个正方体 + 2个圆柱体 + 1个三角体",
+      "records": []
+    }
+  ],
+  "special_results": [
+    {
+      "name": "固定尺寸 - 第五组：1个正方体 + 2个细长长方体",
+      "records": []
+    },
+    {
+      "name": "固定尺寸 - 第六组：1个正方体 + 2个三角体",
+      "records": []
+    },
+    {
+      "name": "随机尺寸 - 第五组：1个正方体 + 2个细长长方体",
+      "records": []
+    },
+    {
+      "name": "随机尺寸 - 第六组：1个正方体 + 2个三角体",
+      "records": []
+    }
+  ]
+}

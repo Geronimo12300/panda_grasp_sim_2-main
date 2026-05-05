@@ -1,0 +1,90 @@
+当前配置文件：E:\pycharmprojects\panda_grasp_sim_2-main_v10\runs\control_panel_configs\panel_launch_20260504_023957_073038.json
+实验运行目录：E:\pycharmprojects\panda_grasp_sim_2-main_v10\runs\run_20260504_023958_894142_seed20260503
+已保留前面记录，并保留当前组前 0 次记录，将从 随机尺寸 - 第四组：2个正方体 + 2个圆柱体 + 1个三角体 第 1 次重新开始。
+
+============================================================
+开始实验：随机尺寸 - 第四组：2个正方体 + 2个圆柱体 + 1个三角体，第 1/10 次
+物块组合：['cube', 'cube', 'cylinder', 'cylinder', 'cone_top']
+尺寸模式：随机尺寸 / random
+本次实验随机种子：20269503
+============================================================
+self.urdfs_filename =  ['cube\\cube_0.urdf', 'cube\\cube_1.urdf', 'cylinder\\cylinder.urdf', 'cylinder\\cylinder.urdf', 'cone_top\\cone_top_block.urdf']
+随机缩放比例: [0.87, 0.79, 0.96, 0.77, 1.01]
+物块1 已加载: 位置=(0.084, 0.075, 0.019), 偏航角=-2.544 rad
+物块2 已加载: 位置=(0.130, -0.066, 0.018), 偏航角=-2.004 rad
+物块3 已加载: 位置=(-0.177, -0.132, 0.021), 偏航角=1.383 rad
+物块4 已加载: 位置=(-0.151, 0.045, 0.017), 偏航角=-2.071 rad
+物块5 已加载: 位置=(-0.047, -0.028, 0.022), 偏航角=-1.448 rad
+Auto run enabled: experiment scheduler is active.
+>> 渲染相机深度图...
+>> depth stats: min=0.459614, max=0.500000, unique~=2109
+>> 侧视相机 left RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_left.png, success=True
+>> 侧视相机 right RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_right.png, success=True
+>> 渲染结束
+Mask 检测到的物块数量: 5/5
+
+==================================================
+【仿真环境中的物块信息】
+  物块1: 形状=正方体, 颜色=红色, 缩放比例=0.87, 边长=0.0483m, 体积=0.00011301m^3, 位置=(0.084, 0.075)
+  [抓取位姿] 物块1: 物体底部z=-0.0000, 物体高度=0.0348, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (0.091, 0.083)
+  物块2: 形状=正方体, 颜色=绿色, 缩放比例=0.79, 边长=0.0419m, 体积=0.00007380m^3, 位置=(0.130, -0.066)
+  [抓取位姿] 物块2: 物体底部z=-0.0000, 物体高度=0.0316, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (0.139, -0.070)
+  物块3: 形状=圆柱体, 颜色=蓝色, 缩放比例=0.96, 直径=0.0496m, 高度=0.0424m, 体积=0.00008182m^3, 位置=(-0.177, -0.132)
+  [抓取位姿] 物块3: 物体底部z=-0.0010, 物体高度=0.0424, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (-0.193, -0.144)
+  物块4: 形状=圆柱体, 颜色=黄色, 缩放比例=0.77, 直径=0.0472m, 高度=0.0348m, 体积=0.00006099m^3, 位置=(-0.151, 0.045)
+  [抓取位姿] 物块4: 物体底部z=-0.0010, 物体高度=0.0348, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (-0.164, 0.049)
+  物块5: 形状=三角体, 颜色=紫色, 缩放比例=1.01, 底面直径=0.0515m, 高度=0.0429m, 体积=0.00002980m^3, 位置=(-0.047, -0.028)
+  [三角体抓取] 侧视图分析结果: 侧视轮廓更像三角面，优先尝试与当前顶视方向垂直的夹取方向
+  [三角体抓取] 原始角度=-1.4483, 调整后角度=0.1225
+  [抓取位姿] 物块5: 物体底部z=-0.0030, 物体高度=0.0429, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (-0.052, -0.028)
+==================================================
+
+正在询问Moonshot Kimi K2.6直接生成抓取放置动作...
+[调试] API URL: https://api.moonshot.cn/v1/chat/completions
+[调试] Model: kimi-k2.6
+[调试] API Key前缀: sk-esAHere...
+API请求失败，状态码: 400
+响应内容: {"error":{"message":"invalid temperature: only 1 is allowed for this model","type":"invalid_request_error"}}
+调用 Moonshot Kimi K2.6 动作规划失败: 400 Client Error: Bad Request for url: https://api.moonshot.cn/v1/chat/completions
+
+==================================================
+【最终动作计划】
+  Action 1: 物块1, grasp=(0.084, 0.075, 0.020, yaw=0.597, width=0.045), layer=0, slot=center, place=(0.500, 0.000, 0.000), reason=默认规则规划：按稳定性与形状约束单柱堆叠
+  Action 2: 物块3, grasp=(-0.177, -0.132, 0.020, yaw=0.000, width=0.075), layer=1, slot=center, place=(0.500, 0.000, 0.040), reason=默认规则规划：按稳定性与形状约束单柱堆叠
+  Action 3: 物块2, grasp=(0.130, -0.066, 0.020, yaw=1.138, width=0.034), layer=2, slot=center, place=(0.500, 0.000, 0.080), reason=默认规则规划：按稳定性与形状约束单柱堆叠
+  Action 4: 物块4, grasp=(-0.151, 0.045, 0.020, yaw=0.000, width=0.072), layer=3, slot=center, place=(0.500, 0.000, 0.120), reason=默认规则规划：按稳定性与形状约束单柱堆叠
+  Action 5: 物块5, grasp=(-0.047, -0.028, 0.020, yaw=0.122, width=0.044), layer=4, slot=center, place=(0.500, 0.000, 0.160), reason=默认规则规划：按稳定性与形状约束单柱堆叠
+==================================================
+
+执行动作: 抓取物块1, (0.0844, 0.0750, 0.0200), 抓取角度=0.5973 rad, 夹爪宽度=0.0448m, 层=0, 槽位=center, 放置点=(0.5000, 0.0000, 0.0000)
+  [执行抓取] 目标位置: (0.0844, 0.0750, 0.0200), 末端执行器将达到: z=0.0670
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体

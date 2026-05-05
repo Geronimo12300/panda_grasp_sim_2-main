@@ -1,0 +1,215 @@
+{
+  "timestamp": "2026-05-04T18:57:43.279684",
+  "model": {
+    "provider": "bailian",
+    "provider_name": "阿里云百炼 (Qwen-VL)",
+    "model": "qwen-vl-max-latest",
+    "api_url": "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",
+    "has_key": true
+  },
+  "num_objects": 5,
+  "vision": {
+    "detected_count": 5,
+    "elapsed_time": 0.019123554229736328,
+    "objects": [
+      {
+        "index": 0,
+        "color": "红色",
+        "shape": "cube",
+        "position": [
+          -0.05050640106201172,
+          0.14061130523681642,
+          0.02
+        ],
+        "pixel_center": [
+          279,
+          127
+        ],
+        "bbox_size": [
+          46,
+          51
+        ],
+        "area": 2235
+      },
+      {
+        "index": 1,
+        "color": "绿色",
+        "shape": "cube",
+        "position": [
+          -0.1507208251953125,
+          -0.11208030700683594,
+          0.02
+        ],
+        "pixel_center": [
+          199,
+          329
+        ],
+        "bbox_size": [
+          50,
+          61
+        ],
+        "area": 2611
+      },
+      {
+        "index": 2,
+        "color": "蓝色",
+        "shape": "cube",
+        "position": [
+          0.04181251525878906,
+          0.06893747329711915,
+          0.02
+        ],
+        "pixel_center": [
+          353,
+          184
+        ],
+        "bbox_size": [
+          73,
+          74
+        ],
+        "area": 4362
+      },
+      {
+        "index": 3,
+        "color": "黄色",
+        "shape": "cube",
+        "position": [
+          -0.095625,
+          -0.09125,
+          0.02
+        ],
+        "pixel_center": [
+          243,
+          313
+        ],
+        "bbox_size": [
+          48,
+          55
+        ],
+        "area": 2095
+      },
+      {
+        "index": 4,
+        "color": "紫色",
+        "shape": "cube",
+        "position": [
+          -0.026588401794433593,
+          -0.06312286376953125,
+          0.02
+        ],
+        "pixel_center": [
+          298,
+          290
+        ],
+        "bbox_size": [
+          34,
+          36
+        ],
+        "area": 1205
+      }
+    ]
+  },
+  "llm": {
+    "action_count": 5,
+    "elapsed_time": 18.507452726364136,
+    "actions": [
+      {
+        "target_object": "物块2",
+        "grasp_pose": {
+          "x": -0.151,
+          "y": -0.112,
+          "z": 0.02,
+          "yaw": 0.0,
+          "width": 0.05
+        },
+        "layer_index": 0,
+        "slot": "center",
+        "place_pose": {
+          "x": 0.5,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "reason": "绿色物块位于左下区域，适合作为底层中心基础"
+      },
+      {
+        "target_object": "物块4",
+        "grasp_pose": {
+          "x": -0.096,
+          "y": -0.091,
+          "z": 0.02,
+          "yaw": 0.0,
+          "width": 0.05
+        },
+        "layer_index": 1,
+        "slot": "left",
+        "place_pose": {
+          "x": 0.5,
+          "y": 0.0,
+          "z": 0.045
+        },
+        "reason": "黄色物块靠近绿色物块，适合放在第二层左侧"
+      },
+      {
+        "target_object": "物块5",
+        "grasp_pose": {
+          "x": -0.027,
+          "y": -0.063,
+          "z": 0.02,
+          "yaw": 0.0,
+          "width": 0.05
+        },
+        "layer_index": 1,
+        "slot": "right",
+        "place_pose": {
+          "x": 0.5,
+          "y": 0.0,
+          "z": 0.045
+        },
+        "reason": "紫色物块与黄色物块对称分布，适合放在第二层右侧"
+      },
+      {
+        "target_object": "物块1",
+        "grasp_pose": {
+          "x": -0.051,
+          "y": 0.141,
+          "z": 0.02,
+          "yaw": 0.0,
+          "width": 0.05
+        },
+        "layer_index": 2,
+        "slot": "center",
+        "place_pose": {
+          "x": 0.5,
+          "y": 0.0,
+          "z": 0.09
+        },
+        "reason": "红色物块位于上方区域，适合放在第三层中心"
+      },
+      {
+        "target_object": "物块3",
+        "grasp_pose": {
+          "x": 0.042,
+          "y": 0.069,
+          "z": 0.02,
+          "yaw": 0.0,
+          "width": 0.05
+        },
+        "layer_index": 3,
+        "slot": "center",
+        "place_pose": {
+          "x": 0.5,
+          "y": 0.0,
+          "z": 0.135
+        },
+        "reason": "蓝色物块位于右上区域，适合放在顶层中心"
+      }
+    ]
+  },
+  "validation": {
+    "vision_success": true,
+    "llm_success": true,
+    "data_flow_valid": true,
+    "errors": [],
+    "warnings": []
+  }
+}

@@ -1,0 +1,3146 @@
+当前配置文件：E:\pycharmprojects\panda_grasp_sim_2-main_v10\runs\control_panel_configs\panel_launch_20260504_221418_091986.json
+实验运行目录：E:\pycharmprojects\panda_grasp_sim_2-main_v10\runs\run_20260504_221419_828582_seed20260503
+已保留前面记录，并保留当前组前 0 次记录，将从 随机尺寸 - 第三组：2个正方体 + 2个圆柱体 + 1个三角体 第 1 次重新开始。
+
+============================================================
+开始实验：随机尺寸 - 第三组：2个正方体 + 2个圆柱体 + 1个三角体，第 1/10 次
+物块组合：['cube', 'cube', 'cylinder', 'cylinder', 'cone_top']
+尺寸模式：随机尺寸 / random
+本次实验随机种子：20267503
+============================================================
+self.urdfs_filename =  ['cube\\cube_0.urdf', 'cube\\cube_1.urdf', 'cylinder\\cylinder.urdf', 'cylinder\\cylinder.urdf', 'cone_top\\cone_top_block.urdf']
+随机缩放比例: [0.77, 0.94, 0.62, 0.83, 1.04]
+物块1 已加载: 位置=(0.040, -0.095, 0.017), 偏航角=-2.494 rad
+物块2 已加载: 位置=(0.048, 0.051, 0.021), 偏航角=-0.951 rad
+物块3 已加载: 位置=(-0.159, 0.054, 0.014), 偏航角=-2.617 rad
+物块4 已加载: 位置=(-0.064, -0.107, 0.019), 偏航角=0.302 rad
+物块5 已加载: 位置=(0.148, 0.021, 0.023), 偏航角=2.370 rad
+Auto run enabled: experiment scheduler is active.
+>> 渲染相机深度图...
+>> 硬件渲染结果异常，切换到软件渲染器...
+>> depth stats: min=0.462409, max=0.499999, unique~=1668
+>> 侧视相机 left RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_left.png, success=True
+>> 侧视相机 right RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_right.png, success=True
+>> 渲染结束
+Mask 检测到的物块数量: 5/5
+
+==================================================
+【仿真环境中的物块信息】
+  物块1: 形状=正方体, 颜色=红色, 缩放比例=0.77, 边长=0.0431m, 体积=0.00008032m^3, 位置=(0.040, -0.095)
+  [抓取位姿] 物块1: 物体底部z=-0.0000, 物体高度=0.0308, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (0.043, -0.101)
+  物块2: 形状=正方体, 颜色=绿色, 缩放比例=0.94, 边长=0.0524m, 体积=0.00014426m^3, 位置=(0.048, 0.051)
+  [抓取位姿] 物块2: 物体底部z=-0.0000, 物体高度=0.0376, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (0.053, 0.058)
+  物块3: 形状=圆柱体, 颜色=蓝色, 缩放比例=0.62, 直径=0.0394m, 高度=0.0288m, 体积=0.00003503m^3, 位置=(-0.159, 0.054)
+  [抓取位姿] 物块3: 物体底部z=-0.0010, 物体高度=0.0288, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (-0.171, 0.059)
+  物块4: 形状=圆柱体, 颜色=黄色, 缩放比例=0.83, 直径=0.0466m, 高度=0.0372m, 体积=0.00006341m^3, 位置=(-0.064, -0.107)
+  [抓取位姿] 物块4: 物体底部z=-0.0010, 物体高度=0.0372, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (-0.070, -0.114)
+  物块5: 形状=三角体, 颜色=紫色, 缩放比例=1.04, 底面直径=0.0556m, 高度=0.0440m, 体积=0.00003557m^3, 位置=(0.148, 0.020)
+  [三角体抓取] 侧视图分析结果: 侧视轮廓更像三角面，优先尝试与当前顶视方向垂直的夹取方向
+  [三角体抓取] 原始角度=-0.7767, 调整后角度=0.7941
+  [抓取位姿] 物块5: 物体底部z=-0.0030, 物体高度=0.0440, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (0.158, 0.026)
+==================================================
+
+正在询问阿里云百炼 (Qwen-VL)直接生成抓取放置动作...
+[调试] API URL: https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions
+[调试] Model: qwen-vl-max-latest
+[调试] API Key前缀: sk-4ea064d...
+[调试] 超时时间: 30秒
+[调试] user_content类型: <class 'list'>
+[调试] user_content长度: 4
+[调试]   item[0] type: text
+[调试]   item[1] type: image_url
+[调试]   image_url长度: 9846
+[调试]   item[2] type: image_url
+[调试]   image_url长度: 15090
+[调试]   item[3] type: image_url
+[调试]   image_url长度: 8682
+[调试] 响应状态码: 200
+[调试] 响应JSON keys: dict_keys(['choices', 'object', 'usage', 'created', 'system_fingerprint', 'model', 'id'])
+[调试] finish_reason: stop
+[调试] content长度: 1402
+[调试] content前100字符: {
+  "actions": [
+    {
+      "target_object": "物块1",
+      "grasp_pose": {"x": 0.040, "y": -0.095, "
+
+==================================================
+【阿里云百炼 (Qwen-VL) 动作计划原始返回】
+{
+  "actions": [
+    {
+      "target_object": "物块1",
+      "grasp_pose": {"x": 0.040, "y": -0.095, "z": 0.020, "yaw": 0.648, "width": 0.034},
+      "layer_index": 0,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.000},
+      "reason": "红色正方体作为底层中心支撑"
+    },
+    {
+      "target_object": "物块2",
+      "grasp_pose": {"x": 0.048, "y": 0.051, "z": 0.020, "yaw": -0.951, "width": 0.048},
+      "layer_index": 1,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.0376},
+      "reason": "绿色正方体堆叠在红色上方，保持中心对齐"
+    },
+    {
+      "target_object": "物块4",
+      "grasp_pose": {"x": -0.064, "y": -0.107, "z": 0.020, "yaw": 0.000, "width": 0.072},
+      "layer_index": 2,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.0752},
+      "reason": "黄色圆柱体继续向上堆叠，维持中心结构"
+    },
+    {
+      "target_object": "物块3",
+      "grasp_pose": {"x": -0.159, "y": 0.054, "z": 0.020, "yaw": 0.000, "width": 0.038},
+      "layer_index": 3,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.1040},
+      "reason": "蓝色圆柱体作为次顶层，为三角体提供稳定基础"
+    },
+    {
+      "target_object": "物块5",
+      "grasp_pose": {"x": 0.148, "y": 0.020, "z": 0.020, "yaw": 0.794, "width": 0.065},
+      "layer_index": 4,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.1328},
+      "reason": "紫色三角体必须位于最顶层且单独占据中心槽位"
+    }
+  ]
+}
+==================================================
+
+==================================================
+【最终动作计划】
+  Action 1: 物块1, grasp=(0.040, -0.095, 0.020, yaw=0.648, width=0.034), layer=0, slot=center, place=(0.500, 0.000, 0.000), reason=红色正方体作为底层中心支撑
+  Action 2: 物块2, grasp=(0.048, 0.051, 0.020, yaw=-0.951, width=0.048), layer=1, slot=center, place=(0.500, 0.000, 0.038), reason=绿色正方体堆叠在红色上方，保持中心对齐
+  Action 3: 物块4, grasp=(-0.064, -0.107, 0.020, yaw=0.000, width=0.072), layer=2, slot=center, place=(0.500, 0.000, 0.075), reason=黄色圆柱体继续向上堆叠，维持中心结构
+  Action 4: 物块3, grasp=(-0.159, 0.054, 0.020, yaw=0.000, width=0.038), layer=3, slot=center, place=(0.500, 0.000, 0.104), reason=蓝色圆柱体作为次顶层，为三角体提供稳定基础
+  Action 5: 物块5, grasp=(0.148, 0.020, 0.020, yaw=0.794, width=0.065), layer=4, slot=center, place=(0.500, 0.000, 0.160), reason=紫色三角体必须位于最顶层且单独占据中心槽位
+==================================================
+
+立方体抓取修正: 边长估计=0.0308m, 夹爪开度=0.0408m, 抓取高度=0.0117m
+执行动作: 抓取物块1, (0.0400, -0.0950, 0.0117), 抓取角度=0.6480 rad, 夹爪宽度=0.0408m, 层=0, 槽位=center, 放置点=(0.5000, 0.0000, 0.0000)
+  [执行抓取] 目标位置: (0.0400, -0.0950, 0.0067), 末端执行器将达到: z=0.0537
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+物理释放：物块中心已对准堆叠点，快速张开夹爪并解除约束。
+放置完成。
+立方体抓取修正: 边长估计=0.0376m, 夹爪开度=0.0476m, 抓取高度=0.0143m
+执行动作: 抓取物块2, (0.0480, 0.0510, 0.0143), 抓取角度=-0.9510 rad, 夹爪宽度=0.0476m, 层=1, 槽位=center, 放置点=(0.5000, 0.0000, 0.0376)
+  [执行抓取] 目标位置: (0.0480, 0.0510, 0.0093), 末端执行器将达到: z=0.0563
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+放置动作超时：已强制松爪，当前小次实验按失败记录并进入下一次。
+>> 渲染相机深度图...
+>> 硬件渲染结果异常，切换到软件渲染器...
+>> depth stats: min=0.463164, max=0.499999, unique~=1425
+>> 侧视相机 left RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_left.png, success=True
+>> 侧视相机 right RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_right.png, success=True
+>> 渲染结束
+
+==================================================
+【阿里云百炼 (Qwen-VL) 堆叠验收原始返回】
+{"success": false, "reason": "物块散落在桌面，未形成堆叠"}
+==================================================
+
+==================================================
+【堆叠验收结果】
+实验组别: 随机尺寸 - 第三组：2个正方体 + 2个圆柱体 + 1个三角体
+实验次数: 第 1 次
+是否成功: 失败
+原因: 放置动作超时：已强制松爪，当前小次实验按失败记录并进入下一次。; 大模型判断：物块散落在桌面，未形成堆叠
+==================================================
+
+
+============================================================
+开始实验：随机尺寸 - 第三组：2个正方体 + 2个圆柱体 + 1个三角体，第 2/10 次
+物块组合：['cube', 'cube', 'cylinder', 'cylinder', 'cone_top']
+尺寸模式：随机尺寸 / random
+本次实验随机种子：20267504
+============================================================
+self.urdfs_filename =  ['cube\\cube_0.urdf', 'cube\\cube_1.urdf', 'cylinder\\cylinder.urdf', 'cylinder\\cylinder.urdf', 'cone_top\\cone_top_block.urdf']
+随机缩放比例: [0.69, 1.1, 0.9, 0.66, 0.87]
+物块1 已加载: 位置=(0.006, 0.114, 0.016), 偏航角=-0.818 rad
+物块2 已加载: 位置=(0.063, 0.043, 0.024), 偏航角=0.349 rad
+物块3 已加载: 位置=(-0.094, 0.028, 0.020), 偏航角=-2.585 rad
+物块4 已加载: 位置=(-0.100, -0.066, 0.015), 偏航角=2.910 rad
+物块5 已加载: 位置=(0.060, -0.116, 0.019), 偏航角=-1.213 rad
+>> 渲染相机深度图...
+>> 硬件渲染结果异常，切换到软件渲染器...
+>> depth stats: min=0.456010, max=0.499999, unique~=1420
+>> 侧视相机 left RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_left.png, success=True
+>> 侧视相机 right RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_right.png, success=True
+>> 渲染结束
+Mask 检测到的物块数量: 5/5
+
+==================================================
+【仿真环境中的物块信息】
+  物块1: 形状=正方体, 颜色=红色, 缩放比例=0.69, 边长=0.0390m, 体积=0.00005937m^3, 位置=(0.006, 0.114)
+  [抓取位姿] 物块1: 物体底部z=-0.0000, 物体高度=0.0276, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (0.006, 0.124)
+  物块2: 形状=正方体, 颜色=绿色, 缩放比例=1.10, 边长=0.0564m, 体积=0.00017947m^3, 位置=(0.063, 0.043)
+  [抓取位姿] 物块2: 物体底部z=-0.0000, 物体高度=0.0440, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (0.069, 0.049)
+  物块3: 形状=圆柱体, 颜色=蓝色, 缩放比例=0.90, 直径=0.0551m, 高度=0.0400m, 体积=0.00009538m^3, 位置=(-0.094, 0.028)
+  [抓取位姿] 物块3: 物体底部z=-0.0010, 物体高度=0.0400, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (-0.103, 0.033)
+  物块4: 形状=圆柱体, 颜色=黄色, 缩放比例=0.66, 直径=0.0366m, 高度=0.0304m, 体积=0.00003193m^3, 位置=(-0.100, -0.066)
+  [抓取位姿] 物块4: 物体底部z=-0.0010, 物体高度=0.0304, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (-0.107, -0.070)
+  物块5: 形状=三角体, 颜色=紫色, 缩放比例=0.87, 底面直径=0.0490m, 高度=0.0381m, 体积=0.00002394m^3, 位置=(0.060, -0.116)
+  [三角体抓取] 侧视图分析结果: 侧视轮廓更像三角面，优先尝试与当前顶视方向垂直的夹取方向
+  [三角体抓取] 原始角度=-1.2130, 调整后角度=0.3578
+  [抓取位姿] 物块5: 物体底部z=-0.0030, 物体高度=0.0381, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (0.063, -0.120)
+==================================================
+
+正在询问阿里云百炼 (Qwen-VL)直接生成抓取放置动作...
+[调试] API URL: https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions
+[调试] Model: qwen-vl-max-latest
+[调试] API Key前缀: sk-4ea064d...
+[调试] 超时时间: 30秒
+[调试] user_content类型: <class 'list'>
+[调试] user_content长度: 4
+[调试]   item[0] type: text
+[调试]   item[1] type: image_url
+[调试]   image_url长度: 9934
+[调试]   item[2] type: image_url
+[调试]   image_url长度: 15142
+[调试]   item[3] type: image_url
+[调试]   image_url长度: 8978
+[调试] 响应状态码: 200
+[调试] 响应JSON keys: dict_keys(['choices', 'object', 'usage', 'created', 'system_fingerprint', 'model', 'id'])
+[调试] finish_reason: stop
+[调试] content长度: 1397
+[调试] content前100字符: {
+  "actions": [
+    {
+      "target_object": "物块2",
+      "grasp_pose": {"x": 0.063, "y": 0.043, "z
+
+==================================================
+【阿里云百炼 (Qwen-VL) 动作计划原始返回】
+{
+  "actions": [
+    {
+      "target_object": "物块2",
+      "grasp_pose": {"x": 0.063, "y": 0.043, "z": 0.020, "yaw": 0.349, "width": 0.054},
+      "layer_index": 0,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.000},
+      "reason": "绿色正方体体积最大，适合作为堆叠底层中心支撑"
+    },
+    {
+      "target_object": "物块3",
+      "grasp_pose": {"x": -0.094, "y": 0.028, "z": 0.020, "yaw": 0.000, "width": 0.080},
+      "layer_index": 1,
+      "slot": "left",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.044},
+      "reason": "蓝色圆柱体放置在左侧，与右侧对称"
+    },
+    {
+      "target_object": "物块4",
+      "grasp_pose": {"x": -0.100, "y": -0.066, "z": 0.020, "yaw": 0.000, "width": 0.038},
+      "layer_index": 1,
+      "slot": "right",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.044},
+      "reason": "黄色圆柱体与蓝色圆柱体对称放置于同一层"
+    },
+    {
+      "target_object": "物块1",
+      "grasp_pose": {"x": 0.006, "y": 0.114, "z": 0.020, "yaw": -0.818, "width": 0.034},
+      "layer_index": 2,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.074},
+      "reason": "红色正方体作为中间层中心稳定结构"
+    },
+    {
+      "target_object": "物块5",
+      "grasp_pose": {"x": 0.060, "y": -0.116, "z": 0.020, "yaw": 0.358, "width": 0.049},
+      "layer_index": 3,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.112},
+      "reason": "紫色三角体必须单独位于最顶层，符合实验要求"
+    }
+  ]
+}
+==================================================
+
+==================================================
+【最终动作计划】
+  Action 1: 物块2, grasp=(0.063, 0.043, 0.020, yaw=0.349, width=0.054), layer=0, slot=center, place=(0.500, 0.000, 0.000), reason=绿色正方体体积最大，适合作为堆叠底层中心支撑
+  Action 2: 物块3, grasp=(-0.094, 0.028, 0.020, yaw=0.000, width=0.080), layer=1, slot=left, place=(0.468, 0.000, 0.044), reason=蓝色圆柱体放置在左侧，与右侧对称
+  Action 3: 物块4, grasp=(-0.100, -0.066, 0.020, yaw=0.000, width=0.038), layer=1, slot=right, place=(0.532, 0.000, 0.044), reason=黄色圆柱体与蓝色圆柱体对称放置于同一层
+  Action 4: 物块1, grasp=(0.006, 0.114, 0.020, yaw=-0.818, width=0.034), layer=2, slot=center, place=(0.500, 0.000, 0.074), reason=红色正方体作为中间层中心稳定结构
+  Action 5: 物块5, grasp=(0.060, -0.116, 0.020, yaw=0.358, width=0.049), layer=4, slot=center, place=(0.500, 0.000, 0.160), reason=紫色三角体必须单独位于最顶层，符合实验要求
+==================================================
+
+立方体抓取修正: 边长估计=0.0440m, 夹爪开度=0.0540m, 抓取高度=0.0167m
+执行动作: 抓取物块2, (0.0630, 0.0430, 0.0167), 抓取角度=0.3490 rad, 夹爪宽度=0.0540m, 层=0, 槽位=center, 放置点=(0.5000, 0.0000, 0.0000)
+  [执行抓取] 目标位置: (0.0630, 0.0430, 0.0117), 末端执行器将达到: z=0.0587
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=True, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+物理释放：物块中心已对准堆叠点，快速张开夹爪并解除约束。
+放置完成。
+圆柱体抓取修正: 直径估计=0.0551m, 夹爪预开度=0.0800m, 抓取高度=0.0158m
+执行动作: 抓取物块3, (-0.0940, 0.0280, 0.0158), 抓取角度=0.0000 rad, 夹爪宽度=0.0800m, 层=1, 槽位=left, 放置点=(0.4680, 0.0000, 0.0440)
+  [执行抓取] 目标位置: (-0.0940, 0.0280, 0.0108), 末端执行器将达到: z=0.0578
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+物理释放：物块中心已对准堆叠点，快速张开夹爪并解除约束。
+放置完成。
+圆柱体抓取修正: 直径估计=0.0366m, 夹爪预开度=0.0616m, 抓取高度=0.0118m
+执行动作: 抓取物块4, (-0.1000, -0.0660, 0.0118), 抓取角度=0.0000 rad, 夹爪宽度=0.0616m, 层=1, 槽位=right, 放置点=(0.5320, 0.0000, 0.0440)
+  [执行抓取] 目标位置: (-0.1000, -0.0660, 0.0068), 末端执行器将达到: z=0.0538
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+物理释放：物块中心已对准堆叠点，快速张开夹爪并解除约束。
+放置完成。
+立方体抓取修正: 边长估计=0.0276m, 夹爪开度=0.0376m, 抓取高度=0.0105m
+执行动作: 抓取物块1, (0.0060, 0.1140, 0.0105), 抓取角度=-0.8180 rad, 夹爪宽度=0.0376m, 层=2, 槽位=center, 放置点=(0.5000, 0.0000, 0.0740)
+  [执行抓取] 目标位置: (0.0060, 0.1140, 0.0055), 末端执行器将达到: z=0.0525
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+物理释放：物块中心已对准堆叠点，快速张开夹爪并解除约束。
+放置完成。
+执行动作: 抓取物块5, (0.0600, -0.1160, 0.0200), 抓取角度=0.3580 rad, 夹爪宽度=0.0490m, 层=4, 槽位=center, 放置点=(0.5000, 0.0000, 0.1600)
+  [执行抓取] 目标位置: (0.0600, -0.1160, 0.0150), 末端执行器将达到: z=0.0620
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+物理释放：物块中心已对准堆叠点，快速张开夹爪并解除约束。
+放置完成。
+Auto run finished: all objects processed.
+>> 渲染相机深度图...
+>> 硬件渲染结果异常，切换到软件渲染器...
+>> depth stats: min=0.499999, max=0.499999, unique~=1
+depth2Gray: flat depth image detected (min=max=0.499999), fallback to zeros.
+depth2Gray: flat depth image detected (min=max=0.000000), fallback to zeros.
+>> 侧视相机 left RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_left.png, success=True
+>> 侧视相机 right RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_right.png, success=True
+>> 渲染结束
+
+==================================================
+【阿里云百炼 (Qwen-VL) 堆叠验收原始返回】
+{"success": true, "reason": "物块已形成明显的竖向堆叠，整体稳定"}
+==================================================
+
+==================================================
+【堆叠验收结果】
+实验组别: 随机尺寸 - 第三组：2个正方体 + 2个圆柱体 + 1个三角体
+实验次数: 第 2 次
+是否成功: 成功
+原因: 物块已形成明显的竖向堆叠，整体稳定
+==================================================
+
+
+============================================================
+开始实验：随机尺寸 - 第三组：2个正方体 + 2个圆柱体 + 1个三角体，第 3/10 次
+物块组合：['cube', 'cube', 'cylinder', 'cylinder', 'cone_top']
+尺寸模式：随机尺寸 / random
+本次实验随机种子：20267505
+============================================================
+self.urdfs_filename =  ['cube\\cube_0.urdf', 'cube\\cube_1.urdf', 'cylinder\\cylinder.urdf', 'cylinder\\cylinder.urdf', 'cone_top\\cone_top_block.urdf']
+随机缩放比例: [0.65, 1.07, 0.9, 1.12, 0.98]
+物块1 已加载: 位置=(-0.011, -0.136, 0.015), 偏航角=-2.789 rad
+物块2 已加载: 位置=(-0.013, -0.033, 0.023), 偏航角=-2.382 rad
+物块3 已加载: 位置=(0.113, -0.011, 0.020), 偏航角=-0.173 rad
+物块4 已加载: 位置=(0.070, 0.090, 0.024), 偏航角=0.200 rad
+物块5 已加载: 位置=(-0.025, 0.127, 0.022), 偏航角=-1.693 rad
+>> 渲染相机深度图...
+>> 硬件渲染结果异常，切换到软件渲染器...
+>> depth stats: min=0.453217, max=0.499999, unique~=1742
+>> 侧视相机 left RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_left.png, success=True
+>> 侧视相机 right RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_right.png, success=True
+>> 渲染结束
+Mask 检测到的物块数量: 5/5
+
+==================================================
+【仿真环境中的物块信息】
+  物块1: 形状=正方体, 颜色=红色, 缩放比例=0.65, 边长=0.0334m, 体积=0.00003720m^3, 位置=(-0.011, -0.136)
+  [抓取位姿] 物块1: 物体底部z=-0.0000, 物体高度=0.0260, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (-0.012, -0.144)
+  物块2: 形状=正方体, 颜色=绿色, 缩放比例=1.07, 边长=0.0605m, 体积=0.00022154m^3, 位置=(-0.013, -0.033)
+  [抓取位姿] 物块2: 物体底部z=-0.0000, 物体高度=0.0428, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (-0.014, -0.035)
+  物块3: 形状=圆柱体, 颜色=蓝色, 缩放比例=0.90, 直径=0.0463m, 高度=0.0400m, 体积=0.00006733m^3, 位置=(0.113, -0.011)
+  [抓取位姿] 物块3: 物体底部z=-0.0010, 物体高度=0.0400, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (0.123, -0.011)
+  物块4: 形状=圆柱体, 颜色=黄色, 缩放比例=1.12, 直径=0.0575m, 高度=0.0488m, 体积=0.00012683m^3, 位置=(0.070, 0.090)
+  [抓取位姿] 物块4: 物体底部z=-0.0010, 物体高度=0.0488, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (0.078, 0.101)
+  物块5: 形状=三角体, 颜色=紫色, 缩放比例=0.98, 底面直径=0.0502m, 高度=0.0419m, 体积=0.00002764m^3, 位置=(-0.025, 0.127)
+  [三角体抓取] 侧视图分析结果: 侧视轮廓更像三角面，优先尝试与当前顶视方向垂直的夹取方向
+  [三角体抓取] 原始角度=1.4495, 调整后角度=-0.1213
+  [抓取位姿] 物块5: 物体底部z=-0.0030, 物体高度=0.0419, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (-0.027, 0.133)
+==================================================
+
+正在询问阿里云百炼 (Qwen-VL)直接生成抓取放置动作...
+[调试] API URL: https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions
+[调试] Model: qwen-vl-max-latest
+[调试] API Key前缀: sk-4ea064d...
+[调试] 超时时间: 30秒
+[调试] user_content类型: <class 'list'>
+[调试] user_content长度: 4
+[调试]   item[0] type: text
+[调试]   item[1] type: image_url
+[调试]   image_url长度: 12214
+[调试]   item[2] type: image_url
+[调试]   image_url长度: 14126
+[调试]   item[3] type: image_url
+[调试]   image_url长度: 11294
+[调试] 响应状态码: 200
+[调试] 响应JSON keys: dict_keys(['choices', 'object', 'usage', 'created', 'system_fingerprint', 'model', 'id'])
+[调试] finish_reason: stop
+[调试] content长度: 1427
+[调试] content前100字符: {
+  "actions": [
+    {
+      "target_object": "物块2",
+      "grasp_pose": {"x": -0.013, "y": -0.033, 
+
+==================================================
+【阿里云百炼 (Qwen-VL) 动作计划原始返回】
+{
+  "actions": [
+    {
+      "target_object": "物块2",
+      "grasp_pose": {"x": -0.013, "y": -0.033, "z": 0.020, "yaw": 0.760, "width": 0.053},
+      "layer_index": 0,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.000},
+      "reason": "绿色正方体底面积最大，适合作为堆叠底层中心支撑"
+    },
+    {
+      "target_object": "物块4",
+      "grasp_pose": {"x": 0.070, "y": 0.090, "z": 0.020, "yaw": 0.000, "width": 0.080},
+      "layer_index": 1,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.0488},
+      "reason": "黄色圆柱体高度较高，适合放在中间层中心，稳定堆叠"
+    },
+    {
+      "target_object": "物块3",
+      "grasp_pose": {"x": 0.113, "y": -0.011, "z": 0.020, "yaw": 0.000, "width": 0.071},
+      "layer_index": 2,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.0888},
+      "reason": "蓝色圆柱体尺寸适中，可作为上层中心支撑"
+    },
+    {
+      "target_object": "物块1",
+      "grasp_pose": {"x": -0.011, "y": -0.136, "z": 0.020, "yaw": 0.353, "width": 0.032},
+      "layer_index": 3,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.1048},
+      "reason": "红色正方体较小，适合放在顶层下方作为过渡"
+    },
+    {
+      "target_object": "物块5",
+      "grasp_pose": {"x": -0.025, "y": 0.127, "z": 0.020, "yaw": -0.121, "width": 0.043},
+      "layer_index": 4,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.1467},
+      "reason": "紫色三角体必须单独位于最顶层，且只能在 center 槽位"
+    }
+  ]
+}
+==================================================
+
+==================================================
+【最终动作计划】
+  Action 1: 物块2, grasp=(-0.013, -0.033, 0.020, yaw=0.760, width=0.053), layer=0, slot=center, place=(0.500, 0.000, 0.000), reason=绿色正方体底面积最大，适合作为堆叠底层中心支撑
+  Action 2: 物块4, grasp=(0.070, 0.090, 0.020, yaw=0.000, width=0.080), layer=1, slot=center, place=(0.500, 0.000, 0.049), reason=黄色圆柱体高度较高，适合放在中间层中心，稳定堆叠
+  Action 3: 物块3, grasp=(0.113, -0.011, 0.020, yaw=0.000, width=0.071), layer=2, slot=center, place=(0.500, 0.000, 0.089), reason=蓝色圆柱体尺寸适中，可作为上层中心支撑
+  Action 4: 物块1, grasp=(-0.011, -0.136, 0.020, yaw=0.353, width=0.032), layer=3, slot=center, place=(0.500, 0.000, 0.105), reason=红色正方体较小，适合放在顶层下方作为过渡
+  Action 5: 物块5, grasp=(-0.025, 0.127, 0.020, yaw=-0.121, width=0.043), layer=4, slot=center, place=(0.500, 0.000, 0.160), reason=紫色三角体必须单独位于最顶层，且只能在 center 槽位
+==================================================
+
+立方体抓取修正: 边长估计=0.0428m, 夹爪开度=0.0528m, 抓取高度=0.0163m
+执行动作: 抓取物块2, (-0.0130, -0.0330, 0.0163), 抓取角度=0.7600 rad, 夹爪宽度=0.0528m, 层=0, 槽位=center, 放置点=(0.5000, 0.0000, 0.0000)
+  [执行抓取] 目标位置: (-0.0130, -0.0330, 0.0113), 末端执行器将达到: z=0.0583
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=True, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+物理释放：物块中心已对准堆叠点，快速张开夹爪并解除约束。
+放置完成。
+圆柱体抓取修正: 直径估计=0.0575m, 夹爪预开度=0.0800m, 抓取高度=0.0195m
+执行动作: 抓取物块4, (0.0700, 0.0900, 0.0195), 抓取角度=0.0000 rad, 夹爪宽度=0.0800m, 层=1, 槽位=center, 放置点=(0.5000, 0.0000, 0.0488)
+  [执行抓取] 目标位置: (0.0700, 0.0900, 0.0145), 末端执行器将达到: z=0.0615
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=True, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+物理释放：物块中心已对准堆叠点，快速张开夹爪并解除约束。
+放置完成。
+圆柱体抓取修正: 直径估计=0.0463m, 夹爪预开度=0.0713m, 抓取高度=0.0158m
+执行动作: 抓取物块3, (0.1130, -0.0110, 0.0158), 抓取角度=0.0000 rad, 夹爪宽度=0.0713m, 层=2, 槽位=center, 放置点=(0.5000, 0.0000, 0.0888)
+  [执行抓取] 目标位置: (0.1130, -0.0110, 0.0108), 末端执行器将达到: z=0.0578
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+物理释放：物块中心已对准堆叠点，快速张开夹爪并解除约束。
+放置完成。
+立方体抓取修正: 边长估计=0.0260m, 夹爪开度=0.0360m, 抓取高度=0.0099m
+执行动作: 抓取物块1, (-0.0110, -0.1360, 0.0099), 抓取角度=0.3530 rad, 夹爪宽度=0.0360m, 层=3, 槽位=center, 放置点=(0.5000, 0.0000, 0.1048)
+  [执行抓取] 目标位置: (-0.0110, -0.1360, 0.0049), 末端执行器将达到: z=0.0519
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+物理释放：物块中心已对准堆叠点，快速张开夹爪并解除约束。
+放置完成。
+执行动作: 抓取物块5, (-0.0250, 0.1270, 0.0200), 抓取角度=-0.1210 rad, 夹爪宽度=0.0430m, 层=4, 槽位=center, 放置点=(0.5000, 0.0000, 0.1600)
+  [执行抓取] 目标位置: (-0.0250, 0.1270, 0.0150), 末端执行器将达到: z=0.0620
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+物理释放：物块中心已对准堆叠点，快速张开夹爪并解除约束。
+放置完成。
+Auto run finished: all objects processed.
+>> 渲染相机深度图...
+>> 硬件渲染结果异常，切换到软件渲染器...
+>> depth stats: min=0.499999, max=0.499999, unique~=1
+depth2Gray: flat depth image detected (min=max=0.499999), fallback to zeros.
+depth2Gray: flat depth image detected (min=max=0.000000), fallback to zeros.
+>> 侧视相机 left RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_left.png, success=True
+>> 侧视相机 right RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_right.png, success=True
+>> 渲染结束
+
+==================================================
+【阿里云百炼 (Qwen-VL) 堆叠验收原始返回】
+{"success": true, "reason": "物块已形成明显的竖向堆叠，整体稳定"}
+==================================================
+
+==================================================
+【堆叠验收结果】
+实验组别: 随机尺寸 - 第三组：2个正方体 + 2个圆柱体 + 1个三角体
+实验次数: 第 3 次
+是否成功: 成功
+原因: 物块已形成明显的竖向堆叠，整体稳定
+==================================================
+
+
+============================================================
+开始实验：随机尺寸 - 第三组：2个正方体 + 2个圆柱体 + 1个三角体，第 4/10 次
+物块组合：['cube', 'cube', 'cylinder', 'cylinder', 'cone_top']
+尺寸模式：随机尺寸 / random
+本次实验随机种子：20267506
+============================================================
+self.urdfs_filename =  ['cube\\cube_0.urdf', 'cube\\cube_1.urdf', 'cylinder\\cylinder.urdf', 'cylinder\\cylinder.urdf', 'cone_top\\cone_top_block.urdf']
+随机缩放比例: [0.67, 0.98, 0.82, 0.99, 1.05]
+物块1 已加载: 位置=(-0.092, -0.129, 0.015), 偏航角=0.307 rad
+物块2 已加载: 位置=(0.154, 0.076, 0.022), 偏航角=1.394 rad
+物块3 已加载: 位置=(-0.100, 0.121, 0.018), 偏航角=0.408 rad
+物块4 已加载: 位置=(-0.156, -0.003, 0.022), 偏航角=2.202 rad
+物块5 已加载: 位置=(0.021, 0.062, 0.023), 偏航角=-2.416 rad
+>> 渲染相机深度图...
+>> 硬件渲染结果异常，切换到软件渲染器...
+>> depth stats: min=0.458414, max=0.499999, unique~=2340
+>> 侧视相机 left RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_left.png, success=True
+>> 侧视相机 right RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_right.png, success=True
+>> 渲染结束
+Mask 检测到的物块数量: 5/5
+
+==================================================
+【仿真环境中的物块信息】
+  物块1: 形状=正方体, 颜色=红色, 缩放比例=0.67, 边长=0.0336m, 体积=0.00003808m^3, 位置=(-0.092, -0.129)
+  [抓取位姿] 物块1: 物体底部z=-0.0000, 物体高度=0.0268, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (-0.098, -0.137)
+  物块2: 形状=正方体, 颜色=绿色, 缩放比例=0.98, 边长=0.0455m, 体积=0.00009402m^3, 位置=(0.154, 0.076)
+  [抓取位姿] 物块2: 物体底部z=-0.0000, 物体高度=0.0392, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (0.167, 0.085)
+  物块3: 形状=圆柱体, 颜色=蓝色, 缩放比例=0.82, 直径=0.0484m, 高度=0.0368m, 体积=0.00006764m^3, 位置=(-0.100, 0.121)
+  [抓取位姿] 物块3: 物体底部z=-0.0010, 物体高度=0.0368, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (-0.109, 0.131)
+  物块4: 形状=圆柱体, 颜色=黄色, 缩放比例=0.99, 直径=0.0609m, 高度=0.0436m, 体积=0.00012715m^3, 位置=(-0.156, -0.003)
+  [抓取位姿] 物块4: 物体底部z=-0.0010, 物体高度=0.0436, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (-0.170, -0.001)
+  物块5: 形状=三角体, 颜色=紫色, 缩放比例=1.05, 底面直径=0.0566m, 高度=0.0443m, 体积=0.00003724m^3, 位置=(0.021, 0.062)
+  [三角体抓取] 侧视图分析结果: 侧视轮廓更像三角面，优先尝试与当前顶视方向垂直的夹取方向
+  [三角体抓取] 原始角度=0.7260, 调整后角度=-0.8448
+  [抓取位姿] 物块5: 物体底部z=-0.0030, 物体高度=0.0443, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (0.020, 0.067)
+==================================================
+
+正在询问阿里云百炼 (Qwen-VL)直接生成抓取放置动作...
+[调试] API URL: https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions
+[调试] Model: qwen-vl-max-latest
+[调试] API Key前缀: sk-4ea064d...
+[调试] 超时时间: 30秒
+[调试] user_content类型: <class 'list'>
+[调试] user_content长度: 4
+[调试]   item[0] type: text
+[调试]   item[1] type: image_url
+[调试]   image_url长度: 11206
+[调试]   item[2] type: image_url
+[调试]   image_url长度: 17734
+[调试]   item[3] type: image_url
+[调试]   image_url长度: 9066
+[调试] 响应状态码: 200
+[调试] 响应JSON keys: dict_keys(['choices', 'object', 'usage', 'created', 'system_fingerprint', 'model', 'id'])
+[调试] finish_reason: stop
+[调试] content长度: 1419
+[调试] content前100字符: {
+  "actions": [
+    {
+      "target_object": "物块1",
+      "grasp_pose": {"x": -0.092, "y": -0.129, 
+
+==================================================
+【阿里云百炼 (Qwen-VL) 动作计划原始返回】
+{
+  "actions": [
+    {
+      "target_object": "物块1",
+      "grasp_pose": {"x": -0.092, "y": -0.129, "z": 0.020, "yaw": 0.307, "width": 0.033},
+      "layer_index": 0,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.000},
+      "reason": "红色正方体底面积最小，适合做底层中心支撑"
+    },
+    {
+      "target_object": "物块2",
+      "grasp_pose": {"x": 0.154, "y": 0.076, "z": 0.020, "yaw": 1.394, "width": 0.049},
+      "layer_index": 1,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.0392},
+      "reason": "绿色正方体尺寸适中，可稳定堆叠于底层之上"
+    },
+    {
+      "target_object": "物块3",
+      "grasp_pose": {"x": -0.100, "y": 0.121, "z": 0.020, "yaw": 0.000, "width": 0.073},
+      "layer_index": 2,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.0760},
+      "reason": "蓝色圆柱体高度较高，适合放在中间层以增加稳定性"
+    },
+    {
+      "target_object": "物块4",
+      "grasp_pose": {"x": -0.156, "y": -0.003, "z": 0.020, "yaw": 0.000, "width": 0.080},
+      "layer_index": 3,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.1196},
+      "reason": "黄色圆柱体底面积最大，适合承重并作为顶层前序"
+    },
+    {
+      "target_object": "物块5",
+      "grasp_pose": {"x": 0.021, "y": 0.062, "z": 0.020, "yaw": -0.845, "width": 0.065},
+      "layer_index": 4,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.1632},
+      "reason": "紫色三角体必须单独位于最顶层，且为唯一顶层物块"
+    }
+  ]
+}
+==================================================
+
+==================================================
+【最终动作计划】
+  Action 1: 物块1, grasp=(-0.092, -0.129, 0.020, yaw=0.307, width=0.033), layer=0, slot=center, place=(0.500, 0.000, 0.000), reason=红色正方体底面积最小，适合做底层中心支撑
+  Action 2: 物块2, grasp=(0.154, 0.076, 0.020, yaw=1.394, width=0.049), layer=1, slot=center, place=(0.500, 0.000, 0.039), reason=绿色正方体尺寸适中，可稳定堆叠于底层之上
+  Action 3: 物块3, grasp=(-0.100, 0.121, 0.020, yaw=0.000, width=0.073), layer=2, slot=center, place=(0.500, 0.000, 0.076), reason=蓝色圆柱体高度较高，适合放在中间层以增加稳定性
+  Action 4: 物块4, grasp=(-0.156, -0.003, 0.020, yaw=0.000, width=0.080), layer=3, slot=center, place=(0.500, 0.000, 0.120), reason=黄色圆柱体底面积最大，适合承重并作为顶层前序
+  Action 5: 物块5, grasp=(0.021, 0.062, 0.020, yaw=-0.845, width=0.065), layer=4, slot=center, place=(0.500, 0.000, 0.160), reason=紫色三角体必须单独位于最顶层，且为唯一顶层物块
+==================================================
+
+立方体抓取修正: 边长估计=0.0268m, 夹爪开度=0.0368m, 抓取高度=0.0102m
+执行动作: 抓取物块1, (-0.0920, -0.1290, 0.0102), 抓取角度=0.3070 rad, 夹爪宽度=0.0368m, 层=0, 槽位=center, 放置点=(0.5000, 0.0000, 0.0000)
+  [执行抓取] 目标位置: (-0.0920, -0.1290, 0.0052), 末端执行器将达到: z=0.0522
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+物理释放：物块中心已对准堆叠点，快速张开夹爪并解除约束。
+放置完成。
+立方体抓取修正: 边长估计=0.0392m, 夹爪开度=0.0492m, 抓取高度=0.0149m
+执行动作: 抓取物块2, (0.1540, 0.0760, 0.0149), 抓取角度=1.3940 rad, 夹爪宽度=0.0492m, 层=1, 槽位=center, 放置点=(0.5000, 0.0000, 0.0392)
+  [执行抓取] 目标位置: (0.1540, 0.0760, 0.0099), 末端执行器将达到: z=0.0569
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+物理释放：物块中心已对准堆叠点，快速张开夹爪并解除约束。
+放置完成。
+圆柱体抓取修正: 直径估计=0.0484m, 夹爪预开度=0.0734m, 抓取高度=0.0144m
+执行动作: 抓取物块3, (-0.1000, 0.1210, 0.0144), 抓取角度=0.0000 rad, 夹爪宽度=0.0734m, 层=2, 槽位=center, 放置点=(0.5000, 0.0000, 0.0760)
+  [执行抓取] 目标位置: (-0.1000, 0.1210, 0.0094), 末端执行器将达到: z=0.0564
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+物理释放：物块中心已对准堆叠点，快速张开夹爪并解除约束。
+放置完成。
+圆柱体抓取修正: 直径估计=0.0609m, 夹爪预开度=0.0800m, 抓取高度=0.0173m
+执行动作: 抓取物块4, (-0.1560, -0.0030, 0.0173), 抓取角度=0.0000 rad, 夹爪宽度=0.0800m, 层=3, 槽位=center, 放置点=(0.5000, 0.0000, 0.1196)
+  [执行抓取] 目标位置: (-0.1560, -0.0030, 0.0123), 末端执行器将达到: z=0.0593
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=True, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+物理释放：物块中心已对准堆叠点，快速张开夹爪并解除约束。
+放置完成。
+执行动作: 抓取物块5, (0.0210, 0.0620, 0.0200), 抓取角度=-0.8450 rad, 夹爪宽度=0.0650m, 层=4, 槽位=center, 放置点=(0.5000, 0.0000, 0.1600)
+  [执行抓取] 目标位置: (0.0210, 0.0620, 0.0150), 末端执行器将达到: z=0.0620
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+放置动作超时：已强制松爪，当前小次实验按失败记录并进入下一次。
+>> 渲染相机深度图...
+>> 硬件渲染结果异常，切换到软件渲染器...
+>> depth stats: min=0.499999, max=0.499999, unique~=1
+depth2Gray: flat depth image detected (min=max=0.499999), fallback to zeros.
+depth2Gray: flat depth image detected (min=max=0.000000), fallback to zeros.
+>> 侧视相机 left RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_left.png, success=True
+>> 侧视相机 right RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_right.png, success=True
+>> 渲染结束
+
+==================================================
+【阿里云百炼 (Qwen-VL) 堆叠验收原始返回】
+{"success": false, "reason": "物块未完全堆叠，存在散落情况"}
+==================================================
+
+==================================================
+【堆叠验收结果】
+实验组别: 随机尺寸 - 第三组：2个正方体 + 2个圆柱体 + 1个三角体
+实验次数: 第 4 次
+是否成功: 失败
+原因: 放置动作超时：已强制松爪，当前小次实验按失败记录并进入下一次。; 大模型判断：物块未完全堆叠，存在散落情况
+==================================================
+
+
+============================================================
+开始实验：随机尺寸 - 第三组：2个正方体 + 2个圆柱体 + 1个三角体，第 5/10 次
+物块组合：['cube', 'cube', 'cylinder', 'cylinder', 'cone_top']
+尺寸模式：随机尺寸 / random
+本次实验随机种子：20267507
+============================================================
+self.urdfs_filename =  ['cube\\cube_0.urdf', 'cube\\cube_1.urdf', 'cylinder\\cylinder.urdf', 'cylinder\\cylinder.urdf', 'cone_top\\cone_top_block.urdf']
+随机缩放比例: [1.18, 0.96, 0.72, 0.69, 1.09]
+物块1 已加载: 位置=(-0.116, -0.056, 0.026), 偏航角=0.309 rad
+物块2 已加载: 位置=(0.063, 0.050, 0.021), 偏航角=1.638 rad
+物块3 已加载: 位置=(-0.087, 0.117, 0.016), 偏航角=3.119 rad
+物块4 已加载: 位置=(0.147, -0.038, 0.016), 偏航角=-2.148 rad
+物块5 已加载: 位置=(0.101, -0.134, 0.024), 偏航角=3.037 rad
+>> 渲染相机深度图...
+>> 硬件渲染结果异常，切换到软件渲染器...
+>> depth stats: min=0.452809, max=0.499999, unique~=2044
+>> 侧视相机 left RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_left.png, success=True
+>> 侧视相机 right RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_right.png, success=True
+>> 渲染结束
+Mask 检测到的物块数量: 5/5
+
+==================================================
+【仿真环境中的物块信息】
+  物块1: 形状=正方体, 颜色=红色, 缩放比例=1.18, 边长=0.0593m, 体积=0.00020884m^3, 位置=(-0.116, -0.056)
+  [抓取位姿] 物块1: 物体底部z=-0.0000, 物体高度=0.0472, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (-0.128, -0.062)
+  物块2: 形状=正方体, 颜色=绿色, 缩放比例=0.96, 边长=0.0409m, 体积=0.00006838m^3, 位置=(0.063, 0.050)
+  [抓取位姿] 物块2: 物体底部z=-0.0000, 物体高度=0.0384, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (0.069, 0.056)
+  物块3: 形状=圆柱体, 颜色=蓝色, 缩放比例=0.72, 直径=0.0335m, 高度=0.0328m, 体积=0.00002897m^3, 位置=(-0.087, 0.117)
+  [抓取位姿] 物块3: 物体底部z=-0.0010, 物体高度=0.0328, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (-0.093, 0.128)
+  物块4: 形状=圆柱体, 颜色=黄色, 缩放比例=0.69, 直径=0.0437m, 高度=0.0316m, 体积=0.00004746m^3, 位置=(0.147, -0.038)
+  [抓取位姿] 物块4: 物体底部z=-0.0010, 物体高度=0.0316, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (0.158, -0.040)
+  物块5: 形状=三角体, 颜色=紫色, 缩放比例=1.09, 底面直径=0.0543m, 高度=0.0457m, 体积=0.00003533m^3, 位置=(0.101, -0.134)
+  [三角体抓取] 侧视图分析结果: 侧视轮廓更像三角面，优先尝试与当前顶视方向垂直的夹取方向
+  [三角体抓取] 原始角度=-0.1003, 调整后角度=1.4705
+  [抓取位姿] 物块5: 物体底部z=-0.0030, 物体高度=0.0457, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (0.104, -0.143)
+==================================================
+
+正在询问阿里云百炼 (Qwen-VL)直接生成抓取放置动作...
+[调试] API URL: https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions
+[调试] Model: qwen-vl-max-latest
+[调试] API Key前缀: sk-4ea064d...
+[调试] 超时时间: 30秒
+[调试] user_content类型: <class 'list'>
+[调试] user_content长度: 4
+[调试]   item[0] type: text
+[调试]   item[1] type: image_url
+[调试]   image_url长度: 9986
+[调试]   item[2] type: image_url
+[调试]   image_url长度: 13574
+[调试]   item[3] type: image_url
+[调试]   image_url长度: 10030
+[调试] 响应状态码: 200
+[调试] 响应JSON keys: dict_keys(['choices', 'object', 'usage', 'created', 'system_fingerprint', 'model', 'id'])
+[调试] finish_reason: stop
+[调试] content长度: 1412
+[调试] content前100字符: {
+  "actions": [
+    {
+      "target_object": "物块1",
+      "grasp_pose": {"x": -0.116, "y": -0.056, 
+
+==================================================
+【阿里云百炼 (Qwen-VL) 动作计划原始返回】
+{
+  "actions": [
+    {
+      "target_object": "物块1",
+      "grasp_pose": {"x": -0.116, "y": -0.056, "z": 0.020, "yaw": 0.309, "width": 0.057},
+      "layer_index": 0,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.000},
+      "reason": "红色正方体底面积最大，适合作为底层中心支撑"
+    },
+    {
+      "target_object": "物块2",
+      "grasp_pose": {"x": 0.063, "y": 0.050, "z": 0.020, "yaw": -1.504, "width": 0.048},
+      "layer_index": 1,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.0472},
+      "reason": "绿色正方体尺寸适中，适合放在第二层中心"
+    },
+    {
+      "target_object": "物块3",
+      "grasp_pose": {"x": -0.087, "y": 0.117, "z": 0.020, "yaw": 0.000, "width": 0.038},
+      "layer_index": 2,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.0856},
+      "reason": "蓝色圆柱体高度适中，适合第三层中心堆叠"
+    },
+    {
+      "target_object": "物块4",
+      "grasp_pose": {"x": 0.147, "y": -0.038, "z": 0.020, "yaw": 0.000, "width": 0.069},
+      "layer_index": 3,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.1184},
+      "reason": "黄色圆柱体较矮但稳定，适合第四层中心"
+    },
+    {
+      "target_object": "物块5",
+      "grasp_pose": {"x": 0.101, "y": -0.134, "z": 0.020, "yaw": 1.470, "width": 0.045},
+      "layer_index": 4,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.1500},
+      "reason": "紫色三角体必须作为最顶层且单独放置，符合实验要求"
+    }
+  ]
+}
+==================================================
+
+==================================================
+【最终动作计划】
+  Action 1: 物块1, grasp=(-0.116, -0.056, 0.020, yaw=0.309, width=0.057), layer=0, slot=center, place=(0.500, 0.000, 0.000), reason=红色正方体底面积最大，适合作为底层中心支撑
+  Action 2: 物块2, grasp=(0.063, 0.050, 0.020, yaw=-1.504, width=0.048), layer=1, slot=center, place=(0.500, 0.000, 0.047), reason=绿色正方体尺寸适中，适合放在第二层中心
+  Action 3: 物块3, grasp=(-0.087, 0.117, 0.020, yaw=0.000, width=0.038), layer=2, slot=center, place=(0.500, 0.000, 0.086), reason=蓝色圆柱体高度适中，适合第三层中心堆叠
+  Action 4: 物块4, grasp=(0.147, -0.038, 0.020, yaw=0.000, width=0.069), layer=3, slot=center, place=(0.500, 0.000, 0.118), reason=黄色圆柱体较矮但稳定，适合第四层中心
+  Action 5: 物块5, grasp=(0.101, -0.134, 0.020, yaw=1.470, width=0.045), layer=4, slot=center, place=(0.500, 0.000, 0.160), reason=紫色三角体必须作为最顶层且单独放置，符合实验要求
+==================================================
+
+立方体抓取修正: 边长估计=0.0472m, 夹爪开度=0.0572m, 抓取高度=0.0179m
+执行动作: 抓取物块1, (-0.1160, -0.0560, 0.0179), 抓取角度=0.3090 rad, 夹爪宽度=0.0572m, 层=0, 槽位=center, 放置点=(0.5000, 0.0000, 0.0000)
+  [执行抓取] 目标位置: (-0.1160, -0.0560, 0.0129), 末端执行器将达到: z=0.0599
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=True, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+物理释放：物块中心已对准堆叠点，快速张开夹爪并解除约束。
+放置完成。
+立方体抓取修正: 边长估计=0.0384m, 夹爪开度=0.0484m, 抓取高度=0.0146m
+执行动作: 抓取物块2, (0.0630, 0.0500, 0.0146), 抓取角度=-1.5040 rad, 夹爪宽度=0.0484m, 层=1, 槽位=center, 放置点=(0.5000, 0.0000, 0.0472)
+  [执行抓取] 目标位置: (0.0630, 0.0500, 0.0096), 末端执行器将达到: z=0.0566
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+物理释放：物块中心已对准堆叠点，快速张开夹爪并解除约束。
+放置完成。
+圆柱体抓取修正: 直径估计=0.0335m, 夹爪预开度=0.0585m, 抓取高度=0.0128m
+执行动作: 抓取物块3, (-0.0870, 0.1170, 0.0128), 抓取角度=0.0000 rad, 夹爪宽度=0.0585m, 层=2, 槽位=center, 放置点=(0.5000, 0.0000, 0.0856)
+  [执行抓取] 目标位置: (-0.0870, 0.1170, 0.0078), 末端执行器将达到: z=0.0548
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+物理释放：物块中心已对准堆叠点，快速张开夹爪并解除约束。
+放置完成。
+圆柱体抓取修正: 直径估计=0.0437m, 夹爪预开度=0.0687m, 抓取高度=0.0123m
+执行动作: 抓取物块4, (0.1470, -0.0380, 0.0123), 抓取角度=0.0000 rad, 夹爪宽度=0.0687m, 层=3, 槽位=center, 放置点=(0.5000, 0.0000, 0.1184)
+  [执行抓取] 目标位置: (0.1470, -0.0380, 0.0073), 末端执行器将达到: z=0.0543
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+物理释放：物块中心已对准堆叠点，快速张开夹爪并解除约束。
+放置完成。
+执行动作: 抓取物块5, (0.1010, -0.1340, 0.0200), 抓取角度=1.4700 rad, 夹爪宽度=0.0450m, 层=4, 槽位=center, 放置点=(0.5000, 0.0000, 0.1600)
+  [执行抓取] 目标位置: (0.1010, -0.1340, 0.0150), 末端执行器将达到: z=0.0620
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+物理释放：物块中心已对准堆叠点，快速张开夹爪并解除约束。
+放置完成。
+Auto run finished: all objects processed.
+>> 渲染相机深度图...
+>> 硬件渲染结果异常，切换到软件渲染器...
+>> depth stats: min=0.499999, max=0.499999, unique~=1
+depth2Gray: flat depth image detected (min=max=0.499999), fallback to zeros.
+depth2Gray: flat depth image detected (min=max=0.000000), fallback to zeros.
+>> 侧视相机 left RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_left.png, success=True
+>> 侧视相机 right RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_right.png, success=True
+>> 渲染结束
+
+==================================================
+【阿里云百炼 (Qwen-VL) 堆叠验收原始返回】
+{"success": true, "reason": "物块已形成明显的竖向堆叠，整体稳定"}
+==================================================
+
+==================================================
+【堆叠验收结果】
+实验组别: 随机尺寸 - 第三组：2个正方体 + 2个圆柱体 + 1个三角体
+实验次数: 第 5 次
+是否成功: 成功
+原因: 物块已形成明显的竖向堆叠，整体稳定
+==================================================
+
+
+============================================================
+开始实验：随机尺寸 - 第三组：2个正方体 + 2个圆柱体 + 1个三角体，第 6/10 次
+物块组合：['cube', 'cube', 'cylinder', 'cylinder', 'cone_top']
+尺寸模式：随机尺寸 / random
+本次实验随机种子：20267508
+============================================================
+self.urdfs_filename =  ['cube\\cube_0.urdf', 'cube\\cube_1.urdf', 'cylinder\\cylinder.urdf', 'cylinder\\cylinder.urdf', 'cone_top\\cone_top_block.urdf']
+随机缩放比例: [0.75, 0.67, 0.68, 1.01, 1.07]
+物块1 已加载: 位置=(0.070, 0.076, 0.017), 偏航角=0.427 rad
+物块2 已加载: 位置=(-0.091, 0.087, 0.015), 偏航角=-0.482 rad
+物块3 已加载: 位置=(-0.141, -0.116, 0.016), 偏航角=-2.358 rad
+物块4 已加载: 位置=(0.115, -0.014, 0.022), 偏航角=0.573 rad
+物块5 已加载: 位置=(-0.105, -0.026, 0.023), 偏航角=-0.569 rad
+>> 渲染相机深度图...
+>> depth stats: min=0.457614, max=0.500000, unique~=1878
+>> 侧视相机 left RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_left.png, success=True
+>> 侧视相机 right RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_right.png, success=True
+>> 渲染结束
+Mask 检测到的物块数量: 5/5
+
+==================================================
+【仿真环境中的物块信息】
+  物块1: 形状=正方体, 颜色=红色, 缩放比例=0.75, 边长=0.0397m, 体积=0.00006272m^3, 位置=(0.070, 0.076)
+  [抓取位姿] 物块1: 物体底部z=-0.0000, 物体高度=0.0300, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (0.074, 0.082)
+  物块2: 形状=正方体, 颜色=绿色, 缩放比例=0.67, 边长=0.0362m, 体积=0.00004730m^3, 位置=(-0.091, 0.087)
+  [抓取位姿] 物块2: 物体底部z=-0.0000, 物体高度=0.0268, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (-0.098, 0.094)
+  物块3: 形状=圆柱体, 颜色=蓝色, 缩放比例=0.68, 直径=0.0441m, 高度=0.0312m, 体积=0.00004772m^3, 位置=(-0.141, -0.116)
+  [抓取位姿] 物块3: 物体底部z=-0.0010, 物体高度=0.0312, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (-0.152, -0.125)
+  物块4: 形状=圆柱体, 颜色=黄色, 缩放比例=1.01, 直径=0.0614m, 高度=0.0444m, 体积=0.00013139m^3, 位置=(0.115, -0.014)
+  [抓取位姿] 物块4: 物体底部z=-0.0010, 物体高度=0.0444, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (0.126, -0.016)
+  物块5: 形状=三角体, 颜色=紫色, 缩放比例=1.07, 底面直径=0.0586m, 高度=0.0450m, 体积=0.00004052m^3, 位置=(-0.105, -0.026)
+  [三角体抓取] 侧视图分析结果: 侧视轮廓更像三角面，优先尝试与当前顶视方向垂直的夹取方向
+  [三角体抓取] 原始角度=-0.5731, 调整后角度=0.9976
+  [抓取位姿] 物块5: 物体底部z=-0.0030, 物体高度=0.0450, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (-0.112, -0.030)
+==================================================
+
+正在询问阿里云百炼 (Qwen-VL)直接生成抓取放置动作...
+[调试] API URL: https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions
+[调试] Model: qwen-vl-max-latest
+[调试] API Key前缀: sk-4ea064d...
+[调试] 超时时间: 30秒
+[调试] user_content类型: <class 'list'>
+[调试] user_content长度: 4
+[调试]   item[0] type: text
+[调试]   item[1] type: image_url
+[调试]   image_url长度: 390414
+[调试]   item[2] type: image_url
+[调试]   image_url长度: 243218
+[调试]   item[3] type: image_url
+[调试]   image_url长度: 292598
+[调试] 响应状态码: 200
+[调试] 响应JSON keys: dict_keys(['choices', 'object', 'usage', 'created', 'system_fingerprint', 'model', 'id'])
+[调试] finish_reason: stop
+[调试] content长度: 1405
+[调试] content前100字符: {
+  "actions": [
+    {
+      "target_object": "物块4",
+      "grasp_pose": {"x": 0.115, "y": -0.014, "
+
+==================================================
+【阿里云百炼 (Qwen-VL) 动作计划原始返回】
+{
+  "actions": [
+    {
+      "target_object": "物块4",
+      "grasp_pose": {"x": 0.115, "y": -0.014, "z": 0.020, "yaw": 0.000, "width": 0.080},
+      "layer_index": 0,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.000},
+      "reason": "黄色圆柱体底面积最大，适合作为最稳定底层"
+    },
+    {
+      "target_object": "物块3",
+      "grasp_pose": {"x": -0.141, "y": -0.116, "z": 0.020, "yaw": 0.000, "width": 0.069},
+      "layer_index": 1,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.0312},
+      "reason": "蓝色圆柱体高度适中，可作为中间层支撑"
+    },
+    {
+      "target_object": "物块1",
+      "grasp_pose": {"x": 0.070, "y": 0.076, "z": 0.020, "yaw": 0.427, "width": 0.034},
+      "layer_index": 2,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.0612},
+      "reason": "红色正方体尺寸较小，适合放在上层"
+    },
+    {
+      "target_object": "物块2",
+      "grasp_pose": {"x": -0.091, "y": 0.087, "z": 0.020, "yaw": -0.482, "width": 0.033},
+      "layer_index": 3,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.0912},
+      "reason": "绿色正方体较轻，适合在顶层下方"
+    },
+    {
+      "target_object": "物块5",
+      "grasp_pose": {"x": -0.105, "y": -0.026, "z": 0.020, "yaw": 0.998, "width": 0.062},
+      "layer_index": 4,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.1362},
+      "reason": "紫色三角体必须作为最顶层且单独放置，符合任务规则"
+    }
+  ]
+}
+==================================================
+
+==================================================
+【最终动作计划】
+  Action 1: 物块4, grasp=(0.115, -0.014, 0.020, yaw=0.000, width=0.080), layer=0, slot=center, place=(0.500, 0.000, 0.000), reason=黄色圆柱体底面积最大，适合作为最稳定底层
+  Action 2: 物块3, grasp=(-0.141, -0.116, 0.020, yaw=0.000, width=0.069), layer=1, slot=center, place=(0.500, 0.000, 0.031), reason=蓝色圆柱体高度适中，可作为中间层支撑
+  Action 3: 物块1, grasp=(0.070, 0.076, 0.020, yaw=0.427, width=0.034), layer=2, slot=center, place=(0.500, 0.000, 0.061), reason=红色正方体尺寸较小，适合放在上层
+  Action 4: 物块2, grasp=(-0.091, 0.087, 0.020, yaw=-0.482, width=0.033), layer=3, slot=center, place=(0.500, 0.000, 0.091), reason=绿色正方体较轻，适合在顶层下方
+  Action 5: 物块5, grasp=(-0.105, -0.026, 0.020, yaw=0.998, width=0.062), layer=4, slot=center, place=(0.500, 0.000, 0.160), reason=紫色三角体必须作为最顶层且单独放置，符合任务规则
+==================================================
+
+圆柱体抓取修正: 直径估计=0.0614m, 夹爪预开度=0.0800m, 抓取高度=0.0176m
+执行动作: 抓取物块4, (0.1150, -0.0140, 0.0176), 抓取角度=0.0000 rad, 夹爪宽度=0.0800m, 层=0, 槽位=center, 放置点=(0.5000, 0.0000, 0.0000)
+  [执行抓取] 目标位置: (0.1150, -0.0140, 0.0126), 末端执行器将达到: z=0.0596
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=True, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+物理释放：物块中心已对准堆叠点，快速张开夹爪并解除约束。
+放置完成。
+圆柱体抓取修正: 直径估计=0.0441m, 夹爪预开度=0.0691m, 抓取高度=0.0121m
+执行动作: 抓取物块3, (-0.1410, -0.1160, 0.0121), 抓取角度=0.0000 rad, 夹爪宽度=0.0691m, 层=1, 槽位=center, 放置点=(0.5000, 0.0000, 0.0312)
+  [执行抓取] 目标位置: (-0.1410, -0.1160, 0.0071), 末端执行器将达到: z=0.0541
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+物理释放：物块中心已对准堆叠点，快速张开夹爪并解除约束。
+放置完成。
+立方体抓取修正: 边长估计=0.0300m, 夹爪开度=0.0400m, 抓取高度=0.0114m
+执行动作: 抓取物块1, (0.0700, 0.0760, 0.0114), 抓取角度=0.4270 rad, 夹爪宽度=0.0400m, 层=2, 槽位=center, 放置点=(0.5000, 0.0000, 0.0612)
+  [执行抓取] 目标位置: (0.0700, 0.0760, 0.0064), 末端执行器将达到: z=0.0534
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+物理释放：物块中心已对准堆叠点，快速张开夹爪并解除约束。
+放置完成。
+立方体抓取修正: 边长估计=0.0268m, 夹爪开度=0.0368m, 抓取高度=0.0102m
+执行动作: 抓取物块2, (-0.0910, 0.0870, 0.0102), 抓取角度=-0.4820 rad, 夹爪宽度=0.0368m, 层=3, 槽位=center, 放置点=(0.5000, 0.0000, 0.0912)
+  [执行抓取] 目标位置: (-0.0910, 0.0870, 0.0052), 末端执行器将达到: z=0.0522
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+物理释放：物块中心已对准堆叠点，快速张开夹爪并解除约束。
+放置完成。
+执行动作: 抓取物块5, (-0.1050, -0.0260, 0.0200), 抓取角度=0.9980 rad, 夹爪宽度=0.0620m, 层=4, 槽位=center, 放置点=(0.5000, 0.0000, 0.1600)
+  [执行抓取] 目标位置: (-0.1050, -0.0260, 0.0150), 末端执行器将达到: z=0.0620
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+物理释放：物块中心已对准堆叠点，快速张开夹爪并解除约束。
+放置完成。
+Auto run finished: all objects processed.
+>> 渲染相机深度图...
+>> 硬件渲染结果异常，切换到软件渲染器...
+>> depth stats: min=0.499999, max=0.499999, unique~=1
+depth2Gray: flat depth image detected (min=max=0.499999), fallback to zeros.
+depth2Gray: flat depth image detected (min=max=0.000000), fallback to zeros.
+>> 侧视相机 left RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_left.png, success=True
+>> 侧视相机 right RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_right.png, success=True
+>> 渲染结束
+
+==================================================
+【阿里云百炼 (Qwen-VL) 堆叠验收原始返回】
+{"success": true, "reason": "物块已形成明显的竖向堆叠，整体稳定"}
+==================================================
+
+==================================================
+【堆叠验收结果】
+实验组别: 随机尺寸 - 第三组：2个正方体 + 2个圆柱体 + 1个三角体
+实验次数: 第 6 次
+是否成功: 成功
+原因: 物块已形成明显的竖向堆叠，整体稳定
+==================================================
+
+
+============================================================
+开始实验：随机尺寸 - 第三组：2个正方体 + 2个圆柱体 + 1个三角体，第 7/10 次
+物块组合：['cube', 'cube', 'cylinder', 'cylinder', 'cone_top']
+尺寸模式：随机尺寸 / random
+本次实验随机种子：20267509
+============================================================
+self.urdfs_filename =  ['cube\\cube_0.urdf', 'cube\\cube_1.urdf', 'cylinder\\cylinder.urdf', 'cylinder\\cylinder.urdf', 'cone_top\\cone_top_block.urdf']
+随机缩放比例: [0.69, 1.16, 0.81, 1.18, 0.92]
+物块1 已加载: 位置=(0.090, -0.121, 0.016), 偏航角=-1.151 rad
+物块2 已加载: 位置=(-0.061, 0.122, 0.025), 偏航角=3.118 rad
+物块3 已加载: 位置=(0.132, 0.045, 0.018), 偏航角=-2.399 rad
+物块4 已加载: 位置=(-0.035, -0.081, 0.026), 偏航角=1.983 rad
+物块5 已加载: 位置=(0.177, -0.059, 0.020), 偏航角=-3.036 rad
+>> 渲染相机深度图...
+>> depth stats: min=0.450813, max=0.500000, unique~=2088
+>> 侧视相机 left RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_left.png, success=True
+>> 侧视相机 right RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_right.png, success=True
+>> 渲染结束
+Mask 检测到的物块数量: 5/5
+
+==================================================
+【仿真环境中的物块信息】
+  物块1: 形状=正方体, 颜色=红色, 缩放比例=0.69, 边长=0.0364m, 体积=0.00004842m^3, 位置=(0.090, -0.121)
+  [抓取位姿] 物块1: 物体底部z=-0.0000, 物体高度=0.0276, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (0.096, -0.128)
+  物块2: 形状=正方体, 颜色=绿色, 缩放比例=1.16, 边长=0.0475m, 体积=0.00010700m^3, 位置=(-0.061, 0.122)
+  [抓取位姿] 物块2: 物体底部z=-0.0000, 物体高度=0.0464, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (-0.068, 0.136)
+  物块3: 形状=圆柱体, 颜色=蓝色, 缩放比例=0.81, 直径=0.0514m, 高度=0.0364m, 体积=0.00007564m^3, 位置=(0.132, 0.045)
+  [抓取位姿] 物块3: 物体底部z=-0.0010, 物体高度=0.0364, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (0.142, 0.050)
+  物块4: 形状=圆柱体, 颜色=黄色, 缩放比例=1.18, 直径=0.0674m, 高度=0.0512m, 体积=0.00018290m^3, 位置=(-0.035, -0.081)
+  [抓取位姿] 物块4: 物体底部z=-0.0010, 物体高度=0.0512, 抓取点z=0.0205, 末端执行器目标z=0.0675
+    -> Mask 抓取候选 (-0.041, -0.090)
+  物块5: 形状=三角体, 颜色=紫色, 缩放比例=0.92, 底面直径=0.0473m, 高度=0.0398m, 体积=0.00002337m^3, 位置=(0.177, -0.059)
+  [三角体抓取] 侧视图分析结果: 侧视轮廓更接近平整侧面，保持当前顶视抓取方向
+  [三角体抓取] 原始角度=0.1057, 调整后角度=0.1057
+  [抓取位姿] 物块5: 物体底部z=-0.0030, 物体高度=0.0398, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (0.184, -0.062)
+==================================================
+
+正在询问阿里云百炼 (Qwen-VL)直接生成抓取放置动作...
+[调试] API URL: https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions
+[调试] Model: qwen-vl-max-latest
+[调试] API Key前缀: sk-4ea064d...
+[调试] 超时时间: 30秒
+[调试] user_content类型: <class 'list'>
+[调试] user_content长度: 4
+[调试]   item[0] type: text
+[调试]   item[1] type: image_url
+[调试]   image_url长度: 386746
+[调试]   item[2] type: image_url
+[调试]   image_url长度: 241510
+[调试]   item[3] type: image_url
+[调试]   image_url长度: 291462
+[调试] 响应状态码: 200
+[调试] 响应JSON keys: dict_keys(['choices', 'object', 'usage', 'created', 'system_fingerprint', 'model', 'id'])
+[调试] finish_reason: stop
+[调试] content长度: 1407
+[调试] content前100字符: {
+  "actions": [
+    {
+      "target_object": "物块4",
+      "grasp_pose": {"x": -0.035, "y": -0.081, 
+
+==================================================
+【阿里云百炼 (Qwen-VL) 动作计划原始返回】
+{
+  "actions": [
+    {
+      "target_object": "物块4",
+      "grasp_pose": {"x": -0.035, "y": -0.081, "z": 0.020, "yaw": 0.0, "width": 0.080},
+      "layer_index": 0,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.000},
+      "reason": "黄色圆柱体底面积最大，适合作为最稳定底层"
+    },
+    {
+      "target_object": "物块2",
+      "grasp_pose": {"x": -0.061, "y": 0.122, "z": 0.020, "yaw": -0.023, "width": 0.056},
+      "layer_index": 1,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.0512},
+      "reason": "绿色正方体高度较高，适合放在中间层作为支撑"
+    },
+    {
+      "target_object": "物块3",
+      "grasp_pose": {"x": 0.132, "y": 0.045, "z": 0.020, "yaw": 0.0, "width": 0.076},
+      "layer_index": 2,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.0976},
+      "reason": "蓝色圆柱体尺寸适中，可作为上层过渡"
+    },
+    {
+      "target_object": "物块1",
+      "grasp_pose": {"x": 0.090, "y": -0.121, "z": 0.020, "yaw": -1.151, "width": 0.034},
+      "layer_index": 3,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.1340},
+      "reason": "红色正方体较小，适合放在顶层下方作为承托"
+    },
+    {
+      "target_object": "物块5",
+      "grasp_pose": {"x": 0.177, "y": -0.059, "z": 0.020, "yaw": 0.106, "width": 0.041},
+      "layer_index": 4,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.1738},
+      "reason": "紫色三角体必须单独位于最顶层，符合实验要求"
+    }
+  ]
+}
+==================================================
+
+==================================================
+【最终动作计划】
+  Action 1: 物块4, grasp=(-0.035, -0.081, 0.020, yaw=0.000, width=0.080), layer=0, slot=center, place=(0.500, 0.000, 0.000), reason=黄色圆柱体底面积最大，适合作为最稳定底层
+  Action 2: 物块2, grasp=(-0.061, 0.122, 0.020, yaw=-0.023, width=0.056), layer=1, slot=center, place=(0.500, 0.000, 0.051), reason=绿色正方体高度较高，适合放在中间层作为支撑
+  Action 3: 物块3, grasp=(0.132, 0.045, 0.020, yaw=0.000, width=0.076), layer=2, slot=center, place=(0.500, 0.000, 0.098), reason=蓝色圆柱体尺寸适中，可作为上层过渡
+  Action 4: 物块1, grasp=(0.090, -0.121, 0.020, yaw=-1.151, width=0.034), layer=3, slot=center, place=(0.500, 0.000, 0.134), reason=红色正方体较小，适合放在顶层下方作为承托
+  Action 5: 物块5, grasp=(0.177, -0.059, 0.020, yaw=0.106, width=0.041), layer=4, slot=center, place=(0.500, 0.000, 0.160), reason=紫色三角体必须单独位于最顶层，符合实验要求
+==================================================
+
+圆柱体抓取修正: 直径估计=0.0674m, 夹爪预开度=0.0800m, 抓取高度=0.0205m
+执行动作: 抓取物块4, (-0.0350, -0.0810, 0.0205), 抓取角度=0.0000 rad, 夹爪宽度=0.0800m, 层=0, 槽位=center, 放置点=(0.5000, 0.0000, 0.0000)
+  [执行抓取] 目标位置: (-0.0350, -0.0810, 0.0155), 末端执行器将达到: z=0.0625
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=True, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+物理释放：物块中心已对准堆叠点，快速张开夹爪并解除约束。
+放置完成。
+立方体抓取修正: 边长估计=0.0464m, 夹爪开度=0.0564m, 抓取高度=0.0176m
+执行动作: 抓取物块2, (-0.0610, 0.1220, 0.0176), 抓取角度=-0.0230 rad, 夹爪宽度=0.0564m, 层=1, 槽位=center, 放置点=(0.5000, 0.0000, 0.0512)
+  [执行抓取] 目标位置: (-0.0610, 0.1220, 0.0126), 末端执行器将达到: z=0.0596
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=True, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+物理释放：物块中心已对准堆叠点，快速张开夹爪并解除约束。
+放置完成。
+圆柱体抓取修正: 直径估计=0.0514m, 夹爪预开度=0.0764m, 抓取高度=0.0143m
+执行动作: 抓取物块3, (0.1320, 0.0450, 0.0143), 抓取角度=0.0000 rad, 夹爪宽度=0.0764m, 层=2, 槽位=center, 放置点=(0.5000, 0.0000, 0.0976)
+  [执行抓取] 目标位置: (0.1320, 0.0450, 0.0093), 末端执行器将达到: z=0.0563
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+物理释放：物块中心已对准堆叠点，快速张开夹爪并解除约束。
+放置完成。
+立方体抓取修正: 边长估计=0.0276m, 夹爪开度=0.0376m, 抓取高度=0.0105m
+执行动作: 抓取物块1, (0.0900, -0.1210, 0.0105), 抓取角度=-1.1510 rad, 夹爪宽度=0.0376m, 层=3, 槽位=center, 放置点=(0.5000, 0.0000, 0.1340)
+  [执行抓取] 目标位置: (0.0900, -0.1210, 0.0055), 末端执行器将达到: z=0.0525
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+物理释放：物块中心已对准堆叠点，快速张开夹爪并解除约束。
+放置完成。
+执行动作: 抓取物块5, (0.1770, -0.0590, 0.0200), 抓取角度=0.1060 rad, 夹爪宽度=0.0410m, 层=4, 槽位=center, 放置点=(0.5000, 0.0000, 0.1600)
+  [执行抓取] 目标位置: (0.1770, -0.0590, 0.0150), 末端执行器将达到: z=0.0620
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+物理释放：物块中心已对准堆叠点，快速张开夹爪并解除约束。
+放置完成。
+Auto run finished: all objects processed.
+>> 渲染相机深度图...
+>> 硬件渲染结果异常，切换到软件渲染器...
+>> depth stats: min=0.499999, max=0.499999, unique~=1
+depth2Gray: flat depth image detected (min=max=0.499999), fallback to zeros.
+depth2Gray: flat depth image detected (min=max=0.000000), fallback to zeros.
+>> 侧视相机 left RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_left.png, success=True
+>> 侧视相机 right RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_right.png, success=True
+>> 渲染结束
+
+==================================================
+【阿里云百炼 (Qwen-VL) 堆叠验收原始返回】
+{"success": true, "reason": "物块已形成明显的竖向堆叠，整体稳定"}
+==================================================
+
+==================================================
+【堆叠验收结果】
+实验组别: 随机尺寸 - 第三组：2个正方体 + 2个圆柱体 + 1个三角体
+实验次数: 第 7 次
+是否成功: 成功
+原因: 物块已形成明显的竖向堆叠，整体稳定
+==================================================
+
+
+============================================================
+开始实验：随机尺寸 - 第三组：2个正方体 + 2个圆柱体 + 1个三角体，第 8/10 次
+物块组合：['cube', 'cube', 'cylinder', 'cylinder', 'cone_top']
+尺寸模式：随机尺寸 / random
+本次实验随机种子：20267510
+============================================================
+self.urdfs_filename =  ['cube\\cube_0.urdf', 'cube\\cube_1.urdf', 'cylinder\\cylinder.urdf', 'cylinder\\cylinder.urdf', 'cone_top\\cone_top_block.urdf']
+随机缩放比例: [0.74, 0.97, 0.69, 0.62, 0.85]
+物块1 已加载: 位置=(0.010, 0.080, 0.017), 偏航角=3.005 rad
+物块2 已加载: 位置=(-0.100, 0.108, 0.021), 偏航角=2.181 rad
+物块3 已加载: 位置=(-0.077, -0.039, 0.016), 偏航角=-1.616 rad
+物块4 已加载: 位置=(0.119, 0.014, 0.014), 偏航角=1.961 rad
+物块5 已加载: 位置=(0.111, -0.096, 0.019), 偏航角=-2.024 rad
+>> 渲染相机深度图...
+>> depth stats: min=0.461212, max=0.500000, unique~=1397
+>> 侧视相机 left RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_left.png, success=True
+>> 侧视相机 right RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_right.png, success=True
+>> 渲染结束
+Mask 检测到的物块数量: 5/5
+
+==================================================
+【仿真环境中的物块信息】
+  物块1: 形状=正方体, 颜色=红色, 缩放比例=0.74, 边长=0.0334m, 体积=0.00003711m^3, 位置=(0.010, 0.080)
+  [抓取位姿] 物块1: 物体底部z=-0.0000, 物体高度=0.0296, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (0.010, 0.087)
+  物块2: 形状=正方体, 颜色=绿色, 缩放比例=0.97, 边长=0.0540m, 体积=0.00015774m^3, 位置=(-0.100, 0.108)
+  [抓取位姿] 物块2: 物体底部z=-0.0000, 物体高度=0.0388, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (-0.110, 0.118)
+  物块3: 形状=圆柱体, 颜色=蓝色, 缩放比例=0.69, 直径=0.0330m, 高度=0.0316m, 体积=0.00002704m^3, 位置=(-0.077, -0.039)
+  [抓取位姿] 物块3: 物体底部z=-0.0010, 物体高度=0.0316, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (-0.084, -0.041)
+  物块4: 形状=圆柱体, 颜色=黄色, 缩放比例=0.62, 直径=0.0376m, 高度=0.0288m, 体积=0.00003198m^3, 位置=(0.119, 0.014)
+  [抓取位姿] 物块4: 物体底部z=-0.0010, 物体高度=0.0288, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (0.127, 0.016)
+  物块5: 形状=三角体, 颜色=紫色, 缩放比例=0.85, 底面直径=0.0487m, 高度=0.0374m, 体积=0.00002325m^3, 位置=(0.111, -0.096)
+  [三角体抓取] 侧视图分析结果: 侧视轮廓更像三角面，优先尝试与当前顶视方向垂直的夹取方向
+  [三角体抓取] 原始角度=1.1158, 调整后角度=-0.4550
+  [抓取位姿] 物块5: 物体底部z=-0.0030, 物体高度=0.0374, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (0.120, -0.102)
+==================================================
+
+正在询问阿里云百炼 (Qwen-VL)直接生成抓取放置动作...
+[调试] API URL: https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions
+[调试] Model: qwen-vl-max-latest
+[调试] API Key前缀: sk-4ea064d...
+[调试] 超时时间: 30秒
+[调试] user_content类型: <class 'list'>
+[调试] user_content长度: 4
+[调试]   item[0] type: text
+[调试]   item[1] type: image_url
+[调试]   image_url长度: 388502
+[调试]   item[2] type: image_url
+[调试]   image_url长度: 240798
+[调试]   item[3] type: image_url
+[调试]   image_url长度: 292262
+[调试] 响应状态码: 200
+[调试] 响应JSON keys: dict_keys(['choices', 'object', 'usage', 'created', 'system_fingerprint', 'model', 'id'])
+[调试] finish_reason: stop
+[调试] content长度: 1410
+[调试] content前100字符: {
+  "actions": [
+    {
+      "target_object": "物块2",
+      "grasp_pose": {"x": -0.100, "y": 0.108, "
+
+==================================================
+【阿里云百炼 (Qwen-VL) 动作计划原始返回】
+{
+  "actions": [
+    {
+      "target_object": "物块2",
+      "grasp_pose": {"x": -0.100, "y": 0.108, "z": 0.020, "yaw": -0.961, "width": 0.049},
+      "layer_index": 0,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.000},
+      "reason": "绿色正方体底面积最大，适合作为最稳定底层"
+    },
+    {
+      "target_object": "物块1",
+      "grasp_pose": {"x": 0.010, "y": 0.080, "z": 0.020, "yaw": -0.137, "width": 0.034},
+      "layer_index": 1,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.0388},
+      "reason": "红色正方体尺寸适中，可稳定堆叠于绿色之上"
+    },
+    {
+      "target_object": "物块3",
+      "grasp_pose": {"x": -0.077, "y": -0.039, "z": 0.020, "yaw": 0.000, "width": 0.038},
+      "layer_index": 2,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.0784},
+      "reason": "蓝色圆柱体高度适中，适合中间层堆叠"
+    },
+    {
+      "target_object": "物块4",
+      "grasp_pose": {"x": 0.119, "y": 0.014, "z": 0.020, "yaw": 0.000, "width": 0.038},
+      "layer_index": 3,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.1072},
+      "reason": "黄色圆柱体较矮，适合在三角体下方作为支撑"
+    },
+    {
+      "target_object": "物块5",
+      "grasp_pose": {"x": 0.111, "y": -0.096, "z": 0.020, "yaw": -0.455, "width": 0.051},
+      "layer_index": 4,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.1360},
+      "reason": "紫色三角体必须位于最顶层且单独占据中心位置"
+    }
+  ]
+}
+==================================================
+
+==================================================
+【最终动作计划】
+  Action 1: 物块2, grasp=(-0.100, 0.108, 0.020, yaw=-0.961, width=0.049), layer=0, slot=center, place=(0.500, 0.000, 0.000), reason=绿色正方体底面积最大，适合作为最稳定底层
+  Action 2: 物块1, grasp=(0.010, 0.080, 0.020, yaw=-0.137, width=0.034), layer=1, slot=center, place=(0.500, 0.000, 0.039), reason=红色正方体尺寸适中，可稳定堆叠于绿色之上
+  Action 3: 物块3, grasp=(-0.077, -0.039, 0.020, yaw=0.000, width=0.038), layer=2, slot=center, place=(0.500, 0.000, 0.078), reason=蓝色圆柱体高度适中，适合中间层堆叠
+  Action 4: 物块4, grasp=(0.119, 0.014, 0.020, yaw=0.000, width=0.038), layer=3, slot=center, place=(0.500, 0.000, 0.107), reason=黄色圆柱体较矮，适合在三角体下方作为支撑
+  Action 5: 物块5, grasp=(0.111, -0.096, 0.020, yaw=-0.455, width=0.051), layer=4, slot=center, place=(0.500, 0.000, 0.160), reason=紫色三角体必须位于最顶层且单独占据中心位置
+==================================================
+
+立方体抓取修正: 边长估计=0.0388m, 夹爪开度=0.0488m, 抓取高度=0.0147m
+执行动作: 抓取物块2, (-0.1000, 0.1080, 0.0147), 抓取角度=-0.9610 rad, 夹爪宽度=0.0488m, 层=0, 槽位=center, 放置点=(0.5000, 0.0000, 0.0000)
+  [执行抓取] 目标位置: (-0.1000, 0.1080, 0.0097), 末端执行器将达到: z=0.0567
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+物理释放：物块中心已对准堆叠点，快速张开夹爪并解除约束。
+放置完成。
+立方体抓取修正: 边长估计=0.0296m, 夹爪开度=0.0396m, 抓取高度=0.0112m
+执行动作: 抓取物块1, (0.0100, 0.0800, 0.0112), 抓取角度=-0.1370 rad, 夹爪宽度=0.0396m, 层=1, 槽位=center, 放置点=(0.5000, 0.0000, 0.0388)
+  [执行抓取] 目标位置: (0.0100, 0.0800, 0.0062), 末端执行器将达到: z=0.0532
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+物理释放：物块中心已对准堆叠点，快速张开夹爪并解除约束。
+放置完成。
+圆柱体抓取修正: 直径估计=0.0330m, 夹爪预开度=0.0580m, 抓取高度=0.0123m
+执行动作: 抓取物块3, (-0.0770, -0.0390, 0.0123), 抓取角度=0.0000 rad, 夹爪宽度=0.0580m, 层=2, 槽位=center, 放置点=(0.5000, 0.0000, 0.0784)
+  [执行抓取] 目标位置: (-0.0770, -0.0390, 0.0073), 末端执行器将达到: z=0.0543
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+物理释放：物块中心已对准堆叠点，快速张开夹爪并解除约束。
+放置完成。
+圆柱体抓取修正: 直径估计=0.0376m, 夹爪预开度=0.0626m, 抓取高度=0.0111m
+执行动作: 抓取物块4, (0.1190, 0.0140, 0.0111), 抓取角度=0.0000 rad, 夹爪宽度=0.0626m, 层=3, 槽位=center, 放置点=(0.5000, 0.0000, 0.1072)
+  [执行抓取] 目标位置: (0.1190, 0.0140, 0.0061), 末端执行器将达到: z=0.0531
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+物理释放：物块中心已对准堆叠点，快速张开夹爪并解除约束。
+放置完成。
+执行动作: 抓取物块5, (0.1110, -0.0960, 0.0200), 抓取角度=-0.4550 rad, 夹爪宽度=0.0510m, 层=4, 槽位=center, 放置点=(0.5000, 0.0000, 0.1600)
+  [执行抓取] 目标位置: (0.1110, -0.0960, 0.0150), 末端执行器将达到: z=0.0620
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+物理释放：物块中心已对准堆叠点，快速张开夹爪并解除约束。
+放置完成。
+Auto run finished: all objects processed.
+>> 渲染相机深度图...
+>> 硬件渲染结果异常，切换到软件渲染器...
+>> depth stats: min=0.499999, max=0.499999, unique~=1
+depth2Gray: flat depth image detected (min=max=0.499999), fallback to zeros.
+depth2Gray: flat depth image detected (min=max=0.000000), fallback to zeros.
+>> 侧视相机 left RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_left.png, success=True
+>> 侧视相机 right RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_right.png, success=True
+>> 渲染结束
+
+==================================================
+【阿里云百炼 (Qwen-VL) 堆叠验收原始返回】
+{"success": true, "reason": "五个物块已形成明显的竖向堆叠，整体稳定"}
+==================================================
+
+==================================================
+【堆叠验收结果】
+实验组别: 随机尺寸 - 第三组：2个正方体 + 2个圆柱体 + 1个三角体
+实验次数: 第 8 次
+是否成功: 成功
+原因: 五个物块已形成明显的竖向堆叠，整体稳定
+==================================================
+
+
+============================================================
+开始实验：随机尺寸 - 第三组：2个正方体 + 2个圆柱体 + 1个三角体，第 9/10 次
+物块组合：['cube', 'cube', 'cylinder', 'cylinder', 'cone_top']
+尺寸模式：随机尺寸 / random
+本次实验随机种子：20267511
+============================================================
+self.urdfs_filename =  ['cube\\cube_0.urdf', 'cube\\cube_1.urdf', 'cylinder\\cylinder.urdf', 'cylinder\\cylinder.urdf', 'cone_top\\cone_top_block.urdf']
+随机缩放比例: [1.08, 0.86, 1.12, 0.78, 1.06]
+物块1 已加载: 位置=(0.142, -0.099, 0.024), 偏航角=0.800 rad
+物块2 已加载: 位置=(-0.174, -0.107, 0.019), 偏航角=-0.106 rad
+物块3 已加载: 位置=(0.090, 0.010, 0.024), 偏航角=-0.220 rad
+物块4 已加载: 位置=(0.176, 0.136, 0.018), 偏航角=1.253 rad
+物块5 已加载: 位置=(-0.145, 0.015, 0.023), 偏航角=-0.172 rad
+>> 渲染相机深度图...
+>> depth stats: min=0.453218, max=0.500000, unique~=2526
+>> 侧视相机 left RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_left.png, success=True
+>> 侧视相机 right RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_right.png, success=True
+>> 渲染结束
+Mask 检测到的物块数量: 5/5
+
+==================================================
+【仿真环境中的物块信息】
+  物块1: 形状=正方体, 颜色=红色, 缩放比例=1.08, 边长=0.0611m, 体积=0.00022796m^3, 位置=(0.142, -0.099)
+  [抓取位姿] 物块1: 物体底部z=-0.0000, 物体高度=0.0432, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (0.156, -0.107)
+  物块2: 形状=正方体, 颜色=绿色, 缩放比例=0.86, 边长=0.0378m, 体积=0.00005417m^3, 位置=(-0.174, -0.107)
+  [抓取位姿] 物块2: 物体底部z=-0.0000, 物体高度=0.0344, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (-0.189, -0.116)
+  物块3: 形状=圆柱体, 颜色=蓝色, 缩放比例=1.12, 直径=0.0583m, 高度=0.0488m, 体积=0.00013015m^3, 位置=(0.090, 0.010)
+  [抓取位姿] 物块3: 物体底部z=-0.0010, 物体高度=0.0488, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (0.099, 0.012)
+  物块4: 形状=圆柱体, 颜色=黄色, 缩放比例=0.78, 直径=0.0444m, 高度=0.0352m, 体积=0.00005462m^3, 位置=(0.176, 0.136)
+  [抓取位姿] 物块4: 物体底部z=-0.0010, 物体高度=0.0352, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (0.190, 0.147)
+  物块5: 形状=三角体, 颜色=紫色, 缩放比例=1.06, 底面直径=0.0548m, 高度=0.0447m, 体积=0.00003511m^3, 位置=(-0.145, 0.014)
+  [三角体抓取] 侧视图分析结果: 侧视轮廓更像三角面，优先尝试与当前顶视方向垂直的夹取方向
+  [三角体抓取] 原始角度=-0.1784, 调整后角度=1.3924
+  [抓取位姿] 物块5: 物体底部z=-0.0030, 物体高度=0.0447, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (-0.151, 0.015)
+==================================================
+
+正在询问阿里云百炼 (Qwen-VL)直接生成抓取放置动作...
+[调试] API URL: https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions
+[调试] Model: qwen-vl-max-latest
+[调试] API Key前缀: sk-4ea064d...
+[调试] 超时时间: 30秒
+[调试] user_content类型: <class 'list'>
+[调试] user_content长度: 4
+[调试]   item[0] type: text
+[调试]   item[1] type: image_url
+[调试]   image_url长度: 386950
+[调试]   item[2] type: image_url
+[调试]   image_url长度: 242274
+[调试]   item[3] type: image_url
+[调试]   image_url长度: 287134
+[调试] 响应状态码: 200
+[调试] 响应JSON keys: dict_keys(['choices', 'object', 'usage', 'created', 'system_fingerprint', 'model', 'id'])
+[调试] finish_reason: stop
+[调试] content长度: 1409
+[调试] content前100字符: {
+  "actions": [
+    {
+      "target_object": "物块1",
+      "grasp_pose": {"x": 0.142, "y": -0.099, "
+
+==================================================
+【阿里云百炼 (Qwen-VL) 动作计划原始返回】
+{
+  "actions": [
+    {
+      "target_object": "物块1",
+      "grasp_pose": {"x": 0.142, "y": -0.099, "z": 0.020, "yaw": 0.800, "width": 0.053},
+      "layer_index": 0,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.000},
+      "reason": "红色正方体底面积最大，适合作为底层中心支撑"
+    },
+    {
+      "target_object": "物块3",
+      "grasp_pose": {"x": 0.090, "y": 0.010, "z": 0.020, "yaw": 0.000, "width": 0.080},
+      "layer_index": 1,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.0488},
+      "reason": "蓝色圆柱体高度较高，适合放在中间层中心"
+    },
+    {
+      "target_object": "物块4",
+      "grasp_pose": {"x": 0.176, "y": 0.136, "z": 0.020, "yaw": 0.000, "width": 0.069},
+      "layer_index": 2,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.0840},
+      "reason": "黄色圆柱体较小，可作为上层中心堆叠"
+    },
+    {
+      "target_object": "物块2",
+      "grasp_pose": {"x": -0.174, "y": -0.107, "z": 0.020, "yaw": -0.106, "width": 0.044},
+      "layer_index": 3,
+      "slot": "left",
+      "place_pose": {"x": 0.450, "y": 0.000, "z": 0.1192},
+      "reason": "绿色正方体体积小，适合放在顶层左侧对称位置"
+    },
+    {
+      "target_object": "物块5",
+      "grasp_pose": {"x": -0.145, "y": 0.014, "z": 0.020, "yaw": 1.392, "width": 0.048},
+      "layer_index": 4,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.1539},
+      "reason": "紫色三角体必须单独位于最顶层中心，符合实验要求"
+    }
+  ]
+}
+==================================================
+
+==================================================
+【最终动作计划】
+  Action 1: 物块1, grasp=(0.142, -0.099, 0.020, yaw=0.800, width=0.053), layer=0, slot=center, place=(0.500, 0.000, 0.000), reason=红色正方体底面积最大，适合作为底层中心支撑
+  Action 2: 物块3, grasp=(0.090, 0.010, 0.020, yaw=0.000, width=0.080), layer=1, slot=center, place=(0.500, 0.000, 0.049), reason=蓝色圆柱体高度较高，适合放在中间层中心
+  Action 3: 物块4, grasp=(0.176, 0.136, 0.020, yaw=0.000, width=0.069), layer=2, slot=center, place=(0.500, 0.000, 0.084), reason=黄色圆柱体较小，可作为上层中心堆叠
+  Action 4: 物块2, grasp=(-0.174, -0.107, 0.020, yaw=-0.106, width=0.044), layer=3, slot=left, place=(0.468, 0.000, 0.119), reason=绿色正方体体积小，适合放在顶层左侧对称位置
+  Action 5: 物块5, grasp=(-0.145, 0.014, 0.020, yaw=1.392, width=0.048), layer=4, slot=center, place=(0.500, 0.000, 0.160), reason=紫色三角体必须单独位于最顶层中心，符合实验要求
+==================================================
+
+立方体抓取修正: 边长估计=0.0432m, 夹爪开度=0.0532m, 抓取高度=0.0164m
+执行动作: 抓取物块1, (0.1420, -0.0990, 0.0164), 抓取角度=0.8000 rad, 夹爪宽度=0.0532m, 层=0, 槽位=center, 放置点=(0.5000, 0.0000, 0.0000)
+  [执行抓取] 目标位置: (0.1420, -0.0990, 0.0114), 末端执行器将达到: z=0.0584
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=True, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+物理释放：物块中心已对准堆叠点，快速张开夹爪并解除约束。
+放置完成。
+圆柱体抓取修正: 直径估计=0.0583m, 夹爪预开度=0.0800m, 抓取高度=0.0195m
+执行动作: 抓取物块3, (0.0900, 0.0100, 0.0195), 抓取角度=0.0000 rad, 夹爪宽度=0.0800m, 层=1, 槽位=center, 放置点=(0.5000, 0.0000, 0.0488)
+  [执行抓取] 目标位置: (0.0900, 0.0100, 0.0145), 末端执行器将达到: z=0.0615
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=True, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+物理释放：物块中心已对准堆叠点，快速张开夹爪并解除约束。
+放置完成。
+圆柱体抓取修正: 直径估计=0.0444m, 夹爪预开度=0.0694m, 抓取高度=0.0138m
+执行动作: 抓取物块4, (0.1760, 0.1360, 0.0138), 抓取角度=0.0000 rad, 夹爪宽度=0.0694m, 层=2, 槽位=center, 放置点=(0.5000, 0.0000, 0.0840)
+  [执行抓取] 目标位置: (0.1760, 0.1360, 0.0088), 末端执行器将达到: z=0.0558
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+物理释放：物块中心已对准堆叠点，快速张开夹爪并解除约束。
+放置完成。
+立方体抓取修正: 边长估计=0.0344m, 夹爪开度=0.0444m, 抓取高度=0.0131m
+执行动作: 抓取物块2, (-0.1740, -0.1070, 0.0131), 抓取角度=-0.1060 rad, 夹爪宽度=0.0444m, 层=3, 槽位=left, 放置点=(0.4680, 0.0000, 0.1192)
+  [执行抓取] 目标位置: (-0.1740, -0.1070, 0.0081), 末端执行器将达到: z=0.0551
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+物理释放：物块中心已对准堆叠点，快速张开夹爪并解除约束。
+放置完成。
+执行动作: 抓取物块5, (-0.1450, 0.0140, 0.0200), 抓取角度=1.3920 rad, 夹爪宽度=0.0480m, 层=4, 槽位=center, 放置点=(0.5000, 0.0000, 0.1600)
+  [执行抓取] 目标位置: (-0.1450, 0.0140, 0.0150), 末端执行器将达到: z=0.0620
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+物理释放：物块中心已对准堆叠点，快速张开夹爪并解除约束。
+放置完成。
+Auto run finished: all objects processed.
+>> 渲染相机深度图...
+>> 硬件渲染结果异常，切换到软件渲染器...
+>> depth stats: min=0.499999, max=0.499999, unique~=1
+depth2Gray: flat depth image detected (min=max=0.499999), fallback to zeros.
+depth2Gray: flat depth image detected (min=max=0.000000), fallback to zeros.
+>> 侧视相机 left RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_left.png, success=True
+>> 侧视相机 right RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_right.png, success=True
+>> 渲染结束
+
+==================================================
+【阿里云百炼 (Qwen-VL) 堆叠验收原始返回】
+{"success": true, "reason": "五个物块已形成明显的竖向堆叠，整体稳定"}
+==================================================
+
+==================================================
+【堆叠验收结果】
+实验组别: 随机尺寸 - 第三组：2个正方体 + 2个圆柱体 + 1个三角体
+实验次数: 第 9 次
+是否成功: 成功
+原因: 五个物块已形成明显的竖向堆叠，整体稳定
+==================================================
+
+
+============================================================
+开始实验：随机尺寸 - 第三组：2个正方体 + 2个圆柱体 + 1个三角体，第 10/10 次
+物块组合：['cube', 'cube', 'cylinder', 'cylinder', 'cone_top']
+尺寸模式：随机尺寸 / random
+本次实验随机种子：20267512
+============================================================
+self.urdfs_filename =  ['cube\\cube_0.urdf', 'cube\\cube_1.urdf', 'cylinder\\cylinder.urdf', 'cylinder\\cylinder.urdf', 'cone_top\\cone_top_block.urdf']
+随机缩放比例: [0.98, 0.83, 1.04, 0.84, 0.96]
+物块1 已加载: 位置=(-0.000, -0.033, 0.022), 偏航角=-2.471 rad
+物块2 已加载: 位置=(-0.137, -0.080, 0.019), 偏航角=-2.948 rad
+物块3 已加载: 位置=(0.138, 0.039, 0.023), 偏航角=1.366 rad
+物块4 已加载: 位置=(0.019, -0.121, 0.019), 偏航角=-3.056 rad
+物块5 已加载: 位置=(0.032, 0.068, 0.021), 偏航角=-2.708 rad
+>> 渲染相机深度图...
+>> depth stats: min=0.456412, max=0.500000, unique~=1841
+>> 侧视相机 left RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_left.png, success=True
+>> 侧视相机 right RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_right.png, success=True
+>> 渲染结束
+Mask 检测到的物块数量: 5/5
+
+==================================================
+【仿真环境中的物块信息】
+  物块1: 形状=正方体, 颜色=红色, 缩放比例=0.98, 边长=0.0551m, 体积=0.00016705m^3, 位置=(-0.000, -0.033)
+  [抓取位姿] 物块1: 物体底部z=-0.0000, 物体高度=0.0392, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (-0.001, -0.036)
+  物块2: 形状=正方体, 颜色=绿色, 缩放比例=0.83, 边长=0.0390m, 体积=0.00005916m^3, 位置=(-0.137, -0.080)
+  [抓取位姿] 物块2: 物体底部z=-0.0000, 物体高度=0.0332, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (-0.148, -0.086)
+  物块3: 形状=圆柱体, 颜色=蓝色, 缩放比例=1.04, 直径=0.0539m, 高度=0.0456m, 体积=0.00010421m^3, 位置=(0.138, 0.039)
+  [抓取位姿] 物块3: 物体底部z=-0.0010, 物体高度=0.0456, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (0.151, 0.044)
+  物块4: 形状=圆柱体, 颜色=黄色, 缩放比例=0.84, 直径=0.0407m, 高度=0.0376m, 体积=0.00004887m^3, 位置=(0.019, -0.121)
+  [抓取位姿] 物块4: 物体底部z=-0.0010, 物体高度=0.0376, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (0.021, -0.131)
+  物块5: 形状=三角体, 颜色=紫色, 缩放比例=0.96, 底面直径=0.0535m, 高度=0.0412m, 体积=0.00003093m^3, 位置=(0.032, 0.068)
+  [三角体抓取] 侧视图分析结果: 侧视轮廓更接近平整侧面，保持当前顶视抓取方向
+  [三角体抓取] 原始角度=0.4339, 调整后角度=0.4339
+  [抓取位姿] 物块5: 物体底部z=-0.0030, 物体高度=0.0412, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (0.032, 0.073)
+==================================================
+
+正在询问阿里云百炼 (Qwen-VL)直接生成抓取放置动作...
+[调试] API URL: https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions
+[调试] Model: qwen-vl-max-latest
+[调试] API Key前缀: sk-4ea064d...
+[调试] 超时时间: 30秒
+[调试] user_content类型: <class 'list'>
+[调试] user_content长度: 4
+[调试]   item[0] type: text
+[调试]   item[1] type: image_url
+[调试]   image_url长度: 388438
+[调试]   item[2] type: image_url
+[调试]   image_url长度: 240626
+[调试]   item[3] type: image_url
+[调试]   image_url长度: 291230
+[调试] 响应状态码: 200
+[调试] 响应JSON keys: dict_keys(['choices', 'object', 'usage', 'created', 'system_fingerprint', 'model', 'id'])
+[调试] finish_reason: stop
+[调试] content长度: 1411
+[调试] content前100字符: {
+  "actions": [
+    {
+      "target_object": "物块1",
+      "grasp_pose": {"x": -0.000, "y": -0.033, 
+
+==================================================
+【阿里云百炼 (Qwen-VL) 动作计划原始返回】
+{
+  "actions": [
+    {
+      "target_object": "物块1",
+      "grasp_pose": {"x": -0.000, "y": -0.033, "z": 0.020, "yaw": 0.671, "width": 0.049},
+      "layer_index": 0,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.000},
+      "reason": "红色正方体底面积最大，适合作为底层中心支撑"
+    },
+    {
+      "target_object": "物块2",
+      "grasp_pose": {"x": -0.137, "y": -0.080, "z": 0.020, "yaw": 0.193, "width": 0.034},
+      "layer_index": 1,
+      "slot": "left",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.0392},
+      "reason": "绿色正方体较小，适合放在上层左侧"
+    },
+    {
+      "target_object": "物块4",
+      "grasp_pose": {"x": 0.019, "y": -0.121, "z": 0.020, "yaw": 0.000, "width": 0.066},
+      "layer_index": 1,
+      "slot": "right",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.0392},
+      "reason": "黄色圆柱体与绿色正方体对称放置于第二层左右两侧"
+    },
+    {
+      "target_object": "物块3",
+      "grasp_pose": {"x": 0.138, "y": 0.039, "z": 0.020, "yaw": 0.000, "width": 0.079},
+      "layer_index": 2,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.0768},
+      "reason": "蓝色圆柱体高度较高，适合作为第三层中心堆叠"
+    },
+    {
+      "target_object": "物块5",
+      "grasp_pose": {"x": 0.032, "y": 0.068, "z": 0.020, "yaw": 0.434, "width": 0.054},
+      "layer_index": 3,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.1224},
+      "reason": "紫色三角体必须作为最顶层唯一物块，单独置于中心"
+    }
+  ]
+}
+==================================================
+
+==================================================
+【最终动作计划】
+  Action 1: 物块1, grasp=(-0.000, -0.033, 0.020, yaw=0.671, width=0.049), layer=0, slot=center, place=(0.500, 0.000, 0.000), reason=红色正方体底面积最大，适合作为底层中心支撑
+  Action 2: 物块2, grasp=(-0.137, -0.080, 0.020, yaw=0.193, width=0.034), layer=1, slot=left, place=(0.468, 0.000, 0.039), reason=绿色正方体较小，适合放在上层左侧
+  Action 3: 物块4, grasp=(0.019, -0.121, 0.020, yaw=0.000, width=0.066), layer=1, slot=right, place=(0.532, 0.000, 0.039), reason=黄色圆柱体与绿色正方体对称放置于第二层左右两侧
+  Action 4: 物块3, grasp=(0.138, 0.039, 0.020, yaw=0.000, width=0.079), layer=2, slot=center, place=(0.500, 0.000, 0.077), reason=蓝色圆柱体高度较高，适合作为第三层中心堆叠
+  Action 5: 物块5, grasp=(0.032, 0.068, 0.020, yaw=0.434, width=0.054), layer=4, slot=center, place=(0.500, 0.000, 0.160), reason=紫色三角体必须作为最顶层唯一物块，单独置于中心
+==================================================
+
+立方体抓取修正: 边长估计=0.0392m, 夹爪开度=0.0492m, 抓取高度=0.0149m
+执行动作: 抓取物块1, (-0.0000, -0.0330, 0.0149), 抓取角度=0.6710 rad, 夹爪宽度=0.0492m, 层=0, 槽位=center, 放置点=(0.5000, 0.0000, 0.0000)
+  [执行抓取] 目标位置: (-0.0000, -0.0330, 0.0099), 末端执行器将达到: z=0.0569
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+物理释放：物块中心已对准堆叠点，快速张开夹爪并解除约束。
+放置完成。
+立方体抓取修正: 边长估计=0.0332m, 夹爪开度=0.0432m, 抓取高度=0.0126m
+执行动作: 抓取物块2, (-0.1370, -0.0800, 0.0126), 抓取角度=0.1930 rad, 夹爪宽度=0.0432m, 层=1, 槽位=left, 放置点=(0.4680, 0.0000, 0.0392)
+  [执行抓取] 目标位置: (-0.1370, -0.0800, 0.0076), 末端执行器将达到: z=0.0546
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+物理释放：物块中心已对准堆叠点，快速张开夹爪并解除约束。
+放置完成。
+圆柱体抓取修正: 直径估计=0.0407m, 夹爪预开度=0.0657m, 抓取高度=0.0148m
+执行动作: 抓取物块4, (0.0190, -0.1210, 0.0148), 抓取角度=0.0000 rad, 夹爪宽度=0.0657m, 层=1, 槽位=right, 放置点=(0.5320, 0.0000, 0.0392)
+  [执行抓取] 目标位置: (0.0190, -0.1210, 0.0098), 末端执行器将达到: z=0.0568
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+物理释放：物块中心已对准堆叠点，快速张开夹爪并解除约束。
+放置完成。
+圆柱体抓取修正: 直径估计=0.0539m, 夹爪预开度=0.0789m, 抓取高度=0.0181m
+执行动作: 抓取物块3, (0.1380, 0.0390, 0.0181), 抓取角度=0.0000 rad, 夹爪宽度=0.0789m, 层=2, 槽位=center, 放置点=(0.5000, 0.0000, 0.0768)
+  [执行抓取] 目标位置: (0.1380, 0.0390, 0.0131), 末端执行器将达到: z=0.0601
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=True, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+物理释放：物块中心已对准堆叠点，快速张开夹爪并解除约束。
+放置完成。
+执行动作: 抓取物块5, (0.0320, 0.0680, 0.0200), 抓取角度=0.4340 rad, 夹爪宽度=0.0540m, 层=4, 槽位=center, 放置点=(0.5000, 0.0000, 0.1600)
+  [执行抓取] 目标位置: (0.0320, 0.0680, 0.0150), 末端执行器将达到: z=0.0620
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+物理释放：物块中心已对准堆叠点，快速张开夹爪并解除约束。
+放置完成。
+Auto run finished: all objects processed.
+>> 渲染相机深度图...
+>> 硬件渲染结果异常，切换到软件渲染器...
+>> depth stats: min=0.499999, max=0.499999, unique~=1
+depth2Gray: flat depth image detected (min=max=0.499999), fallback to zeros.
+depth2Gray: flat depth image detected (min=max=0.000000), fallback to zeros.
+>> 侧视相机 left RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_left.png, success=True
+>> 侧视相机 right RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_right.png, success=True
+>> 渲染结束
+
+==================================================
+【阿里云百炼 (Qwen-VL) 堆叠验收原始返回】
+{"success": true, "reason": "五个物块已形成明显的竖向堆叠，整体稳定"}
+==================================================
+
+==================================================
+【堆叠验收结果】
+实验组别: 随机尺寸 - 第三组：2个正方体 + 2个圆柱体 + 1个三角体
+实验次数: 第 10 次
+是否成功: 成功
+原因: 五个物块已形成明显的竖向堆叠，整体稳定
+==================================================
+
+
+============================================================
+开始实验：随机尺寸 - 第四组：1个正方体 + 2个细长长方体，第 1/5 次
+物块组合：['cube', 'cuboid_bar', 'cuboid_bar']
+尺寸模式：随机尺寸 / random
+本次实验随机种子：20268503
+============================================================
+self.urdfs_filename =  ['cube\\cube_0.urdf', 'cuboid_bar\\cuboid_bar.urdf', 'cuboid_bar\\cuboid_bar.urdf']
+随机缩放比例: [0.87, 0.95, 0.95]
+物块1 已加载: 位置=(0.113, -0.026, 0.019), 偏航角=3.076 rad
+物块2 已加载: 位置=(-0.122, 0.003, 0.040), 偏航角=0.445 rad
+物块3 已加载: 位置=(-0.152, -0.104, 0.040), 偏航角=-0.415 rad
+>> 渲染相机深度图...
+>> depth stats: min=0.424010, max=0.500000, unique~=1157
+>> 侧视相机 left RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_left.png, success=True
+>> 侧视相机 right RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_right.png, success=True
+>> 渲染结束
+Mask 检测到的物块数量: 3/3
+
+==================================================
+【仿真环境中的物块信息】
+  物块1: 形状=正方体, 颜色=红色, 缩放比例=0.87, 边长=0.0370m, 体积=0.00005066m^3, 位置=(0.113, -0.026)
+  [抓取位姿] 物块1: 物体底部z=-0.0000, 物体高度=0.0348, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (0.122, -0.028)
+  物块2: 形状=细长长方体, 颜色=绿色, 缩放比例=0.95, 底面=0.0253m x 0.0253m, 高度=0.0760m, 体积=0.00004878m^3, 位置=(-0.122, 0.003)
+  [细长方体抓取] 长边=0.0253, 短边=0.0253, 抓取角度=1.5708
+  [抓取位姿] 物块2: 物体底部z=-0.0000, 物体高度=0.0760, 抓取点z=0.0380, 末端执行器目标z=0.0850
+    -> Mask 抓取候选 (-0.140, 0.005)
+  物块3: 形状=细长长方体, 颜色=蓝色, 缩放比例=0.95, 底面=0.0251m x 0.0251m, 高度=0.0760m, 体积=0.00004771m^3, 位置=(-0.152, -0.104)
+  [细长方体抓取] 长边=0.0251, 短边=0.0251, 抓取角度=1.5708
+  [抓取位姿] 物块3: 物体底部z=-0.0000, 物体高度=0.0760, 抓取点z=0.0380, 末端执行器目标z=0.0850
+    -> Mask 抓取候选 (-0.174, -0.117)
+==================================================
+
+正在询问阿里云百炼 (Qwen-VL)直接生成抓取放置动作...
+  [细长方体放置] bar1_width=0.0253, bar2_width=0.0251, gap=0.0250
+  [细长方体放置] 左侧位置 x=0.4748, 右侧位置 x=0.5250
+[调试] API URL: https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions
+[调试] Model: qwen-vl-max-latest
+[调试] API Key前缀: sk-4ea064d...
+[调试] 超时时间: 30秒
+[调试] user_content类型: <class 'list'>
+[调试] user_content长度: 4
+[调试]   item[0] type: text
+[调试]   item[1] type: image_url
+[调试]   image_url长度: 386162
+[调试]   item[2] type: image_url
+[调试]   image_url长度: 238214
+[调试]   item[3] type: image_url
+[调试]   image_url长度: 289758
+[调试] 响应状态码: 200
+[调试] 响应JSON keys: dict_keys(['choices', 'object', 'usage', 'created', 'system_fingerprint', 'model', 'id'])
+[调试] finish_reason: stop
+[调试] content长度: 855
+[调试] content前100字符: {
+  "actions": [
+    {
+      "target_object": "物块2",
+      "grasp_pose": {"x": -0.122, "y": 0.003, "
+
+==================================================
+【阿里云百炼 (Qwen-VL) 动作计划原始返回】
+{
+  "actions": [
+    {
+      "target_object": "物块2",
+      "grasp_pose": {"x": -0.122, "y": 0.003, "z": 0.038, "yaw": 1.571, "width": 0.035},
+      "layer_index": 0,
+      "slot": "left",
+      "place_pose": {"x": 0.490, "y": -0.050, "z": 0.000},
+      "reason": "绿色细长长方体作为底层左侧支撑"
+    },
+    {
+      "target_object": "物块3",
+      "grasp_pose": {"x": -0.152, "y": -0.104, "z": 0.038, "yaw": 1.571, "width": 0.035},
+      "layer_index": 0,
+      "slot": "right",
+      "place_pose": {"x": 0.510, "y": 0.050, "z": 0.000},
+      "reason": "蓝色细长长方体作为底层右侧支撑，与绿色并排对称"
+    },
+    {
+      "target_object": "物块1",
+      "grasp_pose": {"x": 0.113, "y": -0.026, "z": 0.020, "yaw": -0.065, "width": 0.045},
+      "layer_index": 1,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.0348},
+      "reason": "红色正方体放置在两个细长长方体之上，居中稳定堆叠"
+    }
+  ]
+}
+==================================================
+  [sanitize] 使用默认放置位置: target=1, slot=left, x=0.4748
+  [sanitize] 使用默认放置位置: target=2, slot=right, x=0.5250
+
+==================================================
+【最终动作计划】
+  Action 1: 物块2, grasp=(-0.122, 0.003, 0.038, yaw=-1.571, width=0.035), layer=0, slot=left, place=(0.475, 0.000, 0.000), reason=绿色细长长方体作为底层左侧支撑
+  Action 2: 物块3, grasp=(-0.152, -0.104, 0.038, yaw=-1.571, width=0.035), layer=0, slot=right, place=(0.525, 0.000, 0.000), reason=蓝色细长长方体作为底层右侧支撑，与绿色并排对称
+  Action 3: 物块1, grasp=(0.113, -0.026, 0.020, yaw=-0.065, width=0.045), layer=1, slot=center, place=(0.500, 0.000, 0.040), reason=红色正方体放置在两个细长长方体之上，居中稳定堆叠
+==================================================
+
+执行动作: 抓取物块2, (-0.1220, 0.0030, 0.0380), 抓取角度=-1.5706 rad, 夹爪宽度=0.0350m, 层=0, 槽位=left, 放置点=(0.4748, 0.0000, 0.0000)
+  [执行抓取] 目标位置: (-0.1220, 0.0030, 0.0330), 末端执行器将达到: z=0.0800
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+放置动作超时：已强制松爪，当前小次实验按失败记录并进入下一次。
+>> 渲染相机深度图...
+>> 硬件渲染结果异常，切换到软件渲染器...
+>> depth stats: min=0.424009, max=0.499999, unique~=787
+>> 侧视相机 left RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_left.png, success=True
+>> 侧视相机 right RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_right.png, success=True
+>> 渲染结束
+
+==================================================
+【阿里云百炼 (Qwen-VL) 堆叠验收原始返回】
+{"success": false, "reason": "物块散落在桌面，未形成竖向堆叠"}
+==================================================
+
+==================================================
+【堆叠验收结果】
+实验组别: 随机尺寸 - 第四组：1个正方体 + 2个细长长方体
+实验次数: 第 1 次
+规划判定: 符合
+规划摘要: 细长长方体满足同层并排规划要求
+是否成功: 失败
+原因: 放置动作超时：已强制松爪，当前小次实验按失败记录并进入下一次。; 大模型判断：物块散落在桌面，未形成竖向堆叠
+==================================================
+
+
+============================================================
+开始实验：随机尺寸 - 第四组：1个正方体 + 2个细长长方体，第 2/5 次
+物块组合：['cube', 'cuboid_bar', 'cuboid_bar']
+尺寸模式：随机尺寸 / random
+本次实验随机种子：20268504
+============================================================
+self.urdfs_filename =  ['cube\\cube_0.urdf', 'cuboid_bar\\cuboid_bar.urdf', 'cuboid_bar\\cuboid_bar.urdf']
+随机缩放比例: [1.14, 1.0, 1.0]
+物块1 已加载: 位置=(0.033, -0.031, 0.025), 偏航角=-3.058 rad
+物块2 已加载: 位置=(-0.132, -0.048, 0.042), 偏航角=-0.469 rad
+物块3 已加载: 位置=(-0.099, 0.071, 0.042), 偏航角=1.661 rad
+>> 渲染相机深度图...
+>> 硬件渲染结果异常，切换到软件渲染器...
+>> depth stats: min=0.420009, max=0.499999, unique~=1024
+>> 侧视相机 left RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_left.png, success=True
+>> 侧视相机 right RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_right.png, success=True
+>> 渲染结束
+Mask 检测到的物块数量: 3/3
+
+==================================================
+【仿真环境中的物块信息】
+  物块1: 形状=正方体, 颜色=红色, 缩放比例=1.14, 边长=0.0493m, 体积=0.00011953m^3, 位置=(0.033, -0.031)
+  [抓取位姿] 物块1: 物体底部z=-0.0000, 物体高度=0.0456, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (0.037, -0.034)
+  物块2: 形状=细长长方体, 颜色=绿色, 缩放比例=1.00, 底面=0.0269m x 0.0269m, 高度=0.0800m, 体积=0.00005781m^3, 位置=(-0.132, -0.048)
+  [细长方体抓取] 长边=0.0269, 短边=0.0269, 抓取角度=1.5708
+  [抓取位姿] 物块2: 物体底部z=-0.0000, 物体高度=0.0800, 抓取点z=0.0400, 末端执行器目标z=0.0870
+    -> Mask 抓取候选 (-0.152, -0.054)
+  物块3: 形状=细长长方体, 颜色=蓝色, 缩放比例=1.00, 底面=0.0217m x 0.0217m, 高度=0.0800m, 体积=0.00003774m^3, 位置=(-0.099, 0.071)
+  [细长方体抓取] 长边=0.0217, 短边=0.0217, 抓取角度=0.0000
+  [抓取位姿] 物块3: 物体底部z=-0.0000, 物体高度=0.0800, 抓取点z=0.0400, 末端执行器目标z=0.0870
+    -> Mask 抓取候选 (-0.114, 0.083)
+==================================================
+
+正在询问阿里云百炼 (Qwen-VL)直接生成抓取放置动作...
+  [细长方体放置] bar1_width=0.0269, bar2_width=0.0217, gap=0.0250
+  [细长方体放置] 左侧位置 x=0.4741, 右侧位置 x=0.5234
+[调试] API URL: https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions
+[调试] Model: qwen-vl-max-latest
+[调试] API Key前缀: sk-4ea064d...
+[调试] 超时时间: 30秒
+[调试] user_content类型: <class 'list'>
+[调试] user_content长度: 4
+[调试]   item[0] type: text
+[调试]   item[1] type: image_url
+[调试]   image_url长度: 5262
+[调试]   item[2] type: image_url
+[调试]   image_url长度: 11402
+[调试]   item[3] type: image_url
+[调试]   image_url长度: 6902
+[调试] 响应状态码: 200
+[调试] 响应JSON keys: dict_keys(['choices', 'object', 'usage', 'created', 'system_fingerprint', 'model', 'id'])
+[调试] finish_reason: stop
+[调试] content长度: 868
+[调试] content前100字符: {
+  "actions": [
+    {
+      "target_object": "物块2",
+      "grasp_pose": {"x": -0.132, "y": -0.048, 
+
+==================================================
+【阿里云百炼 (Qwen-VL) 动作计划原始返回】
+{
+  "actions": [
+    {
+      "target_object": "物块2",
+      "grasp_pose": {"x": -0.132, "y": -0.048, "z": 0.040, "yaw": 1.571, "width": 0.037},
+      "layer_index": 0,
+      "slot": "left",
+      "place_pose": {"x": 0.500, "y": -0.025, "z": 0.000},
+      "reason": "绿色细长长方体作为底层左侧支撑，保持长边方向平行"
+    },
+    {
+      "target_object": "物块3",
+      "grasp_pose": {"x": -0.099, "y": 0.071, "z": 0.040, "yaw": 0.000, "width": 0.032},
+      "layer_index": 0,
+      "slot": "right",
+      "place_pose": {"x": 0.500, "y": 0.025, "z": 0.000},
+      "reason": "蓝色细长长方体作为底层右侧支撑，与绿色物块并排对称"
+    },
+    {
+      "target_object": "物块1",
+      "grasp_pose": {"x": 0.033, "y": -0.031, "z": 0.020, "yaw": 0.084, "width": 0.056},
+      "layer_index": 1,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.0456},
+      "reason": "红色正方体放置在上层中心，平稳地放在两个细长长方体之上"
+    }
+  ]
+}
+==================================================
+  [sanitize] 使用默认放置位置: target=1, slot=left, x=0.4741
+  [sanitize] 使用默认放置位置: target=2, slot=right, x=0.5234
+
+==================================================
+【最终动作计划】
+  Action 1: 物块2, grasp=(-0.132, -0.048, 0.040, yaw=1.571, width=0.037), layer=0, slot=left, place=(0.474, 0.000, 0.000), reason=默认模板：细长长方体放在左侧
+  Action 2: 物块3, grasp=(-0.099, 0.071, 0.040, yaw=0.000, width=0.032), layer=0, slot=right, place=(0.523, 0.000, 0.000), reason=默认模板：细长长方体放在右侧
+  Action 3: 物块1, grasp=(0.033, -0.031, 0.020, yaw=0.084, width=0.056), layer=1, slot=center, place=(0.500, 0.000, 0.040), reason=默认普通物块：上层中心单柱堆叠
+==================================================
+
+执行动作: 抓取物块2, (-0.1322, -0.0477, 0.0400), 抓取角度=1.5708 rad, 夹爪宽度=0.0369m, 层=0, 槽位=left, 放置点=(0.4741, 0.0000, 0.0000)
+  [执行抓取] 目标位置: (-0.1322, -0.0477, 0.0350), 末端执行器将达到: z=0.0820
+Traceback (most recent call last):
+  File "E:\pycharmprojects\panda_grasp_sim_2-main_v10\experiment_control_panel.py", line 300, in _worker_entry
+    run_experiment(config_path=config_path, control_state=self.control_state)
+  File "E:\pycharmprojects\panda_grasp_sim_2-main_v10\main_sim_grasp_urdf.py", line 924, in run
+    keys = p.getKeyboardEvents()
+pybullet.error: Not connected to physics server.

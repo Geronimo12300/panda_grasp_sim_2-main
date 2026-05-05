@@ -1,0 +1,74 @@
+{
+  "timestamp": "2026-05-04T17:54:02.530600",
+  "trials": 10,
+  "num_objects": 5,
+  "summary": {
+    "avg_detection_rate": 1.0,
+    "detection_rate_std": 0.0,
+    "avg_position_error_cm": 1.1902031605646903,
+    "max_position_error_cm": 2.1288664876960848,
+    "position_error_std_cm": 0.506308206285005
+  },
+  "trials_data": [
+    {
+      "trial": 1,
+      "detection_rate": 1.0,
+      "mean_position_error": 0.01255820878636645,
+      "max_position_error": 0.018277296180590912
+    },
+    {
+      "trial": 2,
+      "detection_rate": 1.0,
+      "mean_position_error": 0.013002739264795487,
+      "max_position_error": 0.01752381575628755
+    },
+    {
+      "trial": 3,
+      "detection_rate": 1.0,
+      "mean_position_error": 0.008343178959498022,
+      "max_position_error": 0.014677007686088338
+    },
+    {
+      "trial": 4,
+      "detection_rate": 1.0,
+      "mean_position_error": 0.01193377257761914,
+      "max_position_error": 0.019962165558941328
+    },
+    {
+      "trial": 5,
+      "detection_rate": 1.0,
+      "mean_position_error": 0.008843044840133828,
+      "max_position_error": 0.01780329841028223
+    },
+    {
+      "trial": 6,
+      "detection_rate": 1.0,
+      "mean_position_error": 0.011481292487459261,
+      "max_position_error": 0.0204652772079165
+    },
+    {
+      "trial": 7,
+      "detection_rate": 1.0,
+      "mean_position_error": 0.012962070878315385,
+      "max_position_error": 0.02128866487696085
+    },
+    {
+      "trial": 8,
+      "detection_rate": 1.0,
+      "mean_position_error": 0.012948913235319904,
+      "max_position_error": 0.019401798716732595
+    },
+    {
+      "trial": 9,
+      "detection_rate": 1.0,
+      "mean_position_error": 0.01058471298844921,
+      "max_position_error": 0.014404875706099371
+    },
+    {
+      "trial": 10,
+      "detection_rate": 1.0,
+      "mean_position_error": 0.01636238203851233,
+      "max_position_error": 0.017885197809569826
+    }
+  ]
+}

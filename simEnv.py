@@ -315,6 +315,15 @@ class SimEnv(object):
                 or len([name for name in self.urdfs_filename if os.path.basename(name).startswith('cone_top')]) == 2
             )
         )
+        random_special_three_block_mode = (
+            scale_mode == "random"
+            and self.num_urdf == 3
+            and len([name for name in self.urdfs_filename if os.path.basename(name).startswith('cube')]) == 1
+            and (
+                len([name for name in self.urdfs_filename if os.path.basename(name).startswith('cuboid_bar')]) == 2
+                or len([name for name in self.urdfs_filename if os.path.basename(name).startswith('cone_top')]) == 2
+            )
+        )
         for i in range(self.num_urdf):
             filename = os.path.basename(self.urdfs_filename[i]) if i < len(self.urdfs_filename) else ""
             if scale_mode == "fixed":
@@ -351,11 +360,39 @@ class SimEnv(object):
 
         for i in range(self.num_urdf):
             filename = os.path.basename(self.urdfs_filename[i]) if i < len(self.urdfs_filename) else ""
+            
+            if filename.startswith('cuboid_bar') and special_three_block_mode:
+                bar_spawn_region = {
+                    "x_min": 0.08,
+                    "x_max": 0.18,
+                    "y_min": 0.08,
+                    "y_max": 0.14,
+                    "z": spawn_region["z"]
+                }
+            elif filename.startswith('cube') and special_three_block_mode:
+                bar_spawn_region = {
+                    "x_min": -0.18,
+                    "x_max": 0.18,
+                    "y_min": -0.14,
+                    "y_max": -0.06,
+                    "z": spawn_region["z"]
+                }
+            elif random_special_three_block_mode:
+                bar_spawn_region = {
+                    "x_min": 0.06,
+                    "x_max": 0.20,
+                    "y_min": -0.14,
+                    "y_max": -0.06,
+                    "z": spawn_region["z"]
+                }
+            else:
+                bar_spawn_region = spawn_region
+            
             for _ in range(220):
                 candidate_position = [
-                    random.uniform(spawn_region["x_min"], spawn_region["x_max"]),
-                    random.uniform(spawn_region["y_min"], spawn_region["y_max"]),
-                    spawn_region["z"]
+                    random.uniform(bar_spawn_region["x_min"], bar_spawn_region["x_max"]),
+                    random.uniform(bar_spawn_region["y_min"], bar_spawn_region["y_max"]),
+                    bar_spawn_region["z"]
                 ]
                 if all(
                     ((candidate_position[0] - pos[0]) ** 2 + (candidate_position[1] - pos[1]) ** 2) ** 0.5 >= min_spawn_distance
@@ -365,9 +402,9 @@ class SimEnv(object):
                     break
             else:
                 grid_candidates = [
-                    [x, y, spawn_region["z"]]
-                    for x in np.linspace(spawn_region["x_min"], spawn_region["x_max"], 4)
-                    for y in np.linspace(spawn_region["y_min"], spawn_region["y_max"], 3)
+                    [x, y, bar_spawn_region["z"]]
+                    for x in np.linspace(bar_spawn_region["x_min"], bar_spawn_region["x_max"], 4)
+                    for y in np.linspace(bar_spawn_region["y_min"], bar_spawn_region["y_max"], 3)
                 ]
                 basePosition = max(
                     grid_candidates,
@@ -525,7 +562,8 @@ class SimEnv(object):
             ('right', self.rightViewMatrix),
         ]
         for view_name, view_matrix in side_views:
-            # 在DIRECT模式下使用软件渲染器
+            # 在DIRECT模式下，先尝试硬件渲染器，如果失败则使用软件渲染器
+            side_camera = None
             try:
                 side_camera = self.p.getCameraImage(
                     IMAGEWIDTH,
@@ -534,14 +572,23 @@ class SimEnv(object):
                     self.projectionMatrix,
                     renderer=p.ER_BULLET_HARDWARE_OPENGL
                 )
+                # 检查渲染结果是否有效（不是全黑）
+                side_rgba = side_camera[2]
+                side_rgb_test = np.reshape(side_rgba, (IMAGEHEIGHT, IMAGEWIDTH, 4))[:, :, :3]
+                if np.max(side_rgb_test) < 5:  # 几乎全黑
+                    side_camera = None
             except Exception:
+                side_camera = None
+            
+            if side_camera is None:
                 side_camera = self.p.getCameraImage(
                     IMAGEWIDTH,
                     IMAGEHEIGHT,
                     view_matrix,
                     self.projectionMatrix,
-                    renderer=p.ER_BULLET_OPENGL
+                    renderer=self.p.ER_TINY_RENDERER
                 )
+            
             side_width = side_camera[0]
             side_height = side_camera[1]
             side_rgba = side_camera[2]

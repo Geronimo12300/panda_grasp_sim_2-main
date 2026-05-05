@@ -1,0 +1,164 @@
+当前配置文件：E:\pycharmprojects\panda_grasp_sim_2-main_v10\runs\control_panel_configs\panel_launch_20260505_020914_604699.json
+实验运行目录：E:\pycharmprojects\panda_grasp_sim_2-main_v10\runs\run_20260505_020915_566355_seed20260503
+已保留前面记录，并保留当前组前 0 次记录，将从 随机尺寸 - 第四组：1个正方体 + 2个细长长方体 第 1 次重新开始。
+
+============================================================
+开始实验：随机尺寸 - 第四组：1个正方体 + 2个细长长方体，第 1/5 次
+物块组合：['cube', 'cuboid_bar', 'cuboid_bar']
+尺寸模式：随机尺寸 / random
+本次实验随机种子：20268503
+============================================================
+self.urdfs_filename =  ['cube\\cube_0.urdf', 'cuboid_bar\\cuboid_bar.urdf', 'cuboid_bar\\cuboid_bar.urdf']
+随机缩放比例: [0.87, 0.95, 0.95]
+物块1 已加载: 位置=(0.113, -0.026, 0.019), 偏航角=3.076 rad
+物块2 已加载: 位置=(-0.122, 0.003, 0.040), 偏航角=0.445 rad
+物块3 已加载: 位置=(-0.152, -0.104, 0.040), 偏航角=-0.415 rad
+Auto run enabled: experiment scheduler is active.
+>> 渲染相机深度图...
+>> depth stats: min=0.424010, max=0.500000, unique~=1157
+>> 侧视相机 left RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_left.png, success=True
+>> 侧视相机 right RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_right.png, success=True
+>> 渲染结束
+Mask 检测到的物块数量: 3/3
+
+==================================================
+【仿真环境中的物块信息】
+  物块1: 形状=正方体, 颜色=红色, 缩放比例=0.87, 边长=0.0370m, 体积=0.00005066m^3, 位置=(0.113, -0.026)
+  [抓取位姿] 物块1: 物体底部z=-0.0000, 物体高度=0.0348, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (0.122, -0.028)
+  物块2: 形状=细长长方体, 颜色=绿色, 缩放比例=0.95, 底面=0.0253m x 0.0253m, 高度=0.0760m, 体积=0.00004878m^3, 位置=(-0.122, 0.003)
+  [细长方体抓取] 长边=0.0253, 短边=0.0253, 抓取角度=1.5708
+  [抓取位姿] 物块2: 物体底部z=-0.0000, 物体高度=0.0760, 抓取点z=0.0380, 末端执行器目标z=0.0850
+    -> Mask 抓取候选 (-0.140, 0.005)
+  物块3: 形状=细长长方体, 颜色=蓝色, 缩放比例=0.95, 底面=0.0251m x 0.0251m, 高度=0.0760m, 体积=0.00004771m^3, 位置=(-0.152, -0.104)
+  [细长方体抓取] 长边=0.0251, 短边=0.0251, 抓取角度=1.5708
+  [抓取位姿] 物块3: 物体底部z=-0.0000, 物体高度=0.0760, 抓取点z=0.0380, 末端执行器目标z=0.0850
+    -> Mask 抓取候选 (-0.174, -0.117)
+==================================================
+
+正在询问阿里云百炼 (Qwen-VL)直接生成抓取放置动作...
+[调试] build_special_pair_action_plan 被调用, structure_mode=long_bar_pair
+  [细长方体放置] bar1_length=0.0253, bar2_length=0.0251
+  [细长方体放置] 前侧位置 y=0.0207, 后侧位置 y=-0.0205
+[调试] structure_mode=long_bar_pair, default_actions数量=3
+[调试] 默认动作0: target=1, slot=front, place=(0.5000, 0.0207)
+[调试] 默认动作1: target=2, slot=back, place=(0.5000, -0.0205)
+[调试] 默认动作2: target=0, slot=center, place=(0.5000, 0.0000)
+[调试] API URL: https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions
+[调试] Model: qwen-vl-max-latest
+[调试] API Key前缀: sk-4ea064d...
+[调试] 超时时间: 30秒
+[调试] user_content类型: <class 'list'>
+[调试] user_content长度: 4
+[调试]   item[0] type: text
+[调试]   item[1] type: image_url
+[调试]   image_url长度: 386162
+[调试]   item[2] type: image_url
+[调试]   image_url长度: 238214
+[调试]   item[3] type: image_url
+[调试]   image_url长度: 289758
+[调试] 响应状态码: 200
+[调试] 响应JSON keys: dict_keys(['choices', 'object', 'usage', 'created', 'system_fingerprint', 'model', 'id'])
+[调试] finish_reason: stop
+[调试] content长度: 852
+[调试] content前100字符: {
+  "actions": [
+    {
+      "target_object": "物块2",
+      "grasp_pose": {"x": -0.122, "y": 0.003, "
+
+==================================================
+【阿里云百炼 (Qwen-VL) 动作计划原始返回】
+{
+  "actions": [
+    {
+      "target_object": "物块2",
+      "grasp_pose": {"x": -0.122, "y": 0.003, "z": 0.038, "yaw": 1.571, "width": 0.035},
+      "layer_index": 0,
+      "slot": "front",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.000},
+      "reason": "绿色细长长方体作为底层前部支撑"
+    },
+    {
+      "target_object": "物块3",
+      "grasp_pose": {"x": -0.152, "y": -0.104, "z": 0.038, "yaw": 1.571, "width": 0.035},
+      "layer_index": 0,
+      "slot": "back",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.000},
+      "reason": "蓝色细长长方体作为底层后部支撑，与绿色物块平行对称"
+    },
+    {
+      "target_object": "物块1",
+      "grasp_pose": {"x": 0.113, "y": -0.026, "z": 0.020, "yaw": -0.065, "width": 0.045},
+      "layer_index": 1,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.000},
+      "reason": "红色正方体放置在上层中心，由两个长方体托举"
+    }
+  ]
+}
+==================================================
+  [sanitize] raw_actions数量: 3, structure_mode: long_bar_pair
+  [sanitize] 默认动作中的放置位置:
+    target=1, slot=front, place_y=0.0207
+    target=2, slot=back, place_y=-0.0205
+    target=0, slot=center, place_y=0.0000
+  [sanitize] 解析target_object: raw=物块2, parsed_idx=1
+  [sanitize] 处理动作: obj_idx=1, slot=front, layer=0
+  [sanitize] long_bar_indices={1, 2}, obj_idx in set = True
+  [sanitize] 强制使用默认slot: target=1, slot=front, layer=0
+  [sanitize] 检查放置位置条件: structure_mode=long_bar_pair, obj_idx=1, long_bar_indices={1, 2}
+  [sanitize] 使用默认放置位置: target=1, slot=front, y=0.0207
+  [sanitize] 解析target_object: raw=物块3, parsed_idx=2
+  [sanitize] 处理动作: obj_idx=2, slot=back, layer=0
+  [sanitize] long_bar_indices={1, 2}, obj_idx in set = True
+  [sanitize] 强制使用默认slot: target=2, slot=back, layer=0
+  [sanitize] 检查放置位置条件: structure_mode=long_bar_pair, obj_idx=2, long_bar_indices={1, 2}
+  [sanitize] 使用默认放置位置: target=2, slot=back, y=-0.0205
+  [sanitize] 解析target_object: raw=物块1, parsed_idx=0
+  [sanitize] 处理动作: obj_idx=0, slot=center, layer=1
+  [sanitize] long_bar_indices={1, 2}, obj_idx in set = False
+  [sanitize] 检查放置位置条件: structure_mode=long_bar_pair, obj_idx=0, long_bar_indices={1, 2}
+  [sanitize] 使用build_place_pose: target=0, slot=center, y=0.0000
+
+==================================================
+【最终动作计划】
+  Action 1: 物块2, grasp=(-0.122, 0.003, 0.038, yaw=-1.571, width=0.035), layer=0, slot=front, place=(0.500, 0.021, 0.000), reason=绿色细长长方体作为底层前部支撑
+  Action 2: 物块3, grasp=(-0.152, -0.104, 0.038, yaw=-1.571, width=0.035), layer=0, slot=back, place=(0.500, -0.021, 0.000), reason=蓝色细长长方体作为底层后部支撑，与绿色物块平行对称
+  Action 3: 物块1, grasp=(0.113, -0.026, 0.020, yaw=-0.065, width=0.045), layer=1, slot=center, place=(0.500, 0.000, 0.040), reason=红色正方体放置在上层中心，由两个长方体托举
+==================================================
+
+执行动作: 抓取物块2, (-0.1220, 0.0030, 0.0380), 抓取角度=-1.5706 rad, 夹爪宽度=0.0350m, 层=0, 槽位=front, 放置点=(0.5000, 0.0207, 0.0000)
+  [执行抓取] 目标位置: (-0.1220, 0.0030, 0.0330), 末端执行器将达到: z=0.0800
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.10s, can_attach=False, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+Traceback (most recent call last):
+  File "E:\pycharmprojects\panda_grasp_sim_2-main_v10\experiment_control_panel.py", line 300, in _worker_entry
+    run_experiment(config_path=config_path, control_state=self.control_state)
+  File "E:\pycharmprojects\panda_grasp_sim_2-main_v10\main_sim_grasp_urdf.py", line 945, in run
+    keys = p.getKeyboardEvents()
+pybullet.error: Not connected to physics server.

@@ -56,14 +56,12 @@ def write_report(markdown_path, group_defs, group_results, title):
         lines.append(f"- 实验次数：{get_group_trials(group_def)}")
         if records:
             if group_def["report_kind"] == "special":
-                lines.append("| 次数 | 规划判定 | 规划摘要 | 最终验收 | 原因 |")
-                lines.append("| --- | --- | --- | --- | --- |")
+                lines.append("| 次数 | 最终验收 | 原因 |")
+                lines.append("| --- | --- | --- |")
                 for record in records:
                     verdict = "成功" if record["success"] else "失败"
-                    planning_success = "符合" if record.get("planning_success") else "不符合"
-                    planning_reason = str(record.get("planning_reason", "")).replace("\n", " ").strip()
                     reason = str(record["reason"]).replace("\n", " ").strip()
-                    lines.append(f"| {record['trial']} | {planning_success} | {planning_reason} | {verdict} | {reason} |")
+                    lines.append(f"| {record['trial']} | {verdict} | {reason} |")
             else:
                 lines.append("| 次数 | 大模型判定 | 原因 |")
                 lines.append("| --- | --- | --- |")
@@ -126,12 +124,7 @@ def load_existing_report(markdown_path, group_defs, group_results, config=None):
                     "reason": "",
                     "links": default_trial_links(group_defs[current_group_index_for_parse], trial_number, config=config),
                 }
-                if len(cells) >= 5:
-                    record["planning_success"] = cells[1] in PLANNING_OK_LABELS
-                    record["planning_reason"] = cells[2]
-                    record["success"] = cells[3] in SUCCESS_LABELS
-                    record["reason"] = cells[4]
-                elif len(cells) >= 3:
+                if len(cells) >= 3:
                     record["success"] = cells[1] in SUCCESS_LABELS
                     record["reason"] = cells[2]
                 parsed_records[current_group_index_for_parse][trial_number] = record

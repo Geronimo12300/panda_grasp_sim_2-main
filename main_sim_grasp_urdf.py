@@ -72,6 +72,18 @@ def run(config_path=None, control_state=None):
     scene_settle_steps = int(get_scene_setting(project_config, "settle_steps"))
     base_random_seed = int(get_reproducibility_setting(project_config, "base_random_seed"))
     trial_seed_stride = int(get_reproducibility_setting(project_config, "trial_seed_stride"))
+    raw_seed_overrides = project_config.get("reproducibility", {}).get("special_seed_overrides", {})
+    special_seed_overrides = {}
+    for key, value in raw_seed_overrides.items():
+        if isinstance(key, str):
+            parts = key.split(",")
+            if len(parts) == 2:
+                try:
+                    special_seed_overrides[(int(parts[0]), int(parts[1]))] = int(value)
+                except (ValueError, TypeError):
+                    pass
+        elif isinstance(key, tuple) and len(key) == 2:
+            special_seed_overrides[tuple(int(k) for k in key)] = int(value)
     run_root_dir = get_tracking_setting(project_config, "run_root_dir")
     write_config_snapshot = bool(get_tracking_setting(project_config, "write_config_snapshot"))
     write_trial_jsonl = bool(get_tracking_setting(project_config, "write_trial_jsonl"))
@@ -80,6 +92,15 @@ def run(config_path=None, control_state=None):
     loaded_config_path = project_config.get("_config_path") or get_default_config_path()
 
     print(f"当前配置文件：{loaded_config_path}")
+
+    # 在连接之前，先检查并断开现有连接
+    try:
+        p.getConnectionInfo()
+        # 如果已经连接，先断开
+        p.disconnect()
+        print("已断开现有的PyBullet连接")
+    except:
+        pass  # 没有现有连接，继续
 
     connection_mode = p.DIRECT if connection_mode_name == "DIRECT" else p.GUI
     p.connect(connection_mode)
@@ -140,6 +161,9 @@ def run(config_path=None, control_state=None):
         return value
 
     def compute_trial_seed(group_index, trial_index):
+        override_key = (group_index, trial_index)
+        if override_key in special_seed_overrides:
+            return int(special_seed_overrides[override_key])
         return int(base_random_seed + group_index * trial_seed_stride + trial_index)
 
     def set_current_trial_seed(group_index, trial_index):
@@ -418,9 +442,15 @@ def run(config_path=None, control_state=None):
                 pose["width"] = float(np.clip(cube_edge + 2 * grasp_gap, 0.025, grasp_width))
                 pose['z'] = float(aabb_min[2] + 0.38 * size_z)
         elif target_filename.startswith('cuboid_bar'):
-            grasp_span = max(size_x, size_y)
-            pose["width"] = float(np.clip(grasp_span + 2 * grasp_gap, 0.022, 0.055))
-            pose['z'] = float(aabb_min[2] + 0.45 * size_z)
+            size_short = min(size_x, size_y)
+            size_long = max(size_x, size_y)
+            pose["width"] = float(np.clip(size_short + 2 * grasp_gap, 0.022, 0.055))
+            pose['z'] = float(aabb_min[2] + 0.5 * size_z)
+            if size_x > size_y:
+                pose['yaw'] = 0.0
+            else:
+                pose['yaw'] = np.pi / 2
+            print(f"  [细长方体抓取] 长边={size_long:.4f}, 短边={size_short:.4f}, 抓取角度={pose['yaw']:.4f}")
         elif target_filename.startswith('cylinder'):
             cylinder_diameter = max(size_x, size_y)
             if cylinder_diameter <= small_cylinder_diameter_threshold:
@@ -434,17 +464,14 @@ def run(config_path=None, control_state=None):
             flat_face_span = min(size_x, size_y)
             pose["width"] = float(np.clip(flat_face_span + 2 * grasp_gap, 0.02, grasp_width))
             target_color = env.urdfs_colors[obj_idx] if obj_idx < len(env.urdfs_colors) else None
-            adjusted_angle, _ = infer_triangle_grasp_angle_from_side_views(img_path, target_color, pose['yaw'])
+            adjusted_angle, reason = infer_triangle_grasp_angle_from_side_views(img_path, target_color, pose['yaw'])
+            print(f"  [三角体抓取] 侧视图分析结果: {reason}")
+            print(f"  [三角体抓取] 原始角度={pose['yaw']:.4f}, 调整后角度={adjusted_angle:.4f}")
+            # 使用调整后的角度作为抓取角度
+            pose['yaw'] = float(adjusted_angle)
+            # 备用角度（垂直方向）
             fallback_angle = normalize_grasp_angle(float(adjusted_angle) + np.pi / 2)
-            if (
-                current_group.get("size_mode") == "fixed"
-                and current_group.get("template_id") == "standard_4"
-            ):
-                pose['yaw'] = float(fallback_angle)
-                pose['_triangle_backup_yaw'] = float(adjusted_angle)
-            else:
-                pose['yaw'] = float(adjusted_angle)
-                pose['_triangle_backup_yaw'] = float(fallback_angle)
+            pose['_triangle_backup_yaw'] = float(fallback_angle)
 
         min_pose_z = max(
             float(aabb_min[2] + grasp_depth + GRASP_MIN_BOTTOM_CLEARANCE),
@@ -498,7 +525,8 @@ def run(config_path=None, control_state=None):
         ]
         model_success, model_reason = ask_bailian_for_stack_success(
             image_paths=evaluation_images,
-            expected_count=group_obj_count
+            expected_count=group_obj_count,
+            structure_mode=current_group.get('structure_mode', 'single_column')
         )
         success = model_success if forced_failure_reason is None else False
         reason = model_reason if forced_failure_reason is None else f"{forced_failure_reason}; 大模型判断：{model_reason}"
@@ -676,7 +704,9 @@ def run(config_path=None, control_state=None):
             print(f"    -> Mask 抓取候选 ({mask_pos[0]:.3f}, {mask_pos[1]:.3f})")
 
         print('=' * 50 + '\n')
-        print('正在询问阿里云百炼 / Qwen-VL 直接生成抓取放置动作...')
+        from llm_client import get_current_llm_info
+        llm_info = get_current_llm_info()
+        print(f'正在询问{llm_info["provider_name"]}直接生成抓取放置动作...')
 
         if not cubes_info:
             return False
@@ -700,6 +730,11 @@ def run(config_path=None, control_state=None):
             structure_mode=structure_mode,
             planner_config=planner_config,
         )
+        print(f"[调试] structure_mode={structure_mode}, default_actions数量={len(default_actions)}")
+        for i, action in enumerate(default_actions):
+            place = action.get('place_pose', {})
+            print(f"[调试] 默认动作{i}: target={action['target_index']}, slot={action.get('slot')}, place=({place.get('x',0):.4f}, {place.get('y',0):.4f})")
+        
         forced_default_slot_indices = set()
         if structure_mode == 'single_column':
             triangle_indices = [cube['index'] for cube in cubes_info if cube.get('is_triangle')]
@@ -794,6 +829,33 @@ def run(config_path=None, control_state=None):
             target_obj_id = env.urdfs_id[obj_idx]
 
         if target_obj_id is not None:
+            target_filename = os.path.basename(env.urdfs_filename[obj_idx]) if obj_idx < len(env.urdfs_filename) else ''
+            
+            aabb_min, aabb_max = p.getAABB(target_obj_id)
+            size_x = aabb_max[0] - aabb_min[0]
+            size_y = aabb_max[1] - aabb_min[1]
+            size_z = aabb_max[2] - aabb_min[2]
+            
+            if target_filename.startswith('cube'):
+                cube_edge = size_z
+                grasp_config['width'] = np.clip(cube_edge + 2 * grasp_gap, 0.025, grasp_width)
+                grasp_config['z'] = aabb_min[2] + 0.38 * size_z
+                print(
+                    f"立方体抓取修正: 边长估计={cube_edge:.4f}m, "
+                    f"夹爪开度={grasp_config['width']:.4f}m, 抓取高度={grasp_config['z']:.4f}m"
+                )
+            elif target_filename.startswith('cylinder'):
+                cylinder_diameter = max(size_x, size_y)
+                grasp_config['width'] = np.clip(cylinder_diameter + 0.025, 0.045, grasp_width)
+                grasp_config['z'] = aabb_min[2] + 0.42 * size_z
+                grasp_config['angle'] = 0.0
+                print(
+                    f"圆柱体抓取修正: 直径估计={cylinder_diameter:.4f}m, "
+                    f"夹爪预开度={grasp_config['width']:.4f}m, 抓取高度={grasp_config['z']:.4f}m"
+                )
+            elif target_filename.startswith('cone_top'):
+                pass
+            
             print(
                 f"执行动作: 抓取物块{obj_idx + 1}, "
                 f"({grasp_config['x']:.4f}, {grasp_config['y']:.4f}, {grasp_config['z']:.4f}), "
@@ -908,11 +970,7 @@ def run(config_path=None, control_state=None):
             begin_next_grasp()
 
         if GRASP_STATE:
-            # grasp_config['z'] 是物体抓取点的高度（物体中心偏下）
-            # grasp_step 会加上末端执行器偏移（0.047m），所以这里不需要额外调整
-            # 只需要确保不低于最小高度
-            target_z = max(float(grasp_config["z"]), GRASP_MIN_WORLD_Z)
-            target_position = [grasp_config["x"], grasp_config["y"], target_z]
+            target_position = [grasp_config['x'], grasp_config['y'], grasp_config['z'] - grasp_depth]
             if not grasp_log_printed:
                 print(f"  [执行抓取] 目标位置: ({target_position[0]:.4f}, {target_position[1]:.4f}, {target_position[2]:.4f}), "
                       f"末端执行器将达到: z={target_position[2] + 0.047:.4f}")
@@ -963,7 +1021,10 @@ def run(config_path=None, control_state=None):
                     if auto_run:
                         pressed_char = auto_place_char
                         current_group = ALL_EXPERIMENT_GROUPS[current_group_index]
-                        place_pose = dict(planned_actions[grasp_obj_index]['place_pose'])
+                        current_action = planned_actions[grasp_obj_index]
+                        place_pose = dict(current_action['place_pose'])
+                        place_pose['slot'] = current_action.get('slot', 'center')
+                        place_pose['layer_index'] = current_action.get('layer_index', 0)
                         if current_group.get('report_kind') != 'special':
                             place_pose.setdefault('approach_clearance', 0.06)
                             place_pose.setdefault('retreat_lift_delta', 0.05)

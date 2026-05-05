@@ -1,0 +1,45 @@
+{
+  "runtime": {
+    "auto_run": true,
+    "auto_place_char": "7",
+    "auto_capture_delay_steps": 240,
+    "trial_timeout_steps": 30000,
+    "grasp_action_timeout_steps": 2200,
+    "place_action_timeout_steps": 6000,
+    "connection_mode": "GUI",
+    "simulation_sleep_seconds": 0.004
+  },
+  "paths": {
+    "results_markdown_path": "E:\\pycharmprojects\\panda_grasp_sim_2-main_v10\\experiment_results.md",
+    "special_results_markdown_path": "E:\\pycharmprojects\\panda_grasp_sim_2-main_v10\\special_experiment_results.md",
+    "screenshot_dir": "E:\\pycharmprojects\\panda_grasp_sim_2-main_v10\\1",
+    "special_screenshot_dir": "E:\\pycharmprojects\\panda_grasp_sim_2-main_v10\\2",
+    "final_render_dir": "E:\\pycharmprojects\\panda_grasp_sim_2-main_v10\\img\\img_urdf"
+  },
+  "resume": {
+    "resume_from_group_index": 4,
+    "resume_from_trial_index": 2,
+    "restart_from_resume_group": true
+  },
+  "grasp": {
+    "grasp_gap": 0.005,
+    "grasp_depth": 0.005,
+    "grasp_width": 0.08
+  },
+  "scene": {
+    "settle_linear_vel": 0.015,
+    "settle_angular_vel": 0.08,
+    "settle_steps": 45
+  },
+  "planner": {
+    "pair_slot_offset": 0.032,
+    "long_bar_pair_slot_offset": 0.022,
+    "triangle_pair_slot_offset": 0.014,
+    "long_bar_front_back_offset": 0.02,
+    "long_bar_second_place_hold_width": 0.006
+  },
+  "reproducibility": {
+    "base_random_seed": 20260503,
+    "trial_seed_stride": 1000,
+    "special_seed_overrides": {
+      

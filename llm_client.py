@@ -6,8 +6,95 @@ import requests
 
 from action_planner import enforce_stacking_constraints
 
+# 默认使用阿里云百炼
 BAILIAN_API_KEY = "sk-4ea064d0eb6b4c39b6ae8479e8975443"
 BAILIAN_API_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
+
+# 当前使用的模型配置
+CURRENT_LLM_CONFIG = {
+    "provider": "bailian",  # bailian, gemini, openai, kimi
+    "api_key": BAILIAN_API_KEY,
+    "model": "qwen-vl-max-latest",
+    "api_url": BAILIAN_API_URL
+}
+
+# 支持的模型配置
+LLM_PROVIDERS = {
+    "bailian": {
+        "name": "阿里云百炼 (Qwen-VL)",
+        "model": "qwen-vl-max-latest",
+        "api_url": "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",
+        "default_key": BAILIAN_API_KEY
+    },
+    "gemini": {
+        "name": "Google Gemini 2.5 Flash",
+        "model": "gemini-2.5-flash-preview-05-20",
+        "api_url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent",
+        "default_key": ""
+    },
+    "openai": {
+        "name": "OpenAI GPT-4o",
+        "model": "gpt-4o",
+        "api_url": "https://api.openai.com/v1/chat/completions",
+        "default_key": ""
+    },
+    "kimi": {
+        "name": "Moonshot Kimi K2.6",
+        "model": "kimi-k2.6",
+        "api_url": "https://api.moonshot.cn/v1/chat/completions",
+        "default_key": "sk-esAHerecb4uIl2eoM7EWlou9FRLl5XujjLf7PRi7LdGcUMkA"
+    }
+}
+
+
+def set_llm_provider(provider, api_key=None):
+    """
+    设置当前使用的LLM提供商
+    
+    参数:
+        provider: 提供商名称 (bailian, gemini, openai, kimi)
+        api_key: API密钥（可选，如果不提供则使用默认值）
+    """
+    global CURRENT_LLM_CONFIG
+    
+    if provider not in LLM_PROVIDERS:
+        print(f"不支持的LLM提供商: {provider}")
+        return False
+    
+    config = LLM_PROVIDERS[provider]
+    
+    # 清理API key（移除空白字符和换行符）
+    if api_key:
+        api_key = api_key.strip().replace('\n', '').replace('\r', '')
+    
+    CURRENT_LLM_CONFIG = {
+        "provider": provider,
+        "api_key": api_key or config["default_key"],
+        "model": config["model"],
+        "api_url": config["api_url"]
+    }
+    
+    print(f"已切换到 {config['name']}")
+    print(f"API Key长度: {len(CURRENT_LLM_CONFIG['api_key']) if CURRENT_LLM_CONFIG['api_key'] else 0}")
+    return True
+
+
+def get_current_llm_info():
+    """
+    获取当前LLM配置信息
+    
+    返回:
+        dict: 包含provider, model, api_url等信息
+    """
+    provider = CURRENT_LLM_CONFIG["provider"]
+    config = LLM_PROVIDERS.get(provider, {})
+    return {
+        "provider": provider,
+        "provider_name": config.get("name", "未知"),
+        "model": CURRENT_LLM_CONFIG["model"],
+        "api_url": CURRENT_LLM_CONFIG["api_url"],
+        "has_key": bool(CURRENT_LLM_CONFIG["api_key"])
+    }
 
 
 def encode_image_to_data_url(image_path):
@@ -141,26 +228,39 @@ def ask_bailian_for_stacking_order(cubes_info, image_paths=None):
 
     headers = {
         "Content-Type": "application/json",
-        "Authorization": f"Bearer {BAILIAN_API_KEY}",
+        "Authorization": f"Bearer {CURRENT_LLM_CONFIG['api_key']}",
     }
+    # Kimi K2.6 只允许 temperature=1
+    temperature = 0.6 if CURRENT_LLM_CONFIG['provider'] == 'kimi' else 0.1
     data = {
-        "model": "qwen-vl-max-latest",
+        "model": CURRENT_LLM_CONFIG['model'],
         "messages": [
             {"role": "system", "content": "你是机械臂抓取规划专家，请结合图像直接返回 JSON 结果。"},
             {"role": "user", "content": user_content},
         ],
-        "temperature": 0.1,
-        "max_tokens": 160,
+        "temperature": temperature,
+        "max_tokens": 2048 if CURRENT_LLM_CONFIG['provider'] == 'kimi' else 160,
     }
+    
+    # 为Kimi添加response_format以确保返回JSON，并禁用思考模式
+    if CURRENT_LLM_CONFIG['provider'] == 'kimi':
+        data["response_format"] = {"type": "json_object"}
+        data["thinking"] = {"type": "disabled"}
+
+    # Kimi K2.6 思考模式需要很长时间
+    timeout = 300 if CURRENT_LLM_CONFIG['provider'] == 'kimi' else 30
 
     try:
-        response = requests.post(BAILIAN_API_URL, headers=headers, json=data, timeout=30)
+        response = requests.post(CURRENT_LLM_CONFIG['api_url'], headers=headers, json=data, timeout=timeout)
+        if response.status_code != 200:
+            print(f"API请求失败，状态码: {response.status_code}")
+            print(f"响应内容: {response.text}")
         response.raise_for_status()
         result = response.json()
         content = result["choices"][0]["message"]["content"]
 
         print("\n" + "=" * 50)
-        print("【阿里云百炼 / Qwen-VL 原始返回内容】")
+        print(f"【{LLM_PROVIDERS[CURRENT_LLM_CONFIG['provider']]['name']} 原始返回内容】")
         print(content)
         print("=" * 50)
 
@@ -178,7 +278,7 @@ def ask_bailian_for_stacking_order(cubes_info, image_paths=None):
         print(f"解析后的抓取顺序索引: {order_indices}")
         return order_indices
     except Exception as exc:
-        print(f"调用阿里云百炼 / Qwen-VL API 失败: {exc}")
+        print(f"调用 {LLM_PROVIDERS[CURRENT_LLM_CONFIG['provider']]['name']} API 失败: {exc}")
         default_order = sorted(
             range(len(cubes_info)),
             key=lambda i: (cubes_info[i].get("top_only", False), -cubes_info[i].get("volume", 0.0)),
@@ -186,9 +286,41 @@ def ask_bailian_for_stacking_order(cubes_info, image_paths=None):
         return enforce_stacking_constraints(default_order, cubes_info)
 
 
-def ask_bailian_for_stack_success(image_paths=None, expected_count=None):
+def ask_bailian_for_stack_success(image_paths=None, expected_count=None, structure_mode="single_column"):
     count_text = f"{expected_count}个物块" if expected_count is not None else "这些物块"
-    prompt = f"""你是一个机械臂堆叠结果验收助手。
+    
+    if structure_mode == "long_bar_pair":
+        prompt = f"""你是一个机械臂堆叠结果验收助手。
+
+我会提供当前堆叠完成后的场景图片，请判断 {count_text} 是否已经成功堆叠。
+
+这是一个非常规实验：两个细长长方体和一个正方体。
+判定标准（宽松）：
+1. 只要不是三个物块全部散落在桌面上，就算成功。
+2. 如果至少有一个物块在另一个物块上面（包括正方体在细长长方体上，或细长长方体相互接触），判定为成功。
+3. 只有当三个物块都独立散落在桌面上，没有任何堆叠关系时，才判定为失败。
+4. 物块稍微倾斜或位置不完美不影响成功判定。
+
+请只返回 JSON，格式如下：
+{{"success": true, "reason": "一句简短中文说明"}}
+"""
+    elif structure_mode == "triangle_pair_top":
+        prompt = f"""你是一个机械臂堆叠结果验收助手。
+
+我会提供当前堆叠完成后的场景图片，请判断 {count_text} 是否已经成功堆叠。
+
+这是一个非常规实验：两个三角体和一个正方体。
+判定标准（宽松）：
+1. 只要不是三个物块全部散落在桌面上，就算成功。
+2. 如果至少有一个物块在另一个物块上面（包括三角体在正方体上，或三角体相互接触），判定为成功。
+3. 只有当三个物块都独立散落在桌面上，没有任何堆叠关系时，才判定为失败。
+4. 物块稍微倾斜或位置不完美不影响成功判定。
+
+请只返回 JSON，格式如下：
+{{"success": true, "reason": "一句简短中文说明"}}
+"""
+    else:
+        prompt = f"""你是一个机械臂堆叠结果验收助手。
 
 我会提供当前堆叠完成后的场景图片，请判断 {count_text} 是否已经成功堆叠。
 
@@ -210,26 +342,39 @@ def ask_bailian_for_stack_success(image_paths=None, expected_count=None):
 
     headers = {
         "Content-Type": "application/json",
-        "Authorization": f"Bearer {BAILIAN_API_KEY}",
+        "Authorization": f"Bearer {CURRENT_LLM_CONFIG['api_key']}",
     }
+    # Kimi K2.6 只允许 temperature=0.6
+    temperature = 0.6 if CURRENT_LLM_CONFIG['provider'] == 'kimi' else 0.1
     data = {
-        "model": "qwen-vl-max-latest",
+        "model": CURRENT_LLM_CONFIG['model'],
         "messages": [
             {"role": "system", "content": "你是机械臂堆叠结果验收助手，请直接返回 JSON 结果。"},
             {"role": "user", "content": user_content},
         ],
-        "temperature": 0.1,
-        "max_tokens": 120,
+        "temperature": temperature,
+        "max_tokens": 2048 if CURRENT_LLM_CONFIG['provider'] == 'kimi' else 120,
     }
+    
+    # 为Kimi添加response_format以确保返回JSON，并禁用思考模式
+    if CURRENT_LLM_CONFIG['provider'] == 'kimi':
+        data["response_format"] = {"type": "json_object"}
+        data["thinking"] = {"type": "disabled"}
+
+    # Kimi K2.6 思考模式需要很长时间
+    timeout = 300 if CURRENT_LLM_CONFIG['provider'] == 'kimi' else 30
 
     try:
-        response = requests.post(BAILIAN_API_URL, headers=headers, json=data, timeout=30)
+        response = requests.post(CURRENT_LLM_CONFIG['api_url'], headers=headers, json=data, timeout=timeout)
+        if response.status_code != 200:
+            print(f"API请求失败，状态码: {response.status_code}")
+            print(f"响应内容: {response.text}")
         response.raise_for_status()
         result = response.json()
         content = result["choices"][0]["message"]["content"]
 
         print("\n" + "=" * 50)
-        print("【阿里云百炼 / Qwen-VL 堆叠验收原始返回】")
+        print(f"【{LLM_PROVIDERS[CURRENT_LLM_CONFIG['provider']]['name']} 堆叠验收原始返回】")
         print(content)
         print("=" * 50)
 
@@ -238,7 +383,7 @@ def ask_bailian_for_stack_success(image_paths=None, expected_count=None):
         reason = verdict.get("reason", "未提供原因")
         return success, reason
     except Exception as exc:
-        print(f"调用阿里云百炼 / Qwen-VL 堆叠验收失败: {exc}")
+        print(f"调用 {LLM_PROVIDERS[CURRENT_LLM_CONFIG['provider']]['name']} 堆叠验收失败: {exc}")
         return False, f"模型验收失败: {exc}"
 
 
@@ -265,8 +410,8 @@ def ask_bailian_for_pick_place_actions(cubes_info, image_paths=None, stack_targe
 
     structure_rules = {
         "single_column": "这是常规单柱堆叠任务。优先围绕同一个堆叠中心逐层竖直堆叠。",
-        "long_bar_pair": "这是实验五。场景中只有两个细长长方体和一个正方体。两个细长长方体应放在下层，位于正方体堆叠点的前后两侧，并使用相同的 layer_index；剩下的一个正方体放在上层 center 位置。",
-        "triangle_pair_top": "这是实验六。只有两个三角体需要并排放置：它们应被规划到最高层的同一 layer_index，并且 slot 必须分别为 left 和 right，朝向保持平行。其余普通物块保持 center 的单柱堆叠即可。",
+        "long_bar_pair": "这是第四组实验。场景中有两个细长长方体和一个正方体。堆叠结构要求：两个细长长方体必须前后并排放在最底层（layer_index=0），分别使用 slot=front 和 slot=back，它们的长边方向要平行，共同托举上层的正方体。正方体放在上层（layer_index=1）的 center 位置，平稳地放在两个细长长方体之上。",
+        "triangle_pair_top": "这是第五组实验。场景中有两个三角体和一个正方体。堆叠结构要求：正方体放在最底层（layer_index=0）的 center 位置作为基座。两个三角体必须肩并肩并排放在上层（layer_index=1），分别使用 slot=left 和 slot=right，它们的斜面朝上，平稳地搭在正方体上面。",
     }
     extra_structure_rule = ""
     if structure_mode == "single_column" and triangle_count == 1:
@@ -328,34 +473,100 @@ place_pose = (x={stack_target['x']:.3f}, y={stack_target['y']:.3f}, z={stack_tar
 
     headers = {
         "Content-Type": "application/json",
-        "Authorization": f"Bearer {BAILIAN_API_KEY}",
+        "Authorization": f"Bearer {CURRENT_LLM_CONFIG['api_key']}",
     }
+    # Kimi K2.6 只允许 temperature=0.6
+    temperature = 0.6 if CURRENT_LLM_CONFIG['provider'] == 'kimi' else 0.1
+    
     data = {
-        "model": "qwen-vl-max-latest",
+        "model": CURRENT_LLM_CONFIG['model'],
         "messages": [
             {"role": "system", "content": "你是机器人抓取规划专家，请直接返回结构化 JSON 动作计划。"},
             {"role": "user", "content": user_content},
         ],
-        "temperature": 0.1,
-        "max_tokens": 1000,
+        "temperature": temperature,
+        "max_tokens": 4096 if CURRENT_LLM_CONFIG['provider'] == 'kimi' else 1000,
     }
+    
+    # 为Kimi添加response_format以确保返回JSON，并禁用思考模式
+    if CURRENT_LLM_CONFIG['provider'] == 'kimi':
+        data["response_format"] = {"type": "json_object"}
+        data["thinking"] = {"type": "disabled"}
+
+    # Kimi K2.6 思考模式需要很长时间
+    timeout = 300 if CURRENT_LLM_CONFIG['provider'] == 'kimi' else 30
 
     try:
-        response = requests.post(BAILIAN_API_URL, headers=headers, json=data, timeout=30)
+        print(f"[调试] API URL: {CURRENT_LLM_CONFIG['api_url']}")
+        print(f"[调试] Model: {CURRENT_LLM_CONFIG['model']}")
+        print(f"[调试] API Key前缀: {CURRENT_LLM_CONFIG['api_key'][:10] if CURRENT_LLM_CONFIG['api_key'] else 'None'}...")
+        print(f"[调试] 超时时间: {timeout}秒")
+        print(f"[调试] user_content类型: {type(user_content)}")
+        if isinstance(user_content, list):
+            print(f"[调试] user_content长度: {len(user_content)}")
+            for i, item in enumerate(user_content):
+                if isinstance(item, dict):
+                    print(f"[调试]   item[{i}] type: {item.get('type', 'unknown')}")
+                    if item.get('type') == 'image_url':
+                        url = item.get('image_url', {}).get('url', '')
+                        print(f"[调试]   image_url长度: {len(url)}")
+        
+        response = requests.post(CURRENT_LLM_CONFIG['api_url'], headers=headers, json=data, timeout=timeout)
+        print(f"[调试] 响应状态码: {response.status_code}")
+        if response.status_code != 200:
+            print(f"API请求失败，状态码: {response.status_code}")
+            print(f"响应内容: {response.text}")
         response.raise_for_status()
         result = response.json()
-        content = result["choices"][0]["message"]["content"]
+        print(f"[调试] 响应JSON keys: {result.keys()}")
+        
+        # 检查返回内容
+        if "choices" not in result or len(result["choices"]) == 0:
+            print(f"API返回格式异常: {result}")
+            return []
+        
+        message = result["choices"][0].get("message", {})
+        content = message.get("content", "")
+        finish_reason = result["choices"][0].get("finish_reason", "")
+        
+        print(f"[调试] finish_reason: {finish_reason}")
+        print(f"[调试] content长度: {len(content) if content else 0}")
+        print(f"[调试] content前100字符: {content[:100] if content else '(空)'}")
+        
+        # Kimi K2.6 思考模式下，内容可能在 reasoning_content 中
+        if not content and "reasoning_content" in message:
+            reasoning = message["reasoning_content"]
+            print(f"[调试] Kimi思考模式，reasoning_content长度: {len(reasoning)}")
+            print(f"[调试] reasoning_content前200字符: {reasoning[:200]}")
+            # 如果finish_reason是stop，说明思考完成了，尝试从思考内容中提取JSON
+            if finish_reason == "stop":
+                content = reasoning
+            else:
+                print(f"[警告] Kimi思考未完成，finish_reason={finish_reason}")
+                content = reasoning
+        
+        if not content or content.strip() == "":
+            print("API返回内容为空")
+            print(f"[调试] 完整message: {message}")
+            print(f"[调试] 完整响应: {result}")
+            return []
 
         print("\n" + "=" * 50)
-        print("【阿里云百炼 / Qwen-VL 动作计划原始返回】")
-        print(content)
+        print(f"【{LLM_PROVIDERS[CURRENT_LLM_CONFIG['provider']]['name']} 动作计划原始返回】")
+        print(content[:2000] if len(content) > 2000 else content)
         print("=" * 50)
 
-        plan = _load_json_lenient(content)
+        try:
+            plan = _load_json_lenient(content)
+        except json.JSONDecodeError as e:
+            print(f"[错误] JSON解析失败: {e}")
+            print(f"[调试] 尝试解析的内容前500字符:")
+            print(content[:500])
+            raise
         actions = plan.get("actions", [])
         if not isinstance(actions, list):
             raise ValueError("actions 字段不是列表")
         return actions
     except Exception as exc:
-        print(f"调用阿里云百炼 / Qwen-VL 动作规划失败: {exc}")
+        print(f"调用 {LLM_PROVIDERS[CURRENT_LLM_CONFIG['provider']]['name']} 动作规划失败: {exc}")
         return []

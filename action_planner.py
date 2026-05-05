@@ -150,9 +150,11 @@ def build_single_column_action_plan(cubes_info, stack_target_xy=(0.5, 0.0), plan
 
 
 def build_special_pair_action_plan(cubes_info, stack_target_xy=(0.5, 0.0), structure_mode="single_column", planner_config=None):
+    print(f"[调试] build_special_pair_action_plan 被调用, structure_mode={structure_mode}")
+    
     if structure_mode == "long_bar_pair":
         pair_indices = [cube["index"] for cube in cubes_info if cube.get("is_long_bar")]
-        pair_reason = "默认模板：两个细长长方体放在正方体堆叠点前后两侧更稳"
+        pair_reason = "默认模板：两个细长长方体并排放在底层托举正方体"
     else:
         pair_indices = [cube["index"] for cube in cubes_info if cube.get("is_triangle")]
         pair_reason = "默认模板：两个三角体放在正方体上层左右并排"
@@ -171,32 +173,62 @@ def build_special_pair_action_plan(cubes_info, stack_target_xy=(0.5, 0.0), struc
         )
 
     if structure_mode == "long_bar_pair":
-        layout = [
-            (pair_indices[0], 0, "front", "默认模板：细长长方体放在中心堆叠点前侧"),
-            (pair_indices[1], 0, "back", "默认模板：细长长方体放在中心堆叠点后侧"),
-            (normal_indices[0], 1, "center", "默认普通物块：上层中心单柱堆叠"),
-        ]
-    else:
-        layout = [
-            (normal_indices[0], 0, "center", "默认普通物块：底层中心单柱堆叠"),
-            (pair_indices[0], 1, "left", pair_reason),
-            (pair_indices[1], 1, "right", pair_reason),
-        ]
-
-    actions = []
-    for obj_idx, layer_index, slot, reason in layout:
-        place_pose = build_place_pose(
-            stack_target_xy,
-            layer_index,
-            slot,
-            structure_mode=structure_mode,
-            planner_config=planner_config,
-        )
-        if structure_mode == "long_bar_pair" and slot == "back":
-            place_pose["place_hold_width"] = get_planner_config_value(
+        bar1_info = cubes_info[pair_indices[0]]
+        bar2_info = cubes_info[pair_indices[1]]
+        bar1_length = max(bar1_info.get("footprint_x", 0.025), bar1_info.get("footprint_y", 0.025))
+        bar2_length = max(bar2_info.get("footprint_x", 0.025), bar2_info.get("footprint_y", 0.025))
+        extra_gap = 0.008
+        front_offset = bar1_length / 2 + extra_gap
+        back_offset = bar2_length / 2 + extra_gap
+        front_place = {
+            "x": float(stack_target_xy[0]),
+            "y": float(stack_target_xy[1] + front_offset),
+            "z": 0.0,
+            "layer_index": 0,
+            "slot": "front",
+        }
+        back_place = {
+            "x": float(stack_target_xy[0]),
+            "y": float(stack_target_xy[1] - back_offset),
+            "z": 0.0,
+            "layer_index": 0,
+            "slot": "back",
+            "place_hold_width": get_planner_config_value(
                 planner_config,
                 "long_bar_second_place_hold_width",
                 LONG_BAR_SECOND_PLACE_HOLD_WIDTH,
+            ),
+        }
+        print(f"  [细长方体放置] bar1_length={bar1_length:.4f}, bar2_length={bar2_length:.4f}")
+        print(f"  [细长方体放置] 前侧位置 y={front_place['y']:.4f}, 后侧位置 y={back_place['y']:.4f}")
+        layout = [
+            (pair_indices[0], 0, "front", "默认模板：细长长方体放在前侧", front_place),
+            (pair_indices[1], 0, "back", "默认模板：细长长方体放在后侧", back_place),
+            (normal_indices[0], 1, "center", "默认普通物块：上层中心单柱堆叠", None),
+        ]
+    else:
+        layout = [
+            (normal_indices[0], 0, "center", "默认普通物块：底层中心单柱堆叠", None),
+            (pair_indices[0], 1, "left", pair_reason, None),
+            (pair_indices[1], 1, "right", pair_reason, None),
+        ]
+
+    actions = []
+    for item in layout:
+        if len(item) == 5:
+            obj_idx, layer_index, slot, reason, custom_place = item
+        else:
+            obj_idx, layer_index, slot, reason, custom_place = *item, None
+        
+        if custom_place:
+            place_pose = dict(custom_place)
+        else:
+            place_pose = build_place_pose(
+                stack_target_xy,
+                layer_index,
+                slot,
+                structure_mode=structure_mode,
+                planner_config=planner_config,
             )
         actions.append(
             {
@@ -278,7 +310,10 @@ def sanitize_action_plan(
     forced_default_slot_indices=None,
 ):
     if not raw_actions:
+        print(f"  [sanitize] raw_actions为空，直接使用默认动作")
         return list(default_actions)
+    
+    print(f"  [sanitize] raw_actions数量: {len(raw_actions)}, structure_mode: {structure_mode}")
 
     def get_float(source, key, fallback):
         try:
@@ -287,6 +322,11 @@ def sanitize_action_plan(
             return float(fallback)
 
     default_by_index = {action["target_index"]: action for action in default_actions}
+    print(f"  [sanitize] 默认动作中的放置位置:")
+    for action in default_actions:
+        place = action.get('place_pose', {})
+        print(f"    target={action['target_index']}, slot={action.get('slot')}, place_y={place.get('y', 0):.4f}")
+    
     valid_slots = {"center", "left", "right", "front", "back"}
     planned = []
     used_indices = set()
@@ -295,7 +335,9 @@ def sanitize_action_plan(
         if not isinstance(raw_action, dict):
             continue
         obj_idx = parse_object_index(raw_action.get("target_object"), object_count)
+        print(f"  [sanitize] 解析target_object: raw={raw_action.get('target_object')}, parsed_idx={obj_idx}")
         if obj_idx is None or obj_idx in used_indices or obj_idx not in default_by_index:
+            print(f"  [sanitize] 跳过: obj_idx={obj_idx}, used={obj_idx in used_indices if obj_idx is not None else 'N/A'}, in_default={obj_idx in default_by_index if obj_idx is not None else 'N/A'}")
             continue
 
         default_action = default_by_index[obj_idx]
@@ -309,6 +351,17 @@ def sanitize_action_plan(
         slot = str(raw_action.get("slot", default_action.get("slot", "center"))).strip().lower()
         if slot not in valid_slots:
             slot = default_action.get("slot", "center")
+        
+        print(f"  [sanitize] 处理动作: obj_idx={obj_idx}, slot={slot}, layer={layer_index}")
+        
+        long_bar_indices = {action["target_index"] for action in default_actions if action.get("slot") in {"front", "back"}}
+        print(f"  [sanitize] long_bar_indices={long_bar_indices}, obj_idx in set = {obj_idx in long_bar_indices}")
+        
+        if structure_mode == "long_bar_pair" and obj_idx in long_bar_indices:
+            default_action_for_obj = default_by_index[obj_idx]
+            slot = default_action_for_obj.get("slot", slot)
+            layer_index = default_action_for_obj.get("layer_index", layer_index)
+            print(f"  [sanitize] 强制使用默认slot: target={obj_idx}, slot={slot}, layer={layer_index}")
 
         grasp_pose = {
             "x": clamp_value(get_float(raw_grasp, "x", default_grasp["x"]), default_grasp["x"] - 0.05, default_grasp["x"] + 0.05),
@@ -317,13 +370,21 @@ def sanitize_action_plan(
             "yaw": float(normalize_grasp_angle(get_float(raw_grasp, "yaw", default_grasp["yaw"]))),
             "width": clamp_value(get_float(raw_grasp, "width", default_grasp["width"]), 0.02, max_grasp_width),
         }
-        place_pose = build_place_pose(
-            stack_target_xy,
-            layer_index,
-            slot,
-            structure_mode=structure_mode,
-            planner_config=planner_config,
-        )
+        
+        print(f"  [sanitize] 检查放置位置条件: structure_mode={structure_mode}, obj_idx={obj_idx}, long_bar_indices={long_bar_indices}")
+        
+        if structure_mode == "long_bar_pair" and obj_idx in long_bar_indices:
+            place_pose = dict(default_action["place_pose"])
+            print(f"  [sanitize] 使用默认放置位置: target={obj_idx}, slot={slot}, y={place_pose['y']:.4f}")
+        else:
+            place_pose = build_place_pose(
+                stack_target_xy,
+                layer_index,
+                slot,
+                structure_mode=structure_mode,
+                planner_config=planner_config,
+            )
+            print(f"  [sanitize] 使用build_place_pose: target={obj_idx}, slot={slot}, y={place_pose['y']:.4f}")
         place_pose["z"] = clamp_value(get_float(raw_place, "z", place_pose["z"]), 0.0, 0.25)
         if "place_hold_width" in default_action.get("place_pose", {}):
             place_pose["place_hold_width"] = float(default_action["place_pose"]["place_hold_width"])

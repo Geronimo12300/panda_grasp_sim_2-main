@@ -5,8 +5,8 @@ import threading
 import traceback
 from contextlib import redirect_stderr, redirect_stdout
 from datetime import datetime
-from tkinter import END, StringVar, Text, Tk
-from tkinter import ttk
+from tkinter import END, StringVar, Text, Tk, Toplevel
+from tkinter import ttk, messagebox, simpledialog
 
 from experiment_config import (
     build_experiment_catalog,
@@ -16,6 +16,116 @@ from experiment_config import (
 )
 from experiment_control import ExperimentControlState
 from main_sim_grasp_urdf import run as run_experiment
+from llm_client import set_llm_provider, get_current_llm_info, LLM_PROVIDERS
+
+
+def ask_llm_selection(root):
+    """
+    询问用户是否需要切换大模型
+    
+    返回:
+        bool: 是否成功配置
+    """
+    current_info = get_current_llm_info()
+    
+    # 显示当前模型信息
+    msg = f"""当前使用的大模型：
+{current_info['provider_name']}
+模型：{current_info['model']}
+
+是否需要切换到其他大模型？"""
+
+    result = messagebox.askyesno("大模型配置", msg)
+    
+    if not result:
+        # 用户选择不切换
+        print(f"继续使用默认模型: {current_info['provider_name']}")
+        return True
+    
+    # 用户选择切换，显示模型选择对话框
+    providers = list(LLM_PROVIDERS.keys())
+    provider_names = [LLM_PROVIDERS[p]["name"] for p in providers]
+    
+    # 使用Toplevel创建子窗口
+    select_window = Toplevel(root)
+    select_window.title("选择大模型")
+    select_window.geometry("400x320")
+    
+    selected_provider = [None]
+    
+    ttk.Label(select_window, text="请选择要使用的大模型：", font=("", 12)).pack(pady=15)
+    
+    provider_var = StringVar(select_window, value=providers[0])
+    
+    for provider, name in zip(providers, provider_names):
+        rb = ttk.Radiobutton(
+            select_window, 
+            text=name, 
+            value=provider, 
+            variable=provider_var
+        )
+        rb.pack(anchor="w", padx=50, pady=5)
+    
+    # 显示当前选中的模型
+    selected_label = ttk.Label(select_window, text=f"当前选中: {LLM_PROVIDERS[provider_var.get()]['name']}")
+    selected_label.pack(pady=5)
+    
+    def update_label(*args):
+        selected_label.config(text=f"当前选中: {LLM_PROVIDERS[provider_var.get()]['name']}")
+    
+    provider_var.trace_add('write', update_label)
+    
+    def on_confirm():
+        selected_provider[0] = provider_var.get()
+        print(f"[调试] 用户选择: {selected_provider[0]}")
+        select_window.destroy()
+    
+    def on_cancel():
+        print("[调试] 用户取消选择")
+        select_window.destroy()
+    
+    btn_frame = ttk.Frame(select_window)
+    btn_frame.pack(pady=20)
+    
+    ttk.Button(btn_frame, text="确定", command=on_confirm, width=10).pack(side="left", padx=10)
+    ttk.Button(btn_frame, text="取消", command=on_cancel, width=10).pack(side="left", padx=10)
+    
+    select_window.wait_window()
+    
+    print(f"[调试] 最终选择的provider: {selected_provider[0]}")
+    
+    if selected_provider[0] is None:
+        # 用户取消选择，使用默认模型
+        print("取消切换，继续使用默认模型")
+        return True
+    
+    provider = selected_provider[0]
+    config = LLM_PROVIDERS[provider]
+    print(f"[调试] 将切换到: {config['name']}")
+    
+    # 如果没有默认API key，弹出输入框
+    if not config.get("default_key"):
+        api_key = simpledialog.askstring(
+            "API Key 输入",
+            f"请输入 {config['name']} 的 API Key：",
+            show='*'
+        )
+        
+        print(f"[调试] 输入的API key长度: {len(api_key) if api_key else 0}")
+        
+        if not api_key:
+            messagebox.showwarning("警告", "未输入API Key，将使用默认模型")
+            return True
+    else:
+        api_key = config["default_key"]
+        print(f"[调试] 使用默认API Key，长度: {len(api_key)}")
+    
+    # 设置新的LLM提供商
+    success = set_llm_provider(provider, api_key)
+    if success:
+        messagebox.showinfo("成功", f"已成功切换到 {config['name']}")
+    
+    return True
 
 
 class QueueLogWriter:
@@ -276,6 +386,12 @@ class ExperimentControlPanel:
 
 def main():
     root = Tk()
+    root.withdraw()  # 先隐藏主窗口
+    
+    # 询问是否需要切换大模型
+    ask_llm_selection(root)
+    
+    root.deiconify()  # 显示主窗口
     style = ttk.Style(root)
     try:
         style.theme_use("clam")

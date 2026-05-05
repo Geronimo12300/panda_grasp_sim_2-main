@@ -204,6 +204,7 @@ class PandaSim(object):
         self.motion_stall_counter = 0
         self.last_ee_pos = None
         self.gripper_contact_mode = None
+        self.is_special_experiment = False  # 非常规实验标志
 
         # 创建夹爪同步约束（左右夹爪镜像运动）
         c = self.p.createConstraint(
@@ -346,6 +347,7 @@ class PandaSim(object):
         self.placed_objects = []
         self.stack_center = None
         self.stack_anchor = None
+        self.is_special_experiment = False
 
     def attach_held_object(self, held_object_id):
         """
@@ -1148,6 +1150,54 @@ class PandaSim(object):
             if self.place_target_override:
                 place_x = self.place_target_override["x"]
                 place_y = self.place_target_override["y"]
+                slot = self.place_target_override.get("slot", "center")
+                layer_index = self.place_target_override.get("layer_index", 0)
+                if slot in {"front", "back", "left", "right"}:
+                    # 非常规实验：底层特殊槽位
+                    self.is_special_experiment = True
+                    self.stack_center = [place_x, place_y]
+                    self.stack_anchor = None
+                    self.place_position = [place_x, place_y, 0]
+                    self.place_target_snapshot = [place_x, place_y]
+                    target_xy = [place_x, place_y]
+                    approach_pos = self.get_object_centered_ee_target(target_xy, pos[2], held_object_id)
+                    orn = self.p.getQuaternionFromEuler([math.pi, 0.0, math.pi / 2])
+                    self.setArm(self.calcJointLocation(approach_pos, orn), max_velocity=ARM_CARRY_MAX_VELOCITY)
+                    self.setGripper(GRIPPER_CLOSED_WIDTH, force=GRIPPER_GRASP_FORCE)
+                    reached_approach = self.placement_pose_is_ready(approach_pos, held_object_id, target_xy)
+                    deterministic_ready = (
+                        DETERMINISTIC_OBJECT_TRANSPORT
+                        and self.state_t >= PLACE_DETERMINISTIC_APPROACH_DURATION
+                    )
+                    if reached_approach or deterministic_ready:
+                        self.advance_state()
+                    return False
+                elif slot == "center" and layer_index > 0 and self.is_special_experiment:
+                    # 非常规实验：上层物块需要计算正确的接近高度
+                    support_top_z = 0.0
+                    for obj_id in self.placed_objects:
+                        if obj_id == held_object_id:
+                            continue
+                        aabb = self.p.getAABB(obj_id)
+                        support_top_z = max(support_top_z, aabb[1][2])
+                    approach_height = pos[2] + support_top_z + 0.02
+                    self.stack_center = [place_x, place_y]
+                    self.stack_anchor = [place_x, place_y]
+                    self.place_position = [place_x, place_y, 0]
+                    self.place_target_snapshot = [place_x, place_y]
+                    target_xy = [place_x, place_y]
+                    approach_pos = self.get_object_centered_ee_target(target_xy, approach_height, held_object_id)
+                    orn = self.p.getQuaternionFromEuler([math.pi, 0.0, math.pi / 2])
+                    self.setArm(self.calcJointLocation(approach_pos, orn), max_velocity=ARM_CARRY_MAX_VELOCITY)
+                    self.setGripper(GRIPPER_CLOSED_WIDTH, force=GRIPPER_GRASP_FORCE)
+                    reached_approach = self.placement_pose_is_ready(approach_pos, held_object_id, target_xy)
+                    deterministic_ready = (
+                        DETERMINISTIC_OBJECT_TRANSPORT
+                        and self.state_t >= PLACE_DETERMINISTIC_APPROACH_DURATION
+                    )
+                    if reached_approach or deterministic_ready:
+                        self.advance_state()
+                    return False
             else:
                 place_x = pos[0]
                 place_y = pos[1]
@@ -1182,7 +1232,19 @@ class PandaSim(object):
         # 状态8: 下降到释放高度
         if self.state == 8 and self.place_position:
             self.recenter_held_object_in_gripper(held_object_id, reason="放置下降前检测到偏心")
-            support_top_z = self.get_stack_support_top_z(target_xy=self.place_position[:2], exclude_object_id=held_object_id)
+            
+            # 非常规实验：上层物块需要计算正确的支撑高度
+            slot = self.place_target_override.get("slot", "center") if self.place_target_override else "center"
+            layer_index = self.place_target_override.get("layer_index", 0) if self.place_target_override else 0
+            if slot == "center" and layer_index > 0 and self.is_special_experiment:
+                support_top_z = 0.0
+                for obj_id in self.placed_objects:
+                    if obj_id == held_object_id:
+                        continue
+                    aabb = self.p.getAABB(obj_id)
+                    support_top_z = max(support_top_z, aabb[1][2])
+            else:
+                support_top_z = self.get_stack_support_top_z(target_xy=self.place_position[:2], exclude_object_id=held_object_id)
             
             # 更新放置位置
             if self.place_target_snapshot is not None:
@@ -1214,7 +1276,19 @@ class PandaSim(object):
         # 状态9: 保持位置稳定
         if self.state == 9:
             self.recenter_held_object_in_gripper(held_object_id, reason="释放前检测到偏心")
-            support_top_z = self.get_stack_support_top_z(target_xy=self.place_position[:2], exclude_object_id=held_object_id)
+            
+            # 非常规实验：上层物块需要计算正确的支撑高度
+            slot = self.place_target_override.get("slot", "center") if self.place_target_override else "center"
+            layer_index = self.place_target_override.get("layer_index", 0) if self.place_target_override else 0
+            if slot == "center" and layer_index > 0 and self.is_special_experiment:
+                support_top_z = 0.0
+                for obj_id in self.placed_objects:
+                    if obj_id == held_object_id:
+                        continue
+                    aabb = self.p.getAABB(obj_id)
+                    support_top_z = max(support_top_z, aabb[1][2])
+            else:
+                support_top_z = self.get_stack_support_top_z(target_xy=self.place_position[:2], exclude_object_id=held_object_id)
 
             release_height = self.get_held_object_release_height(held_object_id, support_top_z)
             target_xy = [self.place_position[0], self.place_position[1]]
@@ -1236,8 +1310,10 @@ class PandaSim(object):
 
         # 状态10: 慢速打开夹爪释放物体
         if self.state == 10:
+            slot = self.place_target_override.get("slot", "center") if self.place_target_override else "center"
+            is_special_bottom = slot in {"front", "back", "left", "right"}
+            
             if not self.release_snapped:
-                self.setGripper(GRIPPER_CLOSED_WIDTH, force=GRIPPER_GRASP_FORCE)
                 if DETERMINISTIC_OBJECT_TRANSPORT:
                     # 确定性搬运模式：动画移动物体到堆叠位置
                     if not self.update_gripper_place_animation(held_object_id):
@@ -1262,26 +1338,48 @@ class PandaSim(object):
                         return False
                     # 物体已对准，执行释放
                     self.p.resetBaseVelocity(held_object_id, [0, 0, 0], [0, 0, 0])
-                    self.detach_held_object()
-                    print("物理释放：物块中心已对准堆叠点，解除夹爪约束并慢速张开夹爪。")
+                    print("物理释放：物块中心已对准堆叠点，快速张开夹爪并解除约束。")
                 self.release_open_start_t = self.state_t
                 self.release_snapped = True
+                # 非常规实验：先稍微打开夹爪，再解除约束，避免物块被夹爪带着走
+                # 常规实验：保持原有逻辑，立即解除约束并快速打开夹爪
+                if is_special_bottom:
+                    self.setGripper(GRIPPER_OPEN_WIDTH * 0.5, force=GRIPPER_RELEASE_FORCE, max_velocity=GRIPPER_RELEASE_VELOCITY)
+                    self.detach_held_object()
+                else:
+                    self.detach_held_object()
+                    self.setGripper(GRIPPER_OPEN_WIDTH, force=GRIPPER_RELEASE_FORCE, max_velocity=GRIPPER_RELEASE_VELOCITY * 2)
+                return False
 
-            # 慢速打开夹爪
-            release_elapsed = max(0.0, self.state_t - (self.release_open_start_t or self.state_t))
-            self.open_gripper_for_release(slow=True, elapsed=release_elapsed)
-            
             # 检查是否完全释放
             _, _, contact_count = self.get_target_contact_summary(held_object_id)
-            contacts_released = (
-                contact_count == 0
-                and release_elapsed > PLACE_SLOW_RELEASE_DURATION
-            )
-            release_timed_out = release_elapsed > max(PLACE_RELEASE_TIMEOUT, PLACE_SLOW_RELEASE_DURATION + 0.2)
-            if contacts_released or release_timed_out:
-                if release_timed_out and contact_count > 0:
-                    print("夹爪释放后仍检测到接触，继续等待脱离。")
-                self.advance_state()
+            release_elapsed = max(0.0, self.state_t - (self.release_open_start_t or self.state_t))
+            
+            # 非常规实验：先完全打开夹爪
+            if is_special_bottom:
+                self.setGripper(GRIPPER_OPEN_WIDTH, force=GRIPPER_RELEASE_FORCE, max_velocity=GRIPPER_RELEASE_VELOCITY * 2)
+            
+            if is_special_bottom and held_object_id is not None:
+                vel, ang_vel = self.p.getBaseVelocity(held_object_id)
+                speed = (vel[0]**2 + vel[1]**2 + vel[2]**2) ** 0.5
+                ang_speed = (ang_vel[0]**2 + ang_vel[1]**2 + ang_vel[2]**2) ** 0.5
+                object_settled = speed < 0.02 and ang_speed < 0.1
+                contacts_released = contact_count == 0 and release_elapsed > 0.15
+                if contacts_released and object_settled:
+                    self.advance_state()
+                elif release_elapsed > 2.0:
+                    self.advance_state()
+            else:
+                # 常规实验：保持原有逻辑
+                contacts_released = (
+                    contact_count == 0
+                    and release_elapsed > 0.1
+                )
+                release_timed_out = release_elapsed > 0.5
+                if contacts_released or release_timed_out:
+                    if release_timed_out and contact_count > 0:
+                        print("夹爪释放后仍检测到接触，继续等待脱离。")
+                    self.advance_state()
             return False
 
         # 状态11: 撤退到安全高度

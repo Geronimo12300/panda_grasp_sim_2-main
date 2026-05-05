@@ -1,0 +1,156 @@
+{
+  "timestamp": "2026-05-04T19:03:32.132281",
+  "model": {
+    "provider": "bailian",
+    "provider_name": "阿里云百炼 (Qwen-VL)",
+    "model": "qwen-vl-max-latest",
+    "api_url": "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",
+    "has_key": true
+  },
+  "num_objects": 3,
+  "vision": {
+    "detected_count": 3,
+    "elapsed_time": 0.02453780174255371,
+    "objects": [
+      {
+        "index": 0,
+        "color": "红色",
+        "shape": "cube",
+        "position": [
+          -0.050373497009277346,
+          0.14038871765136718,
+          0.02
+        ]
+      },
+      {
+        "index": 1,
+        "color": "绿色",
+        "shape": "cube",
+        "position": [
+          -0.13638851165771484,
+          -0.10601478576660156,
+          0.02
+        ]
+      },
+      {
+        "index": 2,
+        "color": "蓝色",
+        "shape": "cube",
+        "position": [
+          0.041875,
+          0.0675,
+          0.02
+        ]
+      }
+    ]
+  },
+  "llm": {
+    "success": true,
+    "action_count": 3,
+    "elapsed_time": 13.324382781982422,
+    "actions": [
+      {
+        "target_object": "物块2",
+        "grasp_pose": {
+          "x": -0.136,
+          "y": -0.106,
+          "z": 0.02,
+          "yaw": 0.0,
+          "width": 0.05
+        },
+        "layer_index": 0,
+        "slot": "center",
+        "place_pose": {
+          "x": 0.5,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "reason": "绿色物块位置稳定，适合作为底层中心"
+      },
+      {
+        "target_object": "物块1",
+        "grasp_pose": {
+          "x": -0.05,
+          "y": 0.14,
+          "z": 0.02,
+          "yaw": 0.0,
+          "width": 0.05
+        },
+        "layer_index": 1,
+        "slot": "center",
+        "place_pose": {
+          "x": 0.5,
+          "y": 0.0,
+          "z": 0.045
+        },
+        "reason": "红色物块在上层中心堆叠，保持竖直对齐"
+      },
+      {
+        "target_object": "物块3",
+        "grasp_pose": {
+          "x": 0.042,
+          "y": 0.068,
+          "z": 0.02,
+          "yaw": 0.0,
+          "width": 0.05
+        },
+        "layer_index": 2,
+        "slot": "center",
+        "place_pose": {
+          "x": 0.5,
+          "y": 0.0,
+          "z": 0.09
+        },
+        "reason": "蓝色物块作为顶层，继续中心堆叠"
+      }
+    ]
+  },
+  "execution": {
+    "success": false,
+    "success_count": 0,
+    "total_actions": 3,
+    "success_rate": 0.0,
+    "errors": [
+      "动作1: 抓取失败",
+      "动作2: 放置失败",
+      "动作3: 放置失败"
+    ],
+    "results": [
+      {
+        "action": 1,
+        "success": false,
+        "error": "抓取失败"
+      },
+      {
+        "action": 2,
+        "target_object": "物块1",
+        "grasp_success": true,
+        "place_success": false,
+        "final_position": [
+          -0.050229117046268146,
+          0.12550404404358753,
+          0.35258727658214034
+        ]
+      },
+      {
+        "action": 3,
+        "target_object": "物块3",
+        "grasp_success": true,
+        "place_success": false,
+        "final_position": [
+          0.036400037651461215,
+          0.05825993148861697,
+          0.024152213204001374
+        ]
+      }
+    ],
+    "elapsed_time": 0.8633697032928467
+  },
+  "timing": {
+    "vision": 0.02453780174255371,
+    "llm": 13.324382781982422,
+    "execution": 0.8633697032928467,
+    "total": 15.283574104309082
+  },
+  "overall_success": false
+}

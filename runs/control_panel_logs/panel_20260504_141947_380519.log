@@ -1,0 +1,131 @@
+当前配置文件：E:\pycharmprojects\panda_grasp_sim_2-main_v10\runs\control_panel_configs\panel_launch_20260504_141947_375968.json
+实验运行目录：E:\pycharmprojects\panda_grasp_sim_2-main_v10\runs\run_20260504_141948_236295_seed20260503
+已保留前面记录，并保留当前组前 4 次记录，将从 随机尺寸 - 第三组：3个正方体 + 2个圆柱体 第 5 次重新开始。
+
+============================================================
+开始实验：随机尺寸 - 第三组：3个正方体 + 2个圆柱体，第 5/10 次
+物块组合：['cube', 'cube', 'cube', 'cylinder', 'cylinder']
+尺寸模式：随机尺寸 / random
+本次实验随机种子：20268507
+============================================================
+self.urdfs_filename =  ['cube\\cube_0.urdf', 'cube\\cube_1.urdf', 'cube\\cube_2.urdf', 'cylinder\\cylinder.urdf', 'cylinder\\cylinder.urdf']
+随机缩放比例: [0.89, 1.16, 0.96, 1.2, 1.11]
+物块1 已加载: 位置=(0.167, 0.025, 0.020), 偏航角=0.893 rad
+物块2 已加载: 位置=(-0.104, 0.086, 0.025), 偏航角=1.845 rad
+物块3 已加载: 位置=(-0.059, -0.115, 0.021), 偏航角=-2.990 rad
+物块4 已加载: 位置=(-0.007, -0.034, 0.026), 偏航角=0.677 rad
+物块5 已加载: 位置=(0.091, 0.126, 0.024), 偏航角=0.732 rad
+Auto run enabled: experiment scheduler is active.
+>> 渲染相机深度图...
+>> depth stats: min=0.450012, max=0.500000, unique~=2224
+>> 侧视相机 left RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_left.png, success=True
+>> 侧视相机 right RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_right.png, success=True
+>> 渲染结束
+Mask 检测到的物块数量: 5/5
+
+==================================================
+【仿真环境中的物块信息】
+  物块1: 形状=正方体, 颜色=红色, 缩放比例=0.89, 边长=0.0501m, 体积=0.00012540m^3, 位置=(0.167, 0.025)
+  [抓取位姿] 物块1: 物体底部z=-0.0000, 物体高度=0.0356, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (0.181, 0.028)
+  物块2: 形状=正方体, 颜色=绿色, 缩放比例=1.16, 边长=0.0572m, 体积=0.00018730m^3, 位置=(-0.104, 0.086)
+  [抓取位姿] 物块2: 物体底部z=-0.0000, 物体高度=0.0464, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (-0.116, 0.096)
+  物块3: 形状=正方体, 颜色=蓝色, 缩放比例=0.96, 边长=0.0438m, 体积=0.00008383m^3, 位置=(-0.059, -0.115)
+  [抓取位姿] 物块3: 物体底部z=-0.0000, 物体高度=0.0384, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (-0.065, -0.125)
+  物块4: 形状=圆柱体, 颜色=黄色, 缩放比例=1.20, 直径=0.0731m, 高度=0.0520m, 体积=0.00021833m^3, 位置=(-0.007, -0.034)
+  [抓取位姿] 物块4: 物体底部z=-0.0010, 物体高度=0.0520, 抓取点z=0.0208, 末端执行器目标z=0.0678
+    -> Mask 抓取候选 (-0.009, -0.038)
+  物块5: 形状=圆柱体, 颜色=紫色, 缩放比例=1.11, 直径=0.0684m, 高度=0.0484m, 体积=0.00017762m^3, 位置=(0.091, 0.126)
+  [抓取位姿] 物块5: 物体底部z=-0.0010, 物体高度=0.0484, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (0.099, 0.139)
+==================================================
+
+正在询问Moonshot Kimi K2.6直接生成抓取放置动作...
+[调试] API URL: https://api.moonshot.cn/v1/chat/completions
+[调试] Model: kimi-k2.6
+[调试] API Key前缀: sk-esAHere...
+[调试] 超时时间: 300秒
+[调试] user_content类型: <class 'list'>
+[调试] user_content长度: 4
+[调试]   item[0] type: text
+[调试]   item[1] type: image_url
+[调试]   image_url长度: 383746
+[调试]   item[2] type: image_url
+[调试]   image_url长度: 240558
+[调试]   item[3] type: image_url
+[调试]   image_url长度: 287090
+[调试] 响应状态码: 200
+[调试] 响应JSON keys: dict_keys(['id', 'object', 'created', 'model', 'choices', 'usage'])
+[调试] finish_reason: stop
+[调试] content长度: 1476
+[调试] content前100字符: {
+  "actions": [
+    {
+      "target_object": "物块4",
+      "grasp_pose": {"x": -0.007, "y": -0.034, 
+
+==================================================
+【Moonshot Kimi K2.6 动作计划原始返回】
+{
+  "actions": [
+    {
+      "target_object": "物块4",
+      "grasp_pose": {"x": -0.007, "y": -0.034, "z": 0.021, "yaw": 0.000, "width": 0.080},
+      "layer_index": 0,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.026},
+      "reason": "黄色圆柱体底面积最大(0.005345m²)，稳定性最好，适合作为底层基础"
+    },
+    {
+      "target_object": "物块5",
+      "grasp_pose": {"x": 0.091, "y": 0.126, "z": 0.020, "yaw": 0.000, "width": 0.080},
+      "layer_index": 1,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.052},
+      "reason": "紫色圆柱体底面积次大(0.004672m²)，与底层圆柱体形状匹配，堆叠稳定"
+    },
+    {
+      "target_object": "物块2",
+      "grasp_pose": {"x": -0.104, "y": 0.086, "z": 0.020, "yaw": -1.297, "width": 0.056},
+      "layer_index": 2,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.0762},
+      "reason": "绿色正方体底面积较大(0.003274m²)，高度适中，适合作为第三层"
+    },
+    {
+      "target_object": "物块1",
+      "grasp_pose": {"x": 0.167, "y": 0.025, "z": 0.020, "yaw": 0.893, "width": 0.046},
+      "layer_index": 3,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.0994},
+      "reason": "红色正方体尺寸适中，作为第四层继续向上堆叠"
+    },
+    {
+      "target_object": "物块3",
+      "grasp_pose": {"x": -0.059, "y": -0.115, "z": 0.020, "yaw": 0.152, "width": 0.048},
+      "layer_index": 4,
+      "slot": "center",
+      "place_pose": {"x": 0.500, "y": 0.000, "z": 0.1212},
+      "reason": "蓝色正方体最小最轻(底面积0.001915m²)，适合放在顶层作为塔尖"
+    }
+  ]
+}
+==================================================
+
+==================================================
+【最终动作计划】
+  Action 1: 物块4, grasp=(-0.007, -0.034, 0.021, yaw=0.000, width=0.080), layer=0, slot=center, place=(0.500, 0.000, 0.026), reason=黄色圆柱体底面积最大(0.005345m²)，稳定性最好，适合作为底层基础
+  Action 2: 物块5, grasp=(0.091, 0.126, 0.020, yaw=0.000, width=0.080), layer=1, slot=center, place=(0.500, 0.000, 0.052), reason=紫色圆柱体底面积次大(0.004672m²)，与底层圆柱体形状匹配，堆叠稳定
+  Action 3: 物块2, grasp=(-0.104, 0.086, 0.020, yaw=-1.297, width=0.056), layer=2, slot=center, place=(0.500, 0.000, 0.076), reason=绿色正方体底面积较大(0.003274m²)，高度适中，适合作为第三层
+  Action 4: 物块1, grasp=(0.167, 0.025, 0.020, yaw=0.893, width=0.046), layer=3, slot=center, place=(0.500, 0.000, 0.099), reason=红色正方体尺寸适中，作为第四层继续向上堆叠
+  Action 5: 物块3, grasp=(-0.059, -0.115, 0.020, yaw=0.152, width=0.048), layer=4, slot=center, place=(0.500, 0.000, 0.121), reason=蓝色正方体最小最轻(底面积0.001915m²)，适合放在顶层作为塔尖
+==================================================
+
+Traceback (most recent call last):
+  File "E:\pycharmprojects\panda_grasp_sim_2-main_v10\experiment_control_panel.py", line 300, in _worker_entry
+    run_experiment(config_path=config_path, control_state=self.control_state)
+  File "E:\pycharmprojects\panda_grasp_sim_2-main_v10\main_sim_grasp_urdf.py", line 886, in run
+    p.stepSimulation()
+pybullet.error: Not connected to physics server.

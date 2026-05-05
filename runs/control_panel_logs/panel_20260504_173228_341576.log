@@ -1,0 +1,128 @@
+当前配置文件：E:\pycharmprojects\panda_grasp_sim_2-main_v10\runs\control_panel_configs\panel_launch_20260504_173228_339525.json
+实验运行目录：E:\pycharmprojects\panda_grasp_sim_2-main_v10\runs\run_20260504_173229_816783_seed20260503
+已保留前面记录，并保留当前组前 0 次记录，将从 固定尺寸 - 第一组：5个正方体 第 1 次重新开始。
+
+============================================================
+开始实验：固定尺寸 - 第一组：5个正方体，第 1/10 次
+物块组合：['cube', 'cube', 'cube', 'cube', 'cube']
+尺寸模式：固定尺寸 / fixed
+本次实验随机种子：20260503
+============================================================
+self.urdfs_filename =  ['cube\\cube_0.urdf', 'cube\\cube_1.urdf', 'cube\\cube_2.urdf', 'cube\\cube_0.urdf', 'cube\\cube_1.urdf']
+随机缩放比例: [0.75, 0.85, 1.0, 1.15, 1.25]
+物块1 已加载: 位置=(0.126, 0.088, 0.017), 偏航角=-1.706 rad
+物块2 已加载: 位置=(-0.118, 0.124, 0.019), 偏航角=-0.679 rad
+物块3 已加载: 位置=(0.099, -0.131, 0.022), 偏航角=0.411 rad
+物块4 已加载: 位置=(-0.113, -0.017, 0.025), 偏航角=1.070 rad
+物块5 已加载: 位置=(0.023, 0.135, 0.027), 偏航角=0.733 rad
+Auto run enabled: experiment scheduler is active.
+>> 渲染相机深度图...
+>> 硬件渲染结果异常，切换到软件渲染器...
+>> depth stats: min=0.450010, max=0.499999, unique~=1859
+>> 侧视相机 left RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_left.png, success=True
+>> 侧视相机 right RGB 保存: E:\pycharmprojects\panda_grasp_sim_2-main_v10\img\img_urdf\camera_rgb_right.png, success=True
+>> 渲染结束
+Mask 检测到的物块数量: 5/5
+
+==================================================
+【仿真环境中的物块信息】
+  物块1: 形状=正方体, 颜色=红色, 缩放比例=0.75, 边长=0.0338m, 体积=0.00003852m^3, 位置=(0.126, 0.088)
+  [抓取位姿] 物块1: 物体底部z=-0.0000, 物体高度=0.0300, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (0.136, 0.097)
+  物块2: 形状=正方体, 颜色=绿色, 缩放比例=0.85, 边长=0.0478m, 体积=0.00010930m^3, 位置=(-0.118, 0.124)
+  [抓取位姿] 物块2: 物体底部z=-0.0000, 物体高度=0.0340, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (-0.127, 0.135)
+  物块3: 形状=正方体, 颜色=蓝色, 缩放比例=1.00, 边长=0.0527m, 体积=0.00014597m^3, 位置=(0.099, -0.131)
+  [抓取位姿] 物块3: 物体底部z=-0.0000, 物体高度=0.0400, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (0.109, -0.141)
+  物块4: 形状=正方体, 颜色=黄色, 缩放比例=1.15, 边长=0.0624m, 体积=0.00024337m^3, 位置=(-0.113, -0.017)
+  [抓取位姿] 物块4: 物体底部z=-0.0000, 物体高度=0.0460, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (-0.125, -0.018)
+  物块5: 形状=正方体, 颜色=紫色, 缩放比例=1.25, 边长=0.0706m, 体积=0.00035211m^3, 位置=(0.023, 0.135)
+  [抓取位姿] 物块5: 物体底部z=-0.0000, 物体高度=0.0500, 抓取点z=0.0200, 末端执行器目标z=0.0670
+    -> Mask 抓取候选 (0.025, 0.151)
+==================================================
+
+正在询问阿里云百炼 (Qwen-VL)直接生成抓取放置动作...
+[调试] API URL: https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions
+[调试] Model: qwen-vl-max-latest
+[调试] API Key前缀: sk-4ea064d...
+[调试] 超时时间: 30秒
+[调试] user_content类型: <class 'list'>
+[调试] user_content长度: 4
+[调试]   item[0] type: text
+[调试]   item[1] type: image_url
+[调试]   image_url长度: 8526
+[调试]   item[2] type: image_url
+[调试]   image_url长度: 12386
+[调试]   item[3] type: image_url
+[调试]   image_url长度: 8246
+调用 阿里云百炼 (Qwen-VL) 动作规划失败: HTTPSConnectionPool(host='dashscope.aliyuncs.com', port=443): Read timed out. (read timeout=30)
+
+==================================================
+【最终动作计划】
+  Action 1: 物块5, grasp=(0.023, 0.135, 0.020, yaw=0.733, width=0.060), layer=0, slot=center, place=(0.500, 0.000, 0.000), reason=默认规则规划：按稳定性与形状约束单柱堆叠
+  Action 2: 物块4, grasp=(-0.113, -0.017, 0.020, yaw=1.070, width=0.056), layer=1, slot=center, place=(0.500, 0.000, 0.040), reason=默认规则规划：按稳定性与形状约束单柱堆叠
+  Action 3: 物块3, grasp=(0.099, -0.131, 0.020, yaw=0.411, width=0.050), layer=2, slot=center, place=(0.500, 0.000, 0.080), reason=默认规则规划：按稳定性与形状约束单柱堆叠
+  Action 4: 物块2, grasp=(-0.118, 0.124, 0.020, yaw=-0.679, width=0.044), layer=3, slot=center, place=(0.500, 0.000, 0.120), reason=默认规则规划：按稳定性与形状约束单柱堆叠
+  Action 5: 物块1, grasp=(0.126, 0.088, 0.020, yaw=1.436, width=0.034), layer=4, slot=center, place=(0.500, 0.000, 0.160), reason=默认规则规划：按稳定性与形状约束单柱堆叠
+==================================================
+
+立方体抓取修正: 边长估计=0.0500m, 夹爪开度=0.0600m, 抓取高度=0.0190m
+执行动作: 抓取物块5, (0.0227, 0.1346, 0.0190), 抓取角度=0.7331 rad, 夹爪宽度=0.0600m, 层=0, 槽位=center, 放置点=(0.5000, 0.0000, 0.0000)
+  [执行抓取] 目标位置: (0.0227, 0.1346, 0.0140), 末端执行器将达到: z=0.0610
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=True, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+物理释放：物块中心已对准堆叠点，解除夹爪约束并慢速张开夹爪。
+放置完成。
+立方体抓取修正: 边长估计=0.0460m, 夹爪开度=0.0560m, 抓取高度=0.0175m
+执行动作: 抓取物块4, (-0.1133, -0.0168, 0.0175), 抓取角度=1.0702 rad, 夹爪宽度=0.0560m, 层=1, 槽位=center, 放置点=(0.5000, 0.0000, 0.0400)
+  [执行抓取] 目标位置: (-0.1133, -0.0168, 0.0125), 末端执行器将达到: z=0.0595
+    [State3] state_t=0.00s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.01s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.02s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.03s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.04s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.05s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.06s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.07s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.08s, can_attach=False, timeout=False, delay_ok=False
+    [State3] state_t=0.09s, can_attach=True, timeout=False, delay_ok=False
+    [抓取成功] 检测到稳定接触，准备附加物体
+抓取完成。
+Traceback (most recent call last):
+  File "E:\pycharmprojects\panda_grasp_sim_2-main_v10\experiment_control_panel.py", line 300, in _worker_entry
+    run_experiment(config_path=config_path, control_state=self.control_state)
+  File "E:\pycharmprojects\panda_grasp_sim_2-main_v10\main_sim_grasp_urdf.py", line 918, in run
+    keys = p.getKeyboardEvents()
+pybullet.error: Not connected to physics server.

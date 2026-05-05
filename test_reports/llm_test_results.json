@@ -1,0 +1,122 @@
+{
+  "timestamp": "2026-05-04T18:36:07.105621",
+  "model": {
+    "provider": "kimi",
+    "provider_name": "Moonshot Kimi K2.6",
+    "model": "kimi-k2.6",
+    "api_url": "https://api.moonshot.cn/v1/chat/completions",
+    "has_key": true
+  },
+  "trials_per_scenario": 3,
+  "summary": {
+    "total_tests": 9,
+    "api_success_rate": 1.0,
+    "json_valid_rate": 1.0,
+    "avg_coverage": 1.0,
+    "avg_param_valid_ratio": 1.0
+  },
+  "scenarios": {
+    "standard": {
+      "name": "标准单柱堆叠场景",
+      "results": [
+        {
+          "trial": 1,
+          "success": true,
+          "elapsed_time": 31.325992584228516,
+          "coverage": 1.0,
+          "param_valid_ratio": 1.0,
+          "errors": [],
+          "warnings": []
+        },
+        {
+          "trial": 2,
+          "success": true,
+          "elapsed_time": 31.414152145385742,
+          "coverage": 1.0,
+          "param_valid_ratio": 1.0,
+          "errors": [],
+          "warnings": []
+        },
+        {
+          "trial": 3,
+          "success": true,
+          "elapsed_time": 29.088570833206177,
+          "coverage": 1.0,
+          "param_valid_ratio": 1.0,
+          "errors": [],
+          "warnings": []
+        }
+      ]
+    },
+    "long_bar_pair": {
+      "name": "细长长方体配对场景",
+      "results": [
+        {
+          "trial": 1,
+          "success": true,
+          "elapsed_time": 17.775105714797974,
+          "coverage": 1.0,
+          "param_valid_ratio": 1.0,
+          "errors": [],
+          "warnings": [
+            "细长长方体场景应使用left/right配对"
+          ]
+        },
+        {
+          "trial": 2,
+          "success": true,
+          "elapsed_time": 17.78478693962097,
+          "coverage": 1.0,
+          "param_valid_ratio": 1.0,
+          "errors": [],
+          "warnings": [
+            "细长长方体场景应使用left/right配对"
+          ]
+        },
+        {
+          "trial": 3,
+          "success": true,
+          "elapsed_time": 17.977449655532837,
+          "coverage": 1.0,
+          "param_valid_ratio": 1.0,
+          "errors": [],
+          "warnings": [
+            "细长长方体场景应使用left/right配对"
+          ]
+        }
+      ]
+    },
+    "triangle_pair_top": {
+      "name": "三角体配对场景",
+      "results": [
+        {
+          "trial": 1,
+          "success": true,
+          "elapsed_time": 17.796915769577026,
+          "coverage": 1.0,
+          "param_valid_ratio": 1.0,
+          "errors": [],
+          "warnings": []
+        },
+        {
+          "trial": 2,
+          "success": true,
+          "elapsed_time": 17.696976900100708,
+          "coverage": 1.0,
+          "param_valid_ratio": 1.0,
+          "errors": [],
+          "warnings": []
+        },
+        {
+          "trial": 3,
+          "success": true,
+          "elapsed_time": 17.993594646453857,
+          "coverage": 1.0,
+          "param_valid_ratio": 1.0,
+          "errors": [],
+          "warnings": []
+        }
+      ]
+    }
+  }
+}

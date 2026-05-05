@@ -35,13 +35,21 @@ SCENE_SETTLE_ANGULAR_VEL = 0.08
 SCENE_SETTLE_STEPS = 45
 
 PAIR_SLOT_OFFSET = 0.032
-LONG_BAR_PAIR_SLOT_OFFSET = 0.022
+LONG_BAR_PAIR_SLOT_OFFSET = 0.035
 TRIANGLE_PAIR_SLOT_OFFSET = 0.014
 LONG_BAR_FRONT_BACK_OFFSET = 0.020
 LONG_BAR_SECOND_PLACE_HOLD_WIDTH = 0.006
 
 BASE_RANDOM_SEED = 20260503
 TRIAL_SEED_STRIDE = 1000
+
+SPECIAL_SEED_OVERRIDES = {
+    "4,2": 20260503,
+    "4,4": 20260504,
+    "8,2": 20260510,
+    "8,3": 20260511,
+    "8,4": 20260512,
+}
 
 RUN_ROOT_DIR = "runs"
 WRITE_CONFIG_SNAPSHOT = True
@@ -93,6 +101,7 @@ DEFAULT_CONFIG = {
     "reproducibility": {
         "base_random_seed": BASE_RANDOM_SEED,
         "trial_seed_stride": TRIAL_SEED_STRIDE,
+        "special_seed_overrides": dict(SPECIAL_SEED_OVERRIDES),
     },
     "tracking": {
         "run_root_dir": RUN_ROOT_DIR,
@@ -131,28 +140,22 @@ DEFAULT_CONFIG = {
             },
             {
                 "template_id": "standard_3",
-                "name": "第三组：3个正方体 + 2个圆柱体",
-                "shapes": ["cube", "cube", "cube", "cylinder", "cylinder"],
-                "report_kind": "standard",
-            },
-            {
-                "template_id": "standard_4",
-                "name": "第四组：2个正方体 + 2个圆柱体 + 1个三角体",
+                "name": "第三组：2个正方体 + 2个圆柱体 + 1个三角体",
                 "shapes": ["cube", "cube", "cylinder", "cylinder", "cone_top"],
                 "report_kind": "standard",
             },
         ],
         "special_group_templates": [
             {
-                "template_id": "special_5",
-                "name": "第五组：1个正方体 + 2个细长长方体",
+                "template_id": "special_4",
+                "name": "第四组：1个正方体 + 2个细长长方体",
                 "shapes": ["cube", "cuboid_bar", "cuboid_bar"],
                 "report_kind": "special",
                 "structure_mode": "long_bar_pair",
             },
             {
-                "template_id": "special_6",
-                "name": "第六组：1个正方体 + 2个三角体",
+                "template_id": "special_5",
+                "name": "第五组：1个正方体 + 2个三角体",
                 "shapes": ["cube", "cone_top", "cone_top"],
                 "report_kind": "special",
                 "structure_mode": "triangle_pair_top",
